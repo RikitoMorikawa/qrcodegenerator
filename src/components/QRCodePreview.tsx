@@ -48,8 +48,8 @@ export default function QRCodePreview() {
     // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
     const imageOptions = {
       crossOrigin: "anonymous",
-      margin: 8, // ロゴ周りにマージンを設けてQRコードと被らないように
-      imageSize: 0.6, // 60%に縮小してQRコードとの重複を防ぐ
+      margin: 2, // ロゴ周りのマージンを最小限に
+      imageSize: 1, // 100%でロゴを大きく表示
       hideBackgroundDots: true, // 常にロゴ背景のドットを隠す
       saveAsBlob: true, // 透明背景をサポート
       // 超高品質レンダリング設定

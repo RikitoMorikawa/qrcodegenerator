@@ -6,10 +6,9 @@ import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
 
 export default function Controls() {
   const { state, setState } = useQrStyle();
-  const [, startTransition] = useTransition();
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
-    startTransition(() => setState((s) => ({ ...s, [key]: value })));
+    setState((s) => ({ ...s, [key]: value }));
   };
 
   return (
@@ -99,7 +98,7 @@ function AIImageGenerator() {
   const [progress, setProgress] = React.useState<string>("");
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
-    startTransition(() => setState((s) => ({ ...s, [key]: value })));
+    setState((s) => ({ ...s, [key]: value }));
   };
 
   const handleGenerate = async () => {
