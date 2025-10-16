@@ -78,11 +78,13 @@ export default function QRCodePreview() {
   const updateQr = () => {
     if (!qrRef.current) return;
     const logoEnabled = Boolean(state.logoDataUrl);
+    // 添付画像かAI生成画像かで画像サイズを変える
+
     // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
     const imageOptions = {
       crossOrigin: "anonymous",
       margin: -15, // より大きなマイナスマージンで背景スペースを大幅に削減
-      imageSize: 0.7, // ロゴを70%に少し縮小
+      imageSize: 0.7, // ロゴエリアは統一して70%
       hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
       saveAsBlob: true, // 透明背景をサポート
       // 超高品質レンダリング設定

@@ -230,13 +230,55 @@ function ImageUploader() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
-      setState((s) => ({
-        ...s,
-        logoDataUrl: dataUrl,
-        uploadedImageUrl: dataUrl, // アップロード画像として記録
-      }));
+      // 添付画像をロゴサイズに合わせてリサイズ
+      resizeImageForLogo(dataUrl).then((resizedDataUrl) => {
+        setState((s) => ({
+          ...s,
+          logoDataUrl: resizedDataUrl,
+          uploadedImageUrl: dataUrl, // 元画像をアップロード画像として記録
+        }));
+      });
     };
     reader.readAsDataURL(file);
+  };
+
+  // 添付画像をロゴエリアに適したサイズにリサイズする関数
+  const resizeImageForLogo = (dataUrl: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(dataUrl);
+          return;
+        }
+
+        // ロゴエリアのサイズ（QRコードの70%エリア内で画像を50%に）
+        const logoAreaSize = 512 * 0.7; // QRコードサイズの70%
+        const imageSize = logoAreaSize * 0.8; // その中で画像を80%に
+
+        canvas.width = logoAreaSize;
+        canvas.height = logoAreaSize;
+
+        // 背景を透明に
+        ctx.clearRect(0, 0, logoAreaSize, logoAreaSize);
+
+        // 画像のアスペクト比を保持してリサイズ
+        const scale = Math.min(imageSize / img.width, imageSize / img.height);
+        const scaledWidth = img.width * scale;
+        const scaledHeight = img.height * scale;
+
+        // 中央に配置
+        const x = (logoAreaSize - scaledWidth) / 2;
+        const y = (logoAreaSize - scaledHeight) / 2;
+
+        ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.src = dataUrl;
+    });
   };
 
   const handleRemoveImage = () => {
