@@ -26,7 +26,7 @@ const defaultState: QrStyleState = {
   bgColor: "#ffffff",
   dotsStyle: "rounded",
   cornersStyle: "square",
-  logoSizeRatio: 0.5, // ロゴをメインにするため大きめに設定
+  logoSizeRatio: 0.7, // 60%固定でQRコードとの重複を防ぐ
   hideBackgroundDots: true, // ロゴ背景のドットを隠す
 };
 

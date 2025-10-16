@@ -48,8 +48,8 @@ export default function QRCodePreview() {
     // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
     const imageOptions = {
       crossOrigin: "anonymous",
-      margin: 0, // ロゴ周りのマージンを削除してQRと馴染ませる
-      imageSize: state.logoSizeRatio,
+      margin: 8, // ロゴ周りにマージンを設けてQRコードと被らないように
+      imageSize: 0.6, // 60%に縮小してQRコードとの重複を防ぐ
       hideBackgroundDots: true, // 常にロゴ背景のドットを隠す
       saveAsBlob: true, // 透明背景をサポート
       // 超高品質レンダリング設定
@@ -65,9 +65,11 @@ export default function QRCodePreview() {
       height: 512, // 512px固定
       margin: 0, // マージンを0にして背景色が全範囲に適用されるように
       qrOptions: {
-        errorCorrectionLevel: "H", // 高いエラー訂正レベルでロゴがあっても読み取り可能
+        errorCorrectionLevel: "H", // 最高エラー訂正レベル（30%まで復元可能）
         mode: "Byte",
-        typeNumber: 0, // 自動選択
+        typeNumber: 0, // 自動選択で最適なサイズ
+        // 読み取り性向上のための追加設定
+        maskPattern: undefined, // 自動選択で最適なマスクパターン
       },
       backgroundOptions: {
         color: state.bgColor,

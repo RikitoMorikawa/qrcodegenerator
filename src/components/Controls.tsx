@@ -2,6 +2,7 @@
 
 import React, { useTransition } from "react";
 import { useQrStyle, type DotsStyle, type CornersStyle } from "@/context/qrStyle";
+import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
 
 export default function Controls() {
   const { state, setState } = useQrStyle();
@@ -54,17 +55,17 @@ export default function Controls() {
       </div>
 
       <div className="space-y-3">
-        <label className="block text-sm font-medium">ロゴサイズ: {Math.round(state.logoSizeRatio * 100)}%</label>
-        <input
-          type="range"
-          min="0.2"
-          max="0.7"
-          step="0.05"
-          className="w-full"
-          value={state.logoSizeRatio}
-          onChange={(e) => onChange("logoSizeRatio", parseFloat(e.target.value))}
-        />
-        <div className="text-xs text-gray-500">QRコードサイズ: 512px (高解像度固定)</div>
+        <div className="bg-green-50 border border-green-200 rounded p-3">
+          <div className="text-sm font-medium text-green-800">📱 QRコード設定</div>
+          <div className="text-xs text-green-600 mt-1">
+            • サイズ: 512px (高解像度固定)
+            <br />
+            • ロゴサイズ: 60% (QRコード重複防止)
+            <br />
+            • エラー訂正: 最高レベル
+            <br />• 背景: 透明 (ロゴのみ)
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -129,8 +130,12 @@ function AIImageGenerator() {
         setProgress("🖼️ 画像を処理中...");
         const json = (await res.json()) as { dataUrl: string };
 
+        setProgress("🎨 背景を透明化中...");
+        // 背景除去処理を適用
+        const processedDataUrl = await removeBackgroundAdvanced(json.dataUrl);
+
         setProgress("✅ 完了！");
-        setState((s) => ({ ...s, logoDataUrl: json.dataUrl }));
+        setState((s) => ({ ...s, logoDataUrl: processedDataUrl }));
 
         // 成功メッセージを少し表示してからクリア
         setTimeout(() => setProgress(""), 2000);
