@@ -16,6 +16,7 @@ export type QrStyleState = {
   dotsStyle: DotsStyle;
   cornersStyle: CornersStyle;
   logoDataUrl?: string; // data URL (uploaded or AI-generated)
+  uploadedImageUrl?: string; // ユーザーがアップロードした画像のみ
   logoSizeRatio: number; // 0-1 relative to QR size
   hideBackgroundDots: boolean;
   // AI生成設定

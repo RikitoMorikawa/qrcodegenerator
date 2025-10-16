@@ -19,6 +19,7 @@ export default function Controls() {
       </div>
 
       <div className="space-y-3">
+        <ImageUploader />
         <AIImageGenerator />
       </div>
 
@@ -138,7 +139,11 @@ function AIImageGenerator() {
         const processedDataUrl = await removeBackgroundAdvanced(json.dataUrl);
 
         setProgress("✅ 完了！");
-        setState((s) => ({ ...s, logoDataUrl: processedDataUrl }));
+        setState((s) => ({
+          ...s,
+          logoDataUrl: processedDataUrl,
+          uploadedImageUrl: undefined, // AI生成時はアップロード画像をクリア
+        }));
 
         // 成功メッセージを少し表示してからクリア
         setTimeout(() => setProgress(""), 2000);
@@ -205,6 +210,70 @@ function AIImageGenerator() {
         )}
       </button>
     </form>
+  );
+}
+
+function ImageUploader() {
+  const { state, setState } = useQrStyle();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // 画像ファイルかチェック
+    if (!file.type.startsWith("image/")) {
+      alert("画像ファイルを選択してください");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      setState((s) => ({
+        ...s,
+        logoDataUrl: dataUrl,
+        uploadedImageUrl: dataUrl, // アップロード画像として記録
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setState((s) => ({
+      ...s,
+      logoDataUrl: undefined,
+      uploadedImageUrl: undefined,
+    }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <label className="block text-sm font-medium">画像アップロード</label>
+
+      {state.uploadedImageUrl ? (
+        <div className="space-y-2">
+          <div className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={state.uploadedImageUrl} alt="アップロード画像" className="max-w-20 max-h-20 object-contain" />
+          </div>
+          <button type="button" onClick={handleRemoveImage} className="btn w-full text-red-600 border-red-300 hover:bg-red-50">
+            画像を削除
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
+          <button type="button" onClick={() => fileInputRef.current?.click()} className="btn btn-primary w-full">
+            📁 画像を選択
+          </button>
+          <p className="text-xs text-gray-500 text-center">PNG、JPEG、WebP等の画像ファイルに対応</p>
+        </div>
+      )}
+    </div>
   );
 }
 
