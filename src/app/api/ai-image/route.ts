@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     // Use Images API to generate small square logo-like image
     const result = await openai.images.generate({
       model: "gpt-image-1",
-      prompt: `${prompt}. Minimal, logo, flat, centered icon, high contrast, no text.`,
+      prompt: `${prompt}. Detective-style black cat mascot, wearing fedora hat and trench coat, holding a magnifying glass, winking, simple flat logo, centered, high contrast, no text, vector-like.`,
       size: "1024x1024",
       // Some SDK versions don't accept background. Keep defaults.
       // response_format defaults to b64_json
