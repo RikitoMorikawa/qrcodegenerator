@@ -52,22 +52,6 @@ export default function Controls() {
           </div>
         </div>
       </div>
-
-      <div className="space-y-3">
-        <div className="bg-green-50 border border-green-200 rounded p-3">
-          <div className="text-sm font-medium text-green-800">📱 QRコード設定</div>
-          <div className="text-xs text-green-600 mt-1">
-            • サイズ: 512px (高解像度固定)
-            <br />
-            • ロゴサイズ: 80% (サイズ維持)
-            <br />
-            • パターン: 読み取り最適化
-            <br />
-            • 配置: 背景スペースを大幅削減(-15px)
-            <br />• エラー訂正: 最高レベル
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
