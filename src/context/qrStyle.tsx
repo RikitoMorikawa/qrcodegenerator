@@ -5,6 +5,8 @@ import React, { createContext, useContext, useMemo, useState } from "react";
 export type DotsStyle = "rounded" | "dots" | "classy" | "classy-rounded" | "square" | "extra-rounded";
 export type CornersStyle = "dot" | "square" | "extra-rounded";
 
+export type StyleType = "normal" | "cute" | "cool" | "elegant" | "playful" | "retro";
+
 export type QrStyleState = {
   text: string;
   size: number; // px
@@ -16,6 +18,8 @@ export type QrStyleState = {
   logoDataUrl?: string; // data URL (uploaded or AI-generated)
   logoSizeRatio: number; // 0-1 relative to QR size
   hideBackgroundDots: boolean;
+  // AI生成設定
+  styleType: StyleType;
 };
 
 const defaultState: QrStyleState = {
@@ -26,8 +30,10 @@ const defaultState: QrStyleState = {
   bgColor: "#ffffff",
   dotsStyle: "rounded",
   cornersStyle: "square",
-  logoSizeRatio: 0.7, // 60%固定でQRコードとの重複を防ぐ
+  logoSizeRatio: 1, // 100%固定でQRコードとの重複を防ぐ
   hideBackgroundDots: true, // ロゴ背景のドットを隠す
+  // AI生成設定
+  styleType: "normal", // デフォルトは未設定（普通）
 };
 
 type QrStyleContextValue = {

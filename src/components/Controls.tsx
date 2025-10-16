@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { useQrStyle, type DotsStyle, type CornersStyle } from "@/context/qrStyle";
+import { useQrStyle, type DotsStyle, type CornersStyle, type StyleType } from "@/context/qrStyle";
 import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
 
 export default function Controls() {
@@ -75,26 +75,44 @@ export default function Controls() {
           </select>
         </div>
       </div>
-
-      <div className="space-y-3">
-        <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">💡 ヒント: ロゴは透明背景で生成すると、QRコードと自然に馴染みます</div>
-      </div>
     </div>
   );
 }
 
+// プロンプト生成のヘルパー関数
+function generateStyleModifier(styleType: StyleType): string {
+  const styleModifiers = {
+    normal: "", // 未設定（普通）は何も追加しない
+    cute: "kawaii, cute style, adorable, soft features, pastel colors",
+    cool: "cool design, sleek, confident, bold colors, modern style",
+    elegant: "elegant design, sophisticated, refined, graceful, classy",
+    playful: "playful style, fun, energetic, vibrant colors, cheerful",
+    retro: "retro style, vintage design, nostalgic, classic colors",
+  };
+
+  return styleModifiers[styleType];
+}
+
 function AIImageGenerator() {
-  const { setState } = useQrStyle();
+  const { state, setState } = useQrStyle();
   const [isPending, startTransition] = useTransition();
   const [progress, setProgress] = React.useState<string>("");
 
+  const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
+    startTransition(() => setState((s) => ({ ...s, [key]: value })));
+  };
+
   const handleGenerate = async (formData: FormData) => {
-    const prompt = String(formData.get("prompt") || "").trim();
-    if (!prompt) return;
+    const userPrompt = String(formData.get("prompt") || "").trim();
+    if (!userPrompt) return;
 
     startTransition(async () => {
       try {
         setProgress("🎨 AI画像を生成中...");
+
+        // プロンプトに設定を追加
+        const styleModifier = generateStyleModifier(state.styleType);
+        const fullPrompt = styleModifier ? `${userPrompt}, ${styleModifier}` : userPrompt;
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒タイムアウト
@@ -102,7 +120,7 @@ function AIImageGenerator() {
         const res = await fetch("/api/ai-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt: fullPrompt }),
           signal: controller.signal,
         });
 
@@ -140,7 +158,22 @@ function AIImageGenerator() {
   return (
     <form action={handleGenerate} className="space-y-3">
       <label className="block text-sm font-medium">AIロゴ生成（OpenAI）</label>
-      <input name="prompt" className="input" placeholder="例: 丸くて可愛い猫の探偵、大きな目、ふわふわ" disabled={isPending} />
+
+      <div className="space-y-2">
+        <label className="block text-xs font-medium text-gray-600">スタイル</label>
+        <select className="input text-sm" value={state.styleType} onChange={(e) => onChange("styleType", e.target.value as StyleType)} disabled={isPending}>
+          <option value="normal">未設定</option>
+          <option value="cute">可愛い</option>
+          <option value="cool">カッコイイ</option>
+          <option value="elegant">オシャレ</option>
+          <option value="playful">元気</option>
+          <option value="retro">レトロ</option>
+        </select>
+      </div>
+
+      <input name="prompt" className="input" placeholder="例: 宇宙飛行士の犬、忍者の猫、魔法使いのうさぎ..." disabled={isPending} />
+
+      <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">💡 スタイル設定が自動的にプロンプトに追加されます。自由に描写を入力してください！</div>
 
       {progress && <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-700">{progress}</div>}
 

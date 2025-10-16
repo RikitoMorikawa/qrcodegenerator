@@ -18,9 +18,6 @@ export default function Home() {
               <div className="title">AI QR Code Generator</div>
               <div className="subtitle">テキスト、ロゴ、カラーを自在に。AIロゴ生成にも対応。</div>
             </div>
-            <a className="btn btn-primary" href="https://qrcode.monorepo.example" target="_blank" rel="noreferrer">
-              デモについて
-            </a>
           </header>
           <div className="grid gap-8 md:grid-cols-[1.4fr_1fr]">
             <div className="card p-5">
