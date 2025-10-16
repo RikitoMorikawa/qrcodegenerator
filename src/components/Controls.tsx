@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { useQrStyle, type StyleType } from "@/context/qrStyle";
+import { useQrStyle, type StyleType, type DotsStyle, type CornersStyle } from "@/context/qrStyle";
 import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
 
 export default function Controls() {
@@ -50,6 +50,28 @@ export default function Controls() {
               />
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-3">
+          <label className="block text-sm font-medium">ドットスタイル</label>
+          <select className="input" value={state.dotsStyle} onChange={(e) => onChange("dotsStyle", e.target.value as DotsStyle)}>
+            <option value="square">四角</option>
+            <option value="rounded">丸角</option>
+            <option value="dots">ドット</option>
+            <option value="classy">クラシック</option>
+            <option value="classy-rounded">クラシック丸角</option>
+            <option value="extra-rounded">超丸角</option>
+          </select>
+        </div>
+        <div className="space-y-3">
+          <label className="block text-sm font-medium">コーナースタイル</label>
+          <select className="input" value={state.cornersStyle} onChange={(e) => onChange("cornersStyle", e.target.value as CornersStyle)}>
+            <option value="square">四角</option>
+            <option value="dot">ドット</option>
+            <option value="extra-rounded">丸角</option>
+          </select>
         </div>
       </div>
     </div>

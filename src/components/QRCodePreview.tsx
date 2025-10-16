@@ -42,13 +42,13 @@ export default function QRCodePreview() {
           typeNumber: 8, // 高密度で読み取り性向上
         },
         dotsOptions: {
-          type: "square", // 読み取り最適化
+          type: "square", // デフォルトは四角（読み取り最適化）
         },
         cornersSquareOptions: {
-          type: "square", // 読み取り最適化
+          type: "square", // デフォルトは四角（読み取り最適化）
         },
         cornersDotOptions: {
-          type: "square", // 読み取り最適化
+          type: "square", // デフォルトは四角（読み取り最適化）
         },
         // 初期状態でも中央をクリアにする
         image: transparentImage,
@@ -106,20 +106,20 @@ export default function QRCodePreview() {
         color: state.bgColor,
         gradient: null,
       },
-      // 読み取り最適化：最も読みやすい形状
+      // カスタマイズ可能なスタイル
       dotsOptions: {
-        type: "square", // 四角ドットで最高の読み取り性
+        type: state.dotsStyle, // 選択されたドットスタイル
         color: state.color,
         gradient: null,
       },
-      // 読み取り最適化：標準的なコーナー
+      // カスタマイズ可能なコーナー
       cornersSquareOptions: {
-        type: "square", // 四角コーナーで安定した読み取り
+        type: state.cornersStyle, // 選択されたコーナースタイル
         color: state.color,
         gradient: null,
       },
       cornersDotOptions: {
-        type: "square", // 四角ドットで統一
+        type: state.cornersStyle, // 選択されたコーナースタイル
         color: state.color,
         gradient: null,
       },
