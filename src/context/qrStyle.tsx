@@ -31,7 +31,7 @@ const defaultState: QrStyleState = {
   bgColor: "#ffffff",
   dotsStyle: "rounded",
   cornersStyle: "square",
-  logoSizeRatio: 0.9, // 90%でロゴを大きく表示
+  logoSizeRatio: 0.8, // 80%でロゴを大きく表示
   hideBackgroundDots: true, // ロゴ背景のドットを隠す
   // AI生成設定
   styleType: "normal", // デフォルトは未設定（普通）

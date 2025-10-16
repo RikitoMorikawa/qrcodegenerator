@@ -20,7 +20,11 @@ export default function QRCodePreview() {
         data: state.text,
         width: 512,
         height: 512,
-        // 初期化時から高品質設定
+        // 初期化時から読み取り性重視の設定
+        qrOptions: {
+          errorCorrectionLevel: "H",
+          typeNumber: 10,
+        },
         dotsOptions: {
           type: "rounded",
         },
@@ -48,8 +52,8 @@ export default function QRCodePreview() {
     // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
     const imageOptions = {
       crossOrigin: "anonymous",
-      margin: 2, // ロゴ周りのマージンを最小限に
-      imageSize: 1, // 100%でロゴを大きく表示
+      margin: 0, // ロゴ周りのマージンを最小に
+      imageSize: 0.8, // 80%でロゴを大きく表示
       hideBackgroundDots: true, // 常にロゴ背景のドットを隠す
       saveAsBlob: true, // 透明背景をサポート
       // 超高品質レンダリング設定
