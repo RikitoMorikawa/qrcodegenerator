@@ -20,7 +20,7 @@ export default function Home() {
         {/* Help Button */}
         <button
           onClick={() => setIsHelpOpen(true)}
-          className="fixed top-6 right-16 z-40 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full p-3 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-110 group"
+          className="fixed top-6 right-10 z-40 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full p-3 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-110 group"
           title="使い方ガイド"
         >
           <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
