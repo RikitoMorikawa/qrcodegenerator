@@ -20,6 +20,7 @@ export type QrStyleState = {
   hideBackgroundDots: boolean;
   // AI生成設定
   styleType: StyleType;
+  aiPrompt: string; // AI生成のプロンプト入力値
 };
 
 const defaultState: QrStyleState = {
@@ -34,6 +35,7 @@ const defaultState: QrStyleState = {
   hideBackgroundDots: true, // ロゴ背景のドットを隠す
   // AI生成設定
   styleType: "normal", // デフォルトは未設定（普通）
+  aiPrompt: "", // AI生成のプロンプト入力値
 };
 
 type QrStyleContextValue = {

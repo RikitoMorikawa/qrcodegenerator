@@ -102,8 +102,8 @@ function AIImageGenerator() {
     startTransition(() => setState((s) => ({ ...s, [key]: value })));
   };
 
-  const handleGenerate = async (formData: FormData) => {
-    const userPrompt = String(formData.get("prompt") || "").trim();
+  const handleGenerate = async () => {
+    const userPrompt = state.aiPrompt.trim();
     if (!userPrompt) return;
 
     startTransition(async () => {
@@ -156,7 +156,13 @@ function AIImageGenerator() {
   };
 
   return (
-    <form action={handleGenerate} className="space-y-3">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleGenerate();
+      }}
+      className="space-y-3"
+    >
       <label className="block text-sm font-medium">AIロゴ生成（OpenAI）</label>
 
       <div className="space-y-2">
@@ -171,7 +177,14 @@ function AIImageGenerator() {
         </select>
       </div>
 
-      <input name="prompt" className="input" placeholder="例: 宇宙飛行士の犬、忍者の猫、魔法使いのうさぎ..." disabled={isPending} />
+      <input
+        name="prompt"
+        className="input"
+        placeholder="例: 宇宙飛行士の犬、忍者の猫、魔法使いのうさぎ..."
+        value={state.aiPrompt}
+        onChange={(e) => onChange("aiPrompt", e.target.value)}
+        disabled={isPending}
+      />
 
       {progress && <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-700">{progress}</div>}
 
