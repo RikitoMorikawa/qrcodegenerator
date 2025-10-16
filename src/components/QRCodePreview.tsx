@@ -156,7 +156,7 @@ export default function QRCodePreview() {
         className="rounded-lg border p-2 max-w-full overflow-hidden flex items-center justify-center"
         style={{
           width: "min(528px, 100%)", // スマホでは画面幅に合わせる
-          height: "528px", // 高さを固定（528px = 512px QR + 16px padding）
+          height: "min(528px, calc(100vw - 40px))", // スマホでは正方形に調整、若干上下スペース追加
           backgroundColor: state.bgColor, // プレビューコンテナも背景色に合わせる
         }}
       >
