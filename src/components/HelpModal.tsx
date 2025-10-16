@@ -11,8 +11,8 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
-      <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-white border-opacity-30">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+      <div className="bg-white bg-opacity-60 backdrop-blur-xl rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-white border-opacity-30">
         <div className="p-4 sm:p-6">
           <div className="flex justify-between items-center mb-4 sm:mb-6">
             <div className="flex items-center gap-3">
@@ -30,7 +30,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-all duration-200 hover:scale-110"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 bg-opacity-50 hover:bg-gray-200 hover:bg-opacity-70 text-gray-500 hover:text-gray-700 transition-all duration-200 hover:scale-110"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -49,7 +49,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 <span>簡単3ステップ</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-3 sm:p-4 rounded-xl text-center border border-blue-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                <div className="bg-blue-50 bg-opacity-50 p-3 sm:p-4 rounded-xl text-center border border-blue-200 border-opacity-50 hover:shadow-lg transition-all duration-300 hover:scale-105">
                   <div className="flex justify-center mb-2 sm:mb-3">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base shadow-lg">
                       1
@@ -58,7 +58,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <div className="font-semibold text-blue-800 text-sm sm:text-base">URL入力</div>
                   <div className="text-xs text-blue-600 mt-1">リンクを入力</div>
                 </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 sm:p-4 rounded-xl text-center border border-purple-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                <div className="bg-purple-50 bg-opacity-50 p-3 sm:p-4 rounded-xl text-center border border-purple-200 border-opacity-50 hover:shadow-lg transition-all duration-300 hover:scale-105">
                   <div className="flex justify-center mb-2 sm:mb-3">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base shadow-lg">
                       2
@@ -67,7 +67,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <div className="font-semibold text-purple-800 text-sm sm:text-base">画像追加</div>
                   <div className="text-xs text-purple-600 mt-1">ロゴを設定</div>
                 </div>
-                <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 sm:p-4 rounded-xl text-center border border-green-200 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                <div className="bg-green-50 bg-opacity-50 p-3 sm:p-4 rounded-xl text-center border border-green-200 border-opacity-50 hover:shadow-lg transition-all duration-300 hover:scale-105">
                   <div className="flex justify-center mb-2 sm:mb-3">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base shadow-lg">
                       3
@@ -94,7 +94,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 <span>画像の追加方法</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 sm:p-5 rounded-xl border border-blue-200 hover:shadow-lg transition-all duration-300">
+                <div className="bg-blue-50 bg-opacity-50 p-4 sm:p-5 rounded-xl border border-blue-200 border-opacity-50 hover:shadow-lg transition-all duration-300">
                   <div className="flex items-center gap-3 mb-2 sm:mb-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   </div>
                   <p className="text-blue-700 text-xs sm:text-sm">PNG、JPEG等の画像ファイルをアップロード</p>
                 </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 sm:p-5 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-300">
+                <div className="bg-purple-50 bg-opacity-50 p-4 sm:p-5 rounded-xl border border-purple-200 border-opacity-50 hover:shadow-lg transition-all duration-300">
                   <div className="flex items-center gap-3 mb-2 sm:mb-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +143,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </div>
                 <span>ポイント</span>
               </h3>
-              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 sm:p-5 rounded-xl border border-yellow-200">
+              <div className="bg-yellow-50 bg-opacity-50 p-4 sm:p-5 rounded-xl border border-yellow-200 border-opacity-50">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-yellow-800">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0">
