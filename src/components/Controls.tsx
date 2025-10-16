@@ -111,7 +111,7 @@ function AIImageGenerator() {
     // 即座に進捗表示を開始
     setShowFullScreenProgress(true);
     setProgressPercent(0);
-    setProgress("🎨 AI画像を生成中...");
+    setProgress("AI画像を生成中...");
 
     startTransition(async () => {
       try {
@@ -121,18 +121,19 @@ function AIImageGenerator() {
           setProgress(message);
         };
 
-        updateProgress(10, "🎨 AI画像を生成中...");
+        // 初期進捗を段階的に進める
+        setTimeout(() => updateProgress(5, "AI画像を生成中..."), 50);
+        setTimeout(() => updateProgress(12, "AI画像を生成中..."), 150);
+        setTimeout(() => updateProgress(18, "AIサーバーに接続中..."), 250);
+        setTimeout(() => updateProgress(25, "AIサーバーに接続中..."), 350);
+        setTimeout(() => updateProgress(32, "AI画像を生成中..."), 450);
 
         // プロンプトに設定を追加
         const styleModifier = generateStyleModifier(state.styleType);
         const fullPrompt = styleModifier ? `${userPrompt}, ${styleModifier}` : userPrompt;
 
-        updateProgress(20, "📡 AIサーバーに接続中...");
-
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒タイムアウト
-
-        updateProgress(30, "🤖 AI画像を生成中...");
 
         const res = await fetch("/api/ai-image", {
           method: "POST",
@@ -148,21 +149,34 @@ function AIImageGenerator() {
           throw new Error(err?.error || res.statusText);
         }
 
-        updateProgress(60, "🖼️ 画像を処理中...");
+        // API完了後の段階的進捗
+        updateProgress(45, "画像を受信中...");
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
+        updateProgress(55, "画像を処理中...");
         const json = (await res.json()) as { dataUrl: string };
 
-        updateProgress(80, "🎨 背景を透明化中...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(65, "背景を透明化中...");
+
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        updateProgress(75, "背景を透明化中...");
+
         // 背景除去処理を適用
         const processedDataUrl = await removeBackgroundAdvanced(json.dataUrl);
 
-        updateProgress(95, "✨ 最終調整中...");
+        updateProgress(85, "最終調整中...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        updateProgress(92, "最終調整中...");
         setState((s) => ({
           ...s,
           logoDataUrl: processedDataUrl,
           uploadedImageUrl: undefined, // AI生成時はアップロード画像をクリア
         }));
 
-        updateProgress(100, "✅ 完了！");
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        updateProgress(100, "完了！");
 
         // 100%表示を少し見せてから非表示
         setTimeout(() => {
@@ -296,7 +310,17 @@ function AIImageGenerator() {
             生成中...
           </span>
         ) : (
-          "🎨 AIロゴを生成"
+          <span className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+              />
+            </svg>
+            AIロゴを生成
+          </span>
         )}
       </button>
     </form>
@@ -400,7 +424,17 @@ function ImageUploader() {
         <div className="space-y-2">
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
           <button type="button" onClick={() => fileInputRef.current?.click()} className="btn btn-primary w-full">
-            📁 画像を選択
+            <span className="flex items-center justify-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+              画像を選択
+            </span>
           </button>
           <p className="text-xs text-gray-500 text-center">PNG、JPEG、WebP等の画像ファイルに対応</p>
         </div>
