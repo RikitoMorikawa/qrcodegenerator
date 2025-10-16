@@ -20,13 +20,13 @@ export type QrStyleState = {
 
 const defaultState: QrStyleState = {
   text: "https://example.com",
-  size: 256,
-  margin: 12,
+  size: 512, // 高解像度のため大きめに設定
+  margin: 0, // 背景色が全範囲に適用されるよう0に設定
   color: "#3B82F6", // 鮮やかな青色
   bgColor: "#ffffff",
   dotsStyle: "rounded",
   cornersStyle: "square",
-  logoSizeRatio: 0.3, // QRコードと馴染むサイズに調整
+  logoSizeRatio: 0.5, // ロゴをメインにするため大きめに設定
   hideBackgroundDots: true, // ロゴ背景のドットを隠す
 };
 

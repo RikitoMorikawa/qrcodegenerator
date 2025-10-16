@@ -57,13 +57,14 @@ export default function Controls() {
         <label className="block text-sm font-medium">ロゴサイズ: {Math.round(state.logoSizeRatio * 100)}%</label>
         <input
           type="range"
-          min="0.15"
-          max="0.45"
+          min="0.2"
+          max="0.7"
           step="0.05"
           className="w-full"
           value={state.logoSizeRatio}
           onChange={(e) => onChange("logoSizeRatio", parseFloat(e.target.value))}
         />
+        <div className="text-xs text-gray-500">QRコードサイズ: 512px (高解像度固定)</div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

@@ -24,12 +24,12 @@ export async function POST(req: NextRequest) {
 
     const openai = new OpenAI({ apiKey });
 
-    // Use Images API to generate small square logo-like image
+    // Use Images API to generate high-quality logo
     const result = await openai.images.generate({
       model: "dall-e-3",
-      prompt: `${prompt}. Cute round kawaii black cat character, big round eyes, soft rounded features, chubby cheeks, wearing detective hat, holding magnifying glass, adorable smile, chibi style, transparent background, simple flat design, pastel colors, no text, icon style.`,
+      prompt: `${prompt}. Ultra high quality cute round kawaii black cat character, big round eyes, soft rounded features, chubby cheeks, wearing detective hat, holding magnifying glass, adorable smile, chibi style, transparent background, vector-style flat design, crisp clean lines, high resolution, professional logo quality, pastel colors, no text, perfect icon style, 4K quality.`,
       size: "1024x1024",
-      quality: "standard", // 高速化のためstandardを使用
+      quality: "hd", // 高品質に変更
       response_format: "b64_json",
     });
 
