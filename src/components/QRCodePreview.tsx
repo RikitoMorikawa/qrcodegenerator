@@ -153,9 +153,10 @@ export default function QRCodePreview() {
   return (
     <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
       <div
-        className="rounded-lg border p-2 max-w-full overflow-hidden"
+        className="rounded-lg border p-2 max-w-full overflow-hidden flex items-center justify-center"
         style={{
           width: "min(528px, 100%)", // スマホでは画面幅に合わせる
+          height: "528px", // 高さを固定（528px = 512px QR + 16px padding）
           backgroundColor: state.bgColor, // プレビューコンテナも背景色に合わせる
         }}
       >

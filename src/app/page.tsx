@@ -48,7 +48,7 @@ export default function Home() {
             <div className="card p-3 sm:p-4 lg:p-5">
               <Controls />
             </div>
-            <div className="card p-3 sm:p-4 lg:p-5 flex items-start justify-center">
+            <div className="card p-3 sm:p-4 lg:p-5 flex items-start justify-center lg:w-[560px] lg:flex-shrink-0">
               <QRCodePreview />
             </div>
           </div>
