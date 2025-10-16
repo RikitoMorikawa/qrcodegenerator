@@ -22,12 +22,12 @@ const defaultState: QrStyleState = {
   text: "https://example.com",
   size: 256,
   margin: 12,
-  color: "#111827",
+  color: "#3B82F6", // 鮮やかな青色
   bgColor: "#ffffff",
   dotsStyle: "rounded",
   cornersStyle: "square",
-  logoSizeRatio: 0.22,
-  hideBackgroundDots: false,
+  logoSizeRatio: 0.3, // QRコードと馴染むサイズに調整
+  hideBackgroundDots: true, // ロゴ背景のドットを隠す
 };
 
 type QrStyleContextValue = {

@@ -6,6 +6,7 @@ import { useQrStyle } from "@/context/qrStyle";
 export default function QRCodePreview() {
   const { state } = useQrStyle();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const qrRef = useRef<any>(null);
 
   // client-side only: dynamic import and create instance
@@ -14,7 +15,7 @@ export default function QRCodePreview() {
     (async () => {
       const mod = await import("qr-code-styling");
       if (!isMounted) return;
-      const QRCodeStyling = mod.default as any;
+      const QRCodeStyling = mod.default;
       qrRef.current = new QRCodeStyling({ data: state.text });
       if (containerRef.current) {
         qrRef.current.append(containerRef.current);
@@ -37,22 +38,25 @@ export default function QRCodePreview() {
     if (!qrRef.current) return;
     const logoEnabled = Boolean(state.logoDataUrl);
     // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
-    const imageOptions: any = {
+    const imageOptions = {
       crossOrigin: "anonymous",
-      margin: 2,
+      margin: 0, // ロゴ周りのマージンを削除してQRと馴染ませる
       imageSize: state.logoSizeRatio,
-      hideBackgroundDots: Boolean(state.hideBackgroundDots),
+      hideBackgroundDots: true, // 常にロゴ背景のドットを隠す
+      saveAsBlob: true, // 透明背景をサポート
     };
     qrRef.current.update({
       data: state.text,
       width: state.size,
       height: state.size,
       margin: state.margin,
+      qrOptions: {
+        errorCorrectionLevel: "H", // 高いエラー訂正レベルでロゴがあっても読み取り可能
+      },
       backgroundOptions: { color: state.bgColor },
-      dotsOptions: { type: state.dotsStyle as any, color: state.color },
-      cornersSquareOptions: { type: state.cornersStyle as any, color: state.color },
-      // @ts-expect-error lib typing mismatch
-      cornersDotOptions: { type: state.cornersStyle as any, color: state.color },
+      dotsOptions: { type: state.dotsStyle, color: state.color },
+      cornersSquareOptions: { type: state.cornersStyle, color: state.color },
+      cornersDotOptions: { type: state.cornersStyle, color: state.color },
       image: logoEnabled ? state.logoDataUrl : undefined,
       imageOptions,
     });
