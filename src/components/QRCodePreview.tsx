@@ -53,7 +53,7 @@ export default function QRCodePreview() {
         // 初期状態でも中央をクリアにする
         image: transparentImage,
         imageOptions: {
-          margin: -5, // マイナスマージンでロゴ本体をギリギリまで広げる
+          margin: -15, // より大きなマイナスマージンで背景スペースを大幅に削減
           imageSize: 0.8, // ロゴ全体のサイズは80%を維持
           hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
         },
@@ -81,7 +81,7 @@ export default function QRCodePreview() {
     // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
     const imageOptions = {
       crossOrigin: "anonymous",
-      margin: -5, // マイナスマージンでロゴ本体をギリギリまで広げる
+      margin: -15, // より大きなマイナスマージンで背景スペースを大幅に削減
       imageSize: 0.8, // ロゴ全体のサイズは80%を維持
       hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
       saveAsBlob: true, // 透明背景をサポート

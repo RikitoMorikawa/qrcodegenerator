@@ -63,7 +63,7 @@ export default function Controls() {
             <br />
             • パターン: 読み取り最適化
             <br />
-            • 配置: 本体をマイナスマージンで拡張
+            • 配置: 背景スペースを大幅削減(-15px)
             <br />• エラー訂正: 最高レベル
           </div>
         </div>
