@@ -82,10 +82,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 12px 0;
 }
 .title {
-  font-size: 1.625rem;
+  font-size: 1.25rem;
   font-weight: 700;
   background: linear-gradient(90deg, #93c5fd, #c4b5fd, #f0abfc);
   -webkit-background-clip: text;
@@ -94,6 +94,20 @@ body {
 }
 .subtitle {
   color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+/* スマホ用のタイトル調整 */
+@media (min-width: 640px) {
+  .header {
+    padding: 16px 0;
+  }
+  .title {
+    font-size: 1.625rem;
+  }
+  .subtitle {
+    font-size: 1rem;
+  }
 }
 
 .blob {

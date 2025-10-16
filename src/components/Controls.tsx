@@ -23,7 +23,7 @@ export default function Controls() {
         <AIImageGenerator />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-3">
           <label className="block text-sm font-medium">QRコードの色</label>
           <input type="color" className="w-full h-10 rounded border" value={state.color} onChange={(e) => onChange("color", e.target.value)} />
@@ -31,7 +31,7 @@ export default function Controls() {
             {["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"].map((color) => (
               <button
                 key={color}
-                className="w-6 h-6 rounded border-2 border-white shadow-sm"
+                className="w-7 h-7 sm:w-6 sm:h-6 rounded border-2 border-white shadow-sm"
                 style={{ backgroundColor: color }}
                 onClick={() => onChange("color", color)}
               />
@@ -45,7 +45,7 @@ export default function Controls() {
             {["#FFFFFF", "#F3F4F6", "#FEF3C7", "#DBEAFE", "#D1FAE5", "#FCE7F3"].map((color) => (
               <button
                 key={color}
-                className="w-6 h-6 rounded border-2 border-gray-300 shadow-sm"
+                className="w-7 h-7 sm:w-6 sm:h-6 rounded border-2 border-gray-300 shadow-sm"
                 style={{ backgroundColor: color }}
                 onClick={() => onChange("bgColor", color)}
               />
@@ -54,7 +54,7 @@ export default function Controls() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-3">
           <label className="block text-sm font-medium">ドットスタイル</label>
           <select className="input" value={state.dotsStyle} onChange={(e) => onChange("dotsStyle", e.target.value as DotsStyle)}>

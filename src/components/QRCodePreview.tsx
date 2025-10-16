@@ -75,10 +75,24 @@ export default function QRCodePreview() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
+  // リサイズ時にQRコードサイズを調整
+  useEffect(() => {
+    const handleResize = () => {
+      updateQr();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
   const updateQr = () => {
     if (!qrRef.current) return;
     const logoEnabled = Boolean(state.logoDataUrl);
-    // 添付画像かAI生成画像かで画像サイズを変える
+
+    // スマホ対応: 画面サイズに応じてQRコードサイズを調整
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+    const qrSize = isMobile ? Math.min(400, window.innerWidth - 60) : 512;
 
     // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
     const imageOptions = {
@@ -96,8 +110,8 @@ export default function QRCodePreview() {
     };
     qrRef.current.update({
       data: state.text,
-      width: 512, // 512px固定
-      height: 512, // 512px固定
+      width: qrSize, // レスポンシブサイズ
+      height: qrSize, // レスポンシブサイズ
       margin: 8, // 適度なマージンでクワイエットゾーンを確保
       qrOptions: {
         errorCorrectionLevel: "H", // 最高エラー訂正レベル（30%まで復元可能）
@@ -137,27 +151,27 @@ export default function QRCodePreview() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
       <div
-        className="rounded-lg border p-2"
+        className="rounded-lg border p-2 max-w-full overflow-hidden"
         style={{
-          width: 528, // 512px + 16px (固定)
+          width: "min(528px, 100%)", // スマホでは画面幅に合わせる
           backgroundColor: state.bgColor, // プレビューコンテナも背景色に合わせる
         }}
       >
-        <div ref={containerRef} className="flex items-center justify-center" />
+        <div ref={containerRef} className="flex items-center justify-center" style={{ maxWidth: "100%" }} />
       </div>
-      <div className="flex gap-2">
-        <button className="btn" onClick={() => handleDownload("png")}>
+      <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
+        <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("png")}>
           PNG
         </button>
-        <button className="btn" onClick={() => handleDownload("jpeg")}>
+        <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("jpeg")}>
           JPEG
         </button>
-        <button className="btn" onClick={() => handleDownload("webp")}>
+        <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("webp")}>
           WEBP
         </button>
-        <button className="btn" onClick={() => handleDownload("svg")}>
+        <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("svg")}>
           SVG
         </button>
       </div>
