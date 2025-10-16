@@ -37,7 +37,11 @@ export default function Home() {
           <header className="header">
             <div>
               <div className="title">AI QR Code Generator</div>
-              <div className="subtitle">テキスト、ロゴ、カラーを自在に。AIロゴ生成にも対応。</div>
+              <div className="subtitle">
+                テキスト、ロゴ、カラーを自在に。
+                <br className="sm:hidden" />
+                AIロゴ生成にも対応。
+              </div>
             </div>
           </header>
           <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-[1.4fr_1fr]">
