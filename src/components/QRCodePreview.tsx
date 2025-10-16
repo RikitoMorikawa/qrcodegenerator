@@ -3,6 +3,18 @@
 import React, { useEffect, useRef } from "react";
 import { useQrStyle } from "@/context/qrStyle";
 
+// 透明な画像を作成する関数
+const createTransparentImage = () => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 100;
+  canvas.height = 100;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.clearRect(0, 0, 100, 100); // 完全に透明
+  }
+  return canvas.toDataURL("image/png");
+};
+
 export default function QRCodePreview() {
   const { state } = useQrStyle();
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -16,17 +28,34 @@ export default function QRCodePreview() {
       const mod = await import("qr-code-styling");
       if (!isMounted) return;
       const QRCodeStyling = mod.default;
+      // 透明画像を作成
+      const transparentImage = createTransparentImage();
+
       qrRef.current = new QRCodeStyling({
         data: state.text,
         width: 512,
         height: 512,
+        margin: 8,
         // 初期化時から読み取り性重視の設定
         qrOptions: {
           errorCorrectionLevel: "H",
-          typeNumber: 10,
+          typeNumber: 8, // 高密度で読み取り性向上
         },
         dotsOptions: {
-          type: "rounded",
+          type: "square", // 読み取り最適化
+        },
+        cornersSquareOptions: {
+          type: "square", // 読み取り最適化
+        },
+        cornersDotOptions: {
+          type: "square", // 読み取り最適化
+        },
+        // 初期状態でも中央をクリアにする
+        image: transparentImage,
+        imageOptions: {
+          margin: -5, // マイナスマージンでロゴ本体をギリギリまで広げる
+          imageSize: 0.8, // ロゴ全体のサイズは80%を維持
+          hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
         },
       });
       if (containerRef.current) {
@@ -52,9 +81,9 @@ export default function QRCodePreview() {
     // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
     const imageOptions = {
       crossOrigin: "anonymous",
-      margin: 0, // ロゴ周りのマージンを最小に
-      imageSize: 0.8, // 80%でロゴを大きく表示
-      hideBackgroundDots: true, // 常にロゴ背景のドットを隠す
+      margin: -5, // マイナスマージンでロゴ本体をギリギリまで広げる
+      imageSize: 0.8, // ロゴ全体のサイズは80%を維持
+      hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
       saveAsBlob: true, // 透明背景をサポート
       // 超高品質レンダリング設定
       quality: 1.0,
@@ -67,36 +96,35 @@ export default function QRCodePreview() {
       data: state.text,
       width: 512, // 512px固定
       height: 512, // 512px固定
-      margin: 0, // マージンを0にして背景色が全範囲に適用されるように
+      margin: 8, // 適度なマージンでクワイエットゾーンを確保
       qrOptions: {
         errorCorrectionLevel: "H", // 最高エラー訂正レベル（30%まで復元可能）
         mode: "Byte",
-        typeNumber: 0, // 自動選択で最適なサイズ
-        // 読み取り性向上のための追加設定
-        maskPattern: undefined, // 自動選択で最適なマスクパターン
+        typeNumber: 8, // 高密度でより多くのQRコード領域を確保
       },
       backgroundOptions: {
         color: state.bgColor,
-        // 高品質背景レンダリング
         gradient: null,
       },
+      // 読み取り最適化：最も読みやすい形状
       dotsOptions: {
-        type: state.dotsStyle,
+        type: "square", // 四角ドットで最高の読み取り性
         color: state.color,
-        // エッジの品質向上
         gradient: null,
       },
+      // 読み取り最適化：標準的なコーナー
       cornersSquareOptions: {
-        type: state.cornersStyle,
+        type: "square", // 四角コーナーで安定した読み取り
         color: state.color,
         gradient: null,
       },
       cornersDotOptions: {
-        type: state.cornersStyle,
+        type: "square", // 四角ドットで統一
         color: state.color,
         gradient: null,
       },
-      image: logoEnabled ? state.logoDataUrl : undefined,
+      // 常に画像を設定（ロゴがない場合は透明画像で中央をクリア）
+      image: logoEnabled ? state.logoDataUrl : createTransparentImage(),
       imageOptions,
     });
   };

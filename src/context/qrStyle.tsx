@@ -29,10 +29,10 @@ const defaultState: QrStyleState = {
   margin: 0, // 背景色が全範囲に適用されるよう0に設定
   color: "#3B82F6", // 鮮やかな青色
   bgColor: "#ffffff",
-  dotsStyle: "rounded",
-  cornersStyle: "square",
-  logoSizeRatio: 0.8, // 80%でロゴを大きく表示
-  hideBackgroundDots: true, // ロゴ背景のドットを隠す
+  dotsStyle: "square", // 読み取り最適化で固定
+  cornersStyle: "square", // 読み取り最適化で固定
+  logoSizeRatio: 0.8, // 80%でロゴ全体サイズを維持
+  hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
   // AI生成設定
   styleType: "normal", // デフォルトは未設定（普通）
   aiPrompt: "", // AI生成のプロンプト入力値

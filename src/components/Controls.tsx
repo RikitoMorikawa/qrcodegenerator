@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { useQrStyle, type DotsStyle, type CornersStyle, type StyleType } from "@/context/qrStyle";
+import { useQrStyle, type StyleType } from "@/context/qrStyle";
 import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
 
 export default function Controls() {
@@ -53,25 +53,19 @@ export default function Controls() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">ドットスタイル</label>
-          <select className="input" value={state.dotsStyle} onChange={(e) => onChange("dotsStyle", e.target.value as DotsStyle)}>
-            <option value="rounded">丸角</option>
-            <option value="dots">ドット</option>
-            <option value="classy">クラシック</option>
-            <option value="classy-rounded">クラシック丸角</option>
-            <option value="square">四角</option>
-            <option value="extra-rounded">超丸角</option>
-          </select>
-        </div>
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">コーナースタイル</label>
-          <select className="input" value={state.cornersStyle} onChange={(e) => onChange("cornersStyle", e.target.value as CornersStyle)}>
-            <option value="square">四角</option>
-            <option value="dot">ドット</option>
-            <option value="extra-rounded">丸角</option>
-          </select>
+      <div className="space-y-3">
+        <div className="bg-green-50 border border-green-200 rounded p-3">
+          <div className="text-sm font-medium text-green-800">📱 QRコード設定</div>
+          <div className="text-xs text-green-600 mt-1">
+            • サイズ: 512px (高解像度固定)
+            <br />
+            • ロゴサイズ: 80% (サイズ維持)
+            <br />
+            • パターン: 読み取り最適化
+            <br />
+            • 配置: 本体をマイナスマージンで拡張
+            <br />• エラー訂正: 最高レベル
+          </div>
         </div>
       </div>
     </div>
