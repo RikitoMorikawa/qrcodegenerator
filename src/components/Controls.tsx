@@ -173,8 +173,6 @@ function AIImageGenerator() {
 
       <input name="prompt" className="input" placeholder="例: 宇宙飛行士の犬、忍者の猫、魔法使いのうさぎ..." disabled={isPending} />
 
-      <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">💡 スタイル設定が自動的にプロンプトに追加されます。自由に描写を入力してください！</div>
-
       {progress && <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-700">{progress}</div>}
 
       <button type="submit" className="btn btn-primary w-full" disabled={isPending}>
