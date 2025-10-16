@@ -97,6 +97,8 @@ function AIImageGenerator() {
   const { state, setState } = useQrStyle();
   const [isPending, startTransition] = useTransition();
   const [progress, setProgress] = React.useState<string>("");
+  const [showFullScreenProgress, setShowFullScreenProgress] = React.useState(false);
+  const [progressPercent, setProgressPercent] = React.useState(0);
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
     setState((s) => ({ ...s, [key]: value }));
@@ -106,16 +108,31 @@ function AIImageGenerator() {
     const userPrompt = state.aiPrompt.trim();
     if (!userPrompt) return;
 
+    // 即座に進捗表示を開始
+    setShowFullScreenProgress(true);
+    setProgressPercent(0);
+    setProgress("🎨 AI画像を生成中...");
+
     startTransition(async () => {
       try {
-        setProgress("🎨 AI画像を生成中...");
+        // プログレスバーを段階的に進める
+        const updateProgress = (percent: number, message: string) => {
+          setProgressPercent(percent);
+          setProgress(message);
+        };
+
+        updateProgress(10, "🎨 AI画像を生成中...");
 
         // プロンプトに設定を追加
         const styleModifier = generateStyleModifier(state.styleType);
         const fullPrompt = styleModifier ? `${userPrompt}, ${styleModifier}` : userPrompt;
 
+        updateProgress(20, "📡 AIサーバーに接続中...");
+
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒タイムアウト
+
+        updateProgress(30, "🤖 AI画像を生成中...");
 
         const res = await fetch("/api/ai-image", {
           method: "POST",
@@ -131,24 +148,32 @@ function AIImageGenerator() {
           throw new Error(err?.error || res.statusText);
         }
 
-        setProgress("🖼️ 画像を処理中...");
+        updateProgress(60, "🖼️ 画像を処理中...");
         const json = (await res.json()) as { dataUrl: string };
 
-        setProgress("🎨 背景を透明化中...");
+        updateProgress(80, "🎨 背景を透明化中...");
         // 背景除去処理を適用
         const processedDataUrl = await removeBackgroundAdvanced(json.dataUrl);
 
-        setProgress("✅ 完了！");
+        updateProgress(95, "✨ 最終調整中...");
         setState((s) => ({
           ...s,
           logoDataUrl: processedDataUrl,
           uploadedImageUrl: undefined, // AI生成時はアップロード画像をクリア
         }));
 
-        // 成功メッセージを少し表示してからクリア
-        setTimeout(() => setProgress(""), 2000);
+        updateProgress(100, "✅ 完了！");
+
+        // 100%表示を少し見せてから非表示
+        setTimeout(() => {
+          setProgress("");
+          setShowFullScreenProgress(false);
+          setProgressPercent(0);
+        }, 1500);
       } catch (error: unknown) {
         setProgress("");
+        setShowFullScreenProgress(false);
+        setProgressPercent(0);
         const err = error as Error;
         if (err.name === "AbortError") {
           alert("生成がタイムアウトしました。もう一度お試しください。");
@@ -190,7 +215,72 @@ function AIImageGenerator() {
         disabled={isPending}
       />
 
-      {progress && <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-700">{progress}</div>}
+      {progress && (
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-4 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <div className="font-semibold text-lg">{progress}</div>
+              <div className="text-blue-100 text-sm mt-1">しばらくお待ちください...</div>
+            </div>
+          </div>
+          <div className="mt-3 bg-white bg-opacity-20 rounded-full h-2">
+            <div className="bg-white rounded-full h-2 transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Screen Progress Overlay */}
+      {showFullScreenProgress && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center shadow-2xl">
+            <div className="mb-6">
+              <div className="relative inline-block">
+                <svg className="animate-spin h-16 w-16 text-blue-600 mx-auto" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">AI画像生成中</h3>
+            <p className="text-lg text-blue-600 font-semibold mb-4">{progress}</p>
+            <div className="bg-gray-200 rounded-full h-3 mb-4">
+              <div
+                className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-full h-3 transition-all duration-500 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              ></div>
+            </div>
+            <p className="text-gray-600 text-sm">
+              高品質なロゴを生成しています
+              <br />
+              数秒〜30秒程度お待ちください
+            </p>
+          </div>
+        </div>
+      )}
 
       <button type="submit" className="btn btn-primary w-full" disabled={isPending}>
         {isPending ? (
