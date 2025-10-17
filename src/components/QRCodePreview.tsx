@@ -116,6 +116,7 @@ export default function QRCodePreview() {
   const qrRef = useRef<any>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [hasPublished, setHasPublished] = useState(false);
 
   // client-side only: dynamic import and create instance
   useEffect(() => {
@@ -168,6 +169,8 @@ export default function QRCodePreview() {
   // update when state changes
   useEffect(() => {
     updateQr();
+    // ロゴが変更された時は公開状態をリセット
+    setHasPublished(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
@@ -246,6 +249,9 @@ export default function QRCodePreview() {
     await qrRef.current.download({ extension: ext, name: "qr-code" });
   };
 
+  // 公開可能かどうかの判定（AI生成ロゴのみ公開可能）
+  const canPublish = Boolean(state.logoDataUrl && !state.uploadedImageUrl);
+
   const handlePublishClick = () => {
     setShowConfirmDialog(true);
   };
@@ -254,6 +260,7 @@ export default function QRCodePreview() {
     setShowConfirmDialog(false);
     try {
       await saveQRCodeToGallery();
+      setHasPublished(true); // 公開完了後にフラグを設定
       setShowSuccessDialog(true);
     } catch (error) {
       // エラーハンドリングは既にsaveQRCodeToGallery内で行われている
@@ -339,14 +346,26 @@ export default function QRCodePreview() {
         <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("svg")}>
           SVG
         </button>
-        <button className="btn btn-primary text-xs px-2 py-1 flex items-center gap-1" onClick={handlePublishClick}>
+        <button
+          className={`btn text-xs px-2 py-1 flex items-center gap-1 ${
+            canPublish && !hasPublished ? "btn-primary" : "bg-gray-600 text-gray-400 cursor-not-allowed"
+          }`}
+          onClick={canPublish && !hasPublished ? handlePublishClick : undefined}
+          disabled={!canPublish || hasPublished}
+          title={hasPublished ? "既に公開済みです" : !canPublish ? "AI生成ロゴのみ公開できます" : "QRコードを公開"}
+        >
           <Upload size={12} />
-          公開
+          {hasPublished ? "公開済み" : "公開"}
         </button>
       </div>
 
       {/* カスタム確認ダイアログ */}
-      <ConfirmDialog isOpen={showConfirmDialog} onClose={() => setShowConfirmDialog(false)} onConfirm={handleConfirmPublish} url={state.text} />
+      <ConfirmDialog
+        isOpen={showConfirmDialog && canPublish && !hasPublished}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirmPublish}
+        url={state.text}
+      />
 
       {/* 成功ダイアログ */}
       <SuccessDialog isOpen={showSuccessDialog} onClose={() => setShowSuccessDialog(false)} />
