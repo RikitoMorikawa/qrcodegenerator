@@ -3,5 +3,10 @@
     "src/app/api/artistic-qr/route.ts": {
       "maxDuration": 60
     }
+  },
+  "build": {
+    "env": {
+      "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+    }
   }
 }

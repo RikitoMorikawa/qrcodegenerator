@@ -1,10 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import QRCode from "qrcode";
-import sharp from "sharp";
+
+// Dynamic import for Sharp to handle Vercel deployment issues
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let sharp: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  sharp = require("sharp");
+  console.log("[artistic-qr] Sharp loaded successfully");
+} catch (error) {
+  console.error("[artistic-qr] Failed to load sharp:", error);
+  console.error("[artistic-qr] Platform:", process.platform, "Arch:", process.arch);
+  console.error("[artistic-qr] Node version:", process.version);
+}
 
 // アートQRコード生成API
 export async function POST(request: NextRequest) {
   console.log("[artistic-qr] POST handler called");
+
+  // Check if Sharp is available
+  if (!sharp) {
+    console.error("[artistic-qr] Sharp is not available");
+    return NextResponse.json(
+      {
+        error: "Image processing is temporarily unavailable. Please try again later.",
+      },
+      { status: 503 }
+    );
+  }
 
   try {
     const body = await request.json();
@@ -29,16 +52,8 @@ export async function POST(request: NextRequest) {
     // 2. QRコードの詳細情報を取得
     const qrInfo = await QRCode.create(text, { errorCorrectionLevel: "H" });
     const modules = qrInfo.modules;
-    const size = modules.size;
 
-    // QRコードのパターンを文字列として表現
-    let qrPattern = "";
-    for (let row = 0; row < size; row++) {
-      for (let col = 0; col < size; col++) {
-        qrPattern += modules.get(row, col) ? "█" : "░";
-      }
-      qrPattern += "\n";
-    }
+    // QRコードの詳細情報は取得済み（modules）
 
     // 2. アート画像を生成（QRコードとは別に）
     const styleModifier = getStyleModifier(styleType);
