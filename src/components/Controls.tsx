@@ -704,25 +704,31 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
         updateProgress(60, "画像を受信中...");
         const json = await res.json();
 
+        updateProgress(70, "アート画像を合成中...");
+
+        // クライアントサイドでQRコードとアート画像を合成（カラフル版）
+        const { createVibrantArtQR } = await import("@/utils/qrArtComposer");
+        const combinedQRDataUrl = await createVibrantArtQR(json.qrDataUrl, json.artDataUrl);
+
         updateProgress(90, "最終調整中...");
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // 処理方法に応じてメッセージを調整
         const processingMethod = json.processingMethod || "standard";
-        const isSharpFallback = processingMethod === "fallback-no-sharp";
+        const isClientComposition = processingMethod === "client-side-composition";
 
         setState((s) => ({
           ...s,
-          artisticQrDataUrl: json.dataUrl, // 生成されたアートQRコード
-          actualQrDataUrl: json.actualQrCode, // フォールバック用の通常QRコード
+          artisticQrDataUrl: combinedQRDataUrl, // 合成されたアートQRコード
+          actualQrDataUrl: json.qrDataUrl, // フォールバック用の通常QRコード
           logoDataUrl: undefined, // アートQR生成時はロゴをクリア
           uploadedImageUrl: undefined,
         }));
 
         // 画像を自動保存
-        if (json.dataUrl) {
+        if (combinedQRDataUrl) {
           try {
-            await saveArtisticQRToSupabase(json.dataUrl, userPrompt, state.styleType, isPublic, state.text);
+            await saveArtisticQRToSupabase(combinedQRDataUrl, userPrompt, state.styleType, isPublic, state.text);
             setTimeout(() => {
               window.dispatchEvent(new CustomEvent("artistic-qr-saved")); // アートQR専用イベント
             }, 500);
@@ -731,7 +737,7 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
           }
         }
 
-        updateProgress(100, isSharpFallback ? "完了！（シンプル版）" : "完了！");
+        updateProgress(100, isClientComposition ? "完了！（読み取り最適化）" : "完了！");
         setTimeout(() => {
           setState((s) => ({
             ...s,

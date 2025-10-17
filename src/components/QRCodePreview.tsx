@@ -135,26 +135,27 @@ export default function QRCodePreview() {
         data: state.text,
         width: 512,
         height: 512,
-        margin: 8,
-        // 初期化時から読み取り性重視の設定
+        margin: 4, // 最小限のマージンで全面表示
+        // 読み取り性を最優先にした設定
         qrOptions: {
-          errorCorrectionLevel: "H",
-          typeNumber: 8, // 高密度で読み取り性向上
+          errorCorrectionLevel: "H", // 最高エラー訂正レベル（30%まで復元可能）
+          mode: "Byte", // バイトモードで安定性向上
+          typeNumber: 0, // 自動選択で最適化
         },
         dotsOptions: {
-          type: "square", // デフォルトは四角（読み取り最適化）
+          type: "square", // 四角形で最高の読み取り性
         },
         cornersSquareOptions: {
-          type: "square", // デフォルトは四角（読み取り最適化）
+          type: "square", // 四角形で最高の読み取り性
         },
         cornersDotOptions: {
-          type: "square", // デフォルトは四角（読み取り最適化）
+          type: "square", // 四角形で最高の読み取り性
         },
         // 初期状態でも中央をクリアにする
         image: transparentImage,
         imageOptions: {
-          margin: -15, // より大きなマイナスマージンで背景スペースを大幅に削減
-          imageSize: 0.7, // ロゴを70%に少し縮小
+          margin: 0, // 標準的なマージン
+          imageSize: 0.2, // ロゴサイズを小さくして読み取り性向上
           hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
         },
       });
@@ -198,14 +199,14 @@ export default function QRCodePreview() {
     const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
     const qrSize = isMobile ? Math.min(400, window.innerWidth - 60) : 512;
 
-    // Always pass imageOptions to avoid lib accessing undefined.hideBackgroundDots
+    // 読み取り性を最優先にした画像オプション
     const imageOptions = {
       crossOrigin: "anonymous",
-      margin: -15, // より大きなマイナスマージンで背景スペースを大幅に削減
-      imageSize: 0.7, // ロゴエリアは統一して70%
+      margin: 0, // 標準的なマージン
+      imageSize: logoEnabled ? 0.15 : 0.2, // ロゴサイズを小さくして読み取り性向上
       hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
       saveAsBlob: true, // 透明背景をサポート
-      // 超高品質レンダリング設定
+      // 高品質レンダリング設定
       quality: 1.0,
       smoothing: true,
       // エッジの品質向上
@@ -216,30 +217,30 @@ export default function QRCodePreview() {
       data: state.text,
       width: qrSize, // レスポンシブサイズ
       height: qrSize, // レスポンシブサイズ
-      margin: 8, // 適度なマージンでクワイエットゾーンを確保
+      margin: 4, // 最小限のマージンで全面表示
       qrOptions: {
         errorCorrectionLevel: "H", // 最高エラー訂正レベル（30%まで復元可能）
-        mode: "Byte",
-        typeNumber: 8, // 高密度でより多くのQRコード領域を確保
+        mode: "Byte", // バイトモードで安定性向上
+        typeNumber: 0, // 自動選択で最適化
       },
       backgroundOptions: {
         color: state.bgColor,
         gradient: null,
       },
-      // カスタマイズ可能なスタイル
+      // 読み取り性を優先したスタイル設定
       dotsOptions: {
-        type: state.dotsStyle, // 選択されたドットスタイル
+        type: "square", // 常に四角形で最高の読み取り性
         color: state.color,
         gradient: null,
       },
-      // カスタマイズ可能なコーナー
+      // 読み取り性を優先したコーナー設定
       cornersSquareOptions: {
-        type: state.cornersStyle, // 選択されたコーナースタイル
+        type: "square", // 常に四角形で最高の読み取り性
         color: state.color,
         gradient: null,
       },
       cornersDotOptions: {
-        type: state.cornersStyle, // 選択されたコーナースタイル
+        type: "square", // 常に四角形で最高の読み取り性
         color: state.color,
         gradient: null,
       },
