@@ -203,7 +203,9 @@ function AIImageGenerator() {
         // 画像を自動保存
         if (processedDataUrl) {
           try {
-            await saveImageToSupabase(processedDataUrl, fullPrompt, state.styleType, isPublic);
+            console.log("Saving image to Supabase...", { fullPrompt, styleType: state.styleType, isPublic });
+            const result = await saveImageToSupabase(processedDataUrl, fullPrompt, state.styleType, isPublic);
+            console.log("Image saved successfully:", result);
           } catch (saveError) {
             console.error("Failed to save image:", saveError);
             // 保存エラーは表示しないが、ログに記録

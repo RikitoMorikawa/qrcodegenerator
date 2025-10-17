@@ -15,6 +15,7 @@ export default function ImageGallery() {
   const fetchImages = async () => {
     try {
       setLoading(true);
+      console.log("Fetching images from API...");
       const response = await fetch("/api/images");
       const data = await response.json();
 
@@ -22,8 +23,10 @@ export default function ImageGallery() {
         throw new Error(data.error || "Failed to fetch images");
       }
 
+      console.log("Images fetched:", data.images);
       setImages(data.images);
     } catch (err) {
+      console.error("Error fetching images:", err);
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
