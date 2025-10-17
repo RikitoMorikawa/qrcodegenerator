@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "src/app/api/artistic-qr/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
