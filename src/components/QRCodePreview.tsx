@@ -373,7 +373,13 @@ export default function QRCodePreview() {
 
         {/* AI生成中のプログレス表示（最前面レイヤー） */}
         {state.isGeneratingAI && state.generationProgress && (
-          <div className="absolute inset-0 bg-gradient-to-br from-pink-900 via-purple-900 to-orange-900 rounded-lg flex items-center justify-center overflow-hidden z-50">
+          <div
+            className={`absolute inset-0 rounded-lg flex items-center justify-center overflow-hidden z-50 ${
+              state.generationType === "artistic"
+                ? "bg-gradient-to-br from-pink-900 via-purple-900 to-orange-900"
+                : "bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-800"
+            }`}
+          >
             {/* 背景パーティクル */}
             <div className="absolute inset-0">
               {[...Array(15)].map((_, i) => (
@@ -397,10 +403,19 @@ export default function QRCodePreview() {
               <div className="mb-6">
                 <div className="relative inline-block">
                   <div
-                    className="absolute inset-0 rounded-full border-4 border-transparent border-t-pink-400 border-r-orange-400 animate-spin"
+                    className={`absolute inset-0 rounded-full border-4 border-transparent animate-spin ${
+                      state.generationType === "artistic"
+                        ? "border-t-pink-400 border-r-orange-400"
+                        : "border-t-blue-400 border-r-purple-400"
+                    }`}
                     style={{ width: "60px", height: "60px", left: "-6px", top: "-6px" }}
                   />
-                  <svg className="animate-spin h-12 w-12 text-pink-300 mx-auto" viewBox="0 0 24 24">
+                  <svg
+                    className={`animate-spin h-12 w-12 mx-auto ${
+                      state.generationType === "artistic" ? "text-pink-300" : "text-blue-300"
+                    }`}
+                    viewBox="0 0 24 24"
+                  >
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
@@ -409,17 +424,33 @@ export default function QRCodePreview() {
               <h3 className="text-xl font-bold text-white mb-2">
                 {state.generationType === "artistic" ? "アートQRコード生成中" : "AI画像生成中"}
               </h3>
-              <p className="text-pink-200 font-semibold mb-4">{state.generationProgress}</p>
+              <p
+                className={`font-semibold mb-4 ${
+                  state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"
+                }`}
+              >
+                {state.generationProgress}
+              </p>
               {state.generationPercent !== undefined && (
                 <div className="relative mb-4">
                   <div className="bg-white/20 rounded-full h-3 overflow-hidden">
                     <div
-                      className="bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400 rounded-full h-3 transition-all duration-700 ease-out"
+                      className={`rounded-full h-3 transition-all duration-700 ease-out ${
+                        state.generationType === "artistic"
+                          ? "bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400"
+                          : "bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"
+                      }`}
                       style={{ width: `${state.generationPercent}%` }}
                     />
                   </div>
                   <div className="text-right mt-1">
-                    <span className="text-xs font-semibold text-pink-200">{state.generationPercent}%</span>
+                    <span
+                      className={`text-xs font-semibold ${
+                        state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"
+                      }`}
+                    >
+                      {state.generationPercent}%
+                    </span>
                   </div>
                 </div>
               )}

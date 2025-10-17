@@ -86,42 +86,66 @@ This will be used as an artistic background, so make it visually stunning and co
     const artImageResponse = await fetch(artImageUrl);
     const artImageBuffer = await artImageResponse.arrayBuffer();
 
-    // 5. QRコードとアート画像を合成（読み取り性重視、シンプルな方法）
+    // 5. QRコードとアート画像を合成（読み取り性重視：白背景 + 色付きQRパターン）
     // QRコードをBase64からBufferに変換
     const qrBase64 = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
     const qrBuffer = Buffer.from(qrBase64, "base64");
 
-    // アート画像を処理（明るく鮮やかに、より強く）
+    // アート画像を処理（明るく鮮やかに）
     const processedArt = await sharp(Buffer.from(artImageBuffer))
       .resize(1024, 1024, { fit: "cover" })
       .modulate({
-        brightness: 1.6, // さらに明るく
-        saturation: 1.8, // 彩度をさらに高く
+        brightness: 1.5, // かなり明るく
+        saturation: 1.6, // 彩度高く
       })
-      .blur(3) // もう少しぼかしてQRパターンを際立たせる
+      .blur(3) // ぼかしてQRパターンを際立たせる
       .toBuffer();
 
-    // QRコードを強調（二値化して明確に、コントラストを強く）
+    // QRコードを処理（二値化して明確に）
     const qrEnhanced = await sharp(qrBuffer)
       .resize(1024, 1024)
-      .threshold(128) // 二値化
-      .linear(1.5, 0) // コントラストを強化
+      .threshold(128) // 二値化で白黒を明確に
       .toBuffer();
 
-    // シンプルにmultiplyブレンドで合成
-    // アート画像にQRパターンを焼き込む形
-    const composited = await sharp(processedArt)
+    // 白い背景を作成
+    const whiteBackground = await sharp({
+      create: {
+        width: 1024,
+        height: 1024,
+        channels: 4,
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+      },
+    })
+      .png()
+      .toBuffer();
+
+    // 合成手順：
+    // 1. 白背景から開始
+    // 2. アート画像を overlay で重ねる（適度な透明度で）
+    // 3. QRパターンを multiply で焼き込む
+    const artWithAlpha = await sharp(processedArt)
       .composite([
         {
-          input: qrEnhanced,
-          blend: "multiply", // 乗算モード：QRの黒がアートを暗く、白は変化なし
+          input: Buffer.from([255, 255, 255, 178]), // 約70%透明度の白
+          raw: { width: 1, height: 1, channels: 4 },
+          tile: true,
+          blend: "dest-in",
         },
       ])
-      .modulate({
-        brightness: 1.4, // 最終的に明るさをさらに調整
-        saturation: 1.3, // 彩度も補正
-      })
-      .sharpen({ sigma: 3 }) // さらに強くシャープ化して読み取り性向上
+      .toBuffer();
+
+    const composited = await sharp(whiteBackground)
+      .composite([
+        {
+          input: artWithAlpha,
+          blend: "over", // アートを上に重ねる
+        },
+        {
+          input: qrEnhanced,
+          blend: "multiply", // QRパターンを乗算で焼き込む
+        },
+      ])
+      .sharpen({ sigma: 2.5 })
       .png()
       .toBuffer();
 
