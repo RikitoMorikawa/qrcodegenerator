@@ -93,58 +93,63 @@ export default function Controls() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">QRコードの色</label>
-          <input type="color" className="w-full h-10 rounded border" value={state.color} onChange={(e) => onChange("color", e.target.value)} />
-          <div className="flex gap-1 flex-wrap">
-            {["#000000", "#FFFFFF", "#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4"].map((color) => (
-              <button
-                key={color}
-                className="w-7 h-7 sm:w-6 sm:h-6 rounded border-2 border-white shadow-sm"
-                style={{ backgroundColor: color }}
-                onClick={() => onChange("color", color)}
-              />
-            ))}
+      {/* QRコードカスタマイズオプション（アートQR生成時は非表示） */}
+      {state.generationType !== "artistic" && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">QRコードの色</label>
+              <input type="color" className="w-full h-10 rounded border" value={state.color} onChange={(e) => onChange("color", e.target.value)} />
+              <div className="flex gap-1 flex-wrap">
+                {["#000000", "#FFFFFF", "#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4"].map((color) => (
+                  <button
+                    key={color}
+                    className="w-7 h-7 sm:w-6 sm:h-6 rounded border-2 border-white shadow-sm"
+                    style={{ backgroundColor: color }}
+                    onClick={() => onChange("color", color)}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">背景色</label>
+              <input type="color" className="w-full h-10 rounded border" value={state.bgColor} onChange={(e) => onChange("bgColor", e.target.value)} />
+              <div className="flex gap-1 flex-wrap">
+                {["#000000", "#FFFFFF", "#F3F4F6", "#FEF3C7", "#DBEAFE", "#D1FAE5", "#FCE7F3", "#E0F2FE", "#FFF7ED"].map((color) => (
+                  <button
+                    key={color}
+                    className="w-7 h-7 sm:w-6 sm:h-6 rounded border-2 border-gray-300 shadow-sm"
+                    style={{ backgroundColor: color }}
+                    onClick={() => onChange("bgColor", color)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">背景色</label>
-          <input type="color" className="w-full h-10 rounded border" value={state.bgColor} onChange={(e) => onChange("bgColor", e.target.value)} />
-          <div className="flex gap-1 flex-wrap">
-            {["#000000", "#FFFFFF", "#F3F4F6", "#FEF3C7", "#DBEAFE", "#D1FAE5", "#FCE7F3", "#E0F2FE", "#FFF7ED"].map((color) => (
-              <button
-                key={color}
-                className="w-7 h-7 sm:w-6 sm:h-6 rounded border-2 border-gray-300 shadow-sm"
-                style={{ backgroundColor: color }}
-                onClick={() => onChange("bgColor", color)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">ドットスタイル</label>
-          <select className="input" value={state.dotsStyle} onChange={(e) => onChange("dotsStyle", e.target.value as DotsStyle)}>
-            <option value="square">四角</option>
-            <option value="rounded">丸角</option>
-            <option value="dots">ドット</option>
-            <option value="classy">クラシック</option>
-            <option value="classy-rounded">クラシック丸角</option>
-            <option value="extra-rounded">超丸角</option>
-          </select>
-        </div>
-        <div className="space-y-3">
-          <label className="block text-sm font-medium">コーナースタイル</label>
-          <select className="input" value={state.cornersStyle} onChange={(e) => onChange("cornersStyle", e.target.value as CornersStyle)}>
-            <option value="square">四角</option>
-            <option value="dot">ドット</option>
-            <option value="extra-rounded">丸角</option>
-          </select>
-        </div>
-      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">ドットスタイル</label>
+              <select className="input" value={state.dotsStyle} onChange={(e) => onChange("dotsStyle", e.target.value as DotsStyle)}>
+                <option value="square">四角</option>
+                <option value="rounded">丸角</option>
+                <option value="dots">ドット</option>
+                <option value="classy">クラシック</option>
+                <option value="classy-rounded">クラシック丸角</option>
+                <option value="extra-rounded">超丸角</option>
+              </select>
+            </div>
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">コーナースタイル</label>
+              <select className="input" value={state.cornersStyle} onChange={(e) => onChange("cornersStyle", e.target.value as CornersStyle)}>
+                <option value="square">四角</option>
+                <option value="dot">ドット</option>
+                <option value="extra-rounded">丸角</option>
+              </select>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
