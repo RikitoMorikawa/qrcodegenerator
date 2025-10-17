@@ -119,7 +119,7 @@ export default function ImageGallery() {
     );
   };
 
-  const renderImageGrid = (imageList: GeneratedImage[], isQRCode: boolean = false) => {
+  const renderImageSlider = (imageList: GeneratedImage[], isQRCode: boolean = false) => {
     if (imageList.length === 0) {
       return (
         <div className="text-center py-8">
@@ -139,66 +139,67 @@ export default function ImageGallery() {
     }
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {imageList.map((image) => (
-          <div
-            key={image.id}
-            className="group relative bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all duration-200 shadow-sm hover:shadow-md"
-          >
-            {/* 画像部分（白背景） */}
-            <div className="aspect-square relative overflow-hidden bg-white">
-              {/* 装飾的なQRコードパターン背景（AI生成画像の場合のみ） */}
-              {!isQRCode && (
-                <div className="absolute inset-0 opacity-30">
-                  <QRPattern />
+      <div className="relative">
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+          {imageList.slice(0, 50).map((image) => (
+            <div
+              key={image.id}
+              className="group relative bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all duration-200 shadow-sm hover:shadow-md flex-shrink-0 w-48"
+            >
+              {/* 画像部分（白背景） */}
+              <div className="aspect-square relative overflow-hidden bg-white">
+                {/* 装飾的なQRコードパターン背景（AI生成画像の場合のみ） */}
+                {!isQRCode && (
+                  <div className="absolute inset-0 opacity-30">
+                    <QRPattern />
+                  </div>
+                )}
+
+                {/* メイン画像エリア */}
+                <div className={`absolute ${!isQRCode ? "inset-6" : "inset-3"} flex items-center justify-center`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.image_url}
+                    alt={image.prompt}
+                    className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-200 drop-shadow-sm"
+                    loading="lazy"
+                    style={{
+                      backgroundColor: "transparent",
+                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-white/10 transition-colors duration-200 rounded" />
                 </div>
-              )}
-
-              {/* メイン画像エリア */}
-              <div className={`absolute ${!isQRCode ? "inset-6" : "inset-3"} flex items-center justify-center`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={image.image_url}
-                  alt={image.prompt}
-                  className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-200 drop-shadow-sm"
-                  loading="lazy"
-                  style={{
-                    backgroundColor: "transparent",
-                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
-                  }}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-white/10 transition-colors duration-200 rounded" />
               </div>
-            </div>
 
-            {/* 説明部分（ダーク背景） */}
-            <div className="p-3 bg-gray-800/50">
-              <div className="flex items-center gap-2 mb-2">
-                <span
-                  className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${
-                    image.style_type === "qrcode" ? "bg-green-500/20 text-green-300" : "bg-blue-500/20 text-blue-300"
-                  }`}
+              {/* 説明部分（ダーク背景） */}
+              <div className="p-2 bg-gray-800/50">
+                <div className="flex items-center gap-1 mb-1">
+                  <span
+                    className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-medium rounded ${
+                      image.style_type === "qrcode" ? "bg-green-500/20 text-green-300" : "bg-blue-500/20 text-blue-300"
+                    }`}
+                  >
+                    {getImageTypeIcon(image.style_type)}
+                    {getStyleLabel(image.style_type)}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-400 mb-1">{new Date(image.created_at).toLocaleDateString("ja-JP")}</div>
+                <div className="text-xs text-gray-300 line-clamp-2 leading-relaxed">{image.original_prompt || image.prompt}</div>
+              </div>
+
+              {/* ホバー時のオーバーレイ */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <button
+                  onClick={() => window.open(image.image_url, "_blank")}
+                  className="bg-white/90 hover:bg-white text-gray-900 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
                 >
-                  {getImageTypeIcon(image.style_type)}
-                  {getStyleLabel(image.style_type)}
-                </span>
-                <span className="text-xs text-gray-400">{new Date(image.created_at).toLocaleDateString("ja-JP")}</span>
+                  拡大表示
+                </button>
               </div>
-
-              <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed">{image.original_prompt || image.prompt}</p>
             </div>
-
-            {/* ホバー時のオーバーレイ */}
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-              <button
-                onClick={() => window.open(image.image_url, "_blank")}
-                className="bg-white/90 hover:bg-white text-gray-900 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
-              >
-                拡大表示
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   };
@@ -269,7 +270,7 @@ export default function ImageGallery() {
             更新
           </button>
         </div>
-        {renderImageGrid(aiGeneratedImages, false)}
+        {renderImageSlider(aiGeneratedImages, false)}
       </div>
 
       {/* QRコードセクション */}
@@ -280,7 +281,7 @@ export default function ImageGallery() {
             <span className="text-xs text-gray-500">{qrCodeImages.length}件</span>
           </div>
         </div>
-        {renderImageGrid(qrCodeImages, true)}
+        {renderImageSlider(qrCodeImages, true)}
       </div>
     </div>
   );

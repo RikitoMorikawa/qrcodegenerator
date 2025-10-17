@@ -3,8 +3,8 @@ import { supabase } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
   try {
-    // 公開画像のみを取得
-    const { data, error } = await supabase.from("generated_images").select("*").eq("is_public", true).order("created_at", { ascending: false }).limit(20);
+    // 公開画像のみを取得（最新順から50件）
+    const { data, error } = await supabase.from("generated_images").select("*").eq("is_public", true).order("created_at", { ascending: false }).limit(50);
 
     if (error) {
       console.error("Database error:", error);
