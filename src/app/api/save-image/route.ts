@@ -3,10 +3,10 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, styleType, imageDataUrl, isPublic = true } = await req.json();
+    const { prompt, originalPrompt, styleType, imageDataUrl, isPublic = true } = await req.json();
 
-    if (!prompt || !imageDataUrl) {
-      return NextResponse.json({ error: "prompt and imageDataUrl are required" }, { status: 400 });
+    if (!prompt || !imageDataUrl || !originalPrompt) {
+      return NextResponse.json({ error: "prompt, originalPrompt and imageDataUrl are required" }, { status: 400 });
     }
 
     // Base64データからファイルデータを抽出
@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
       .from("generated_images")
       .insert({
         prompt,
+        original_prompt: originalPrompt,
         style_type: styleType || "normal",
         image_url: urlData.publicUrl,
         is_public: isPublic,

@@ -203,8 +203,8 @@ function AIImageGenerator() {
         // 画像を自動保存
         if (processedDataUrl) {
           try {
-            console.log("Saving image to Supabase...", { fullPrompt, styleType: state.styleType, isPublic });
-            const result = await saveImageToSupabase(processedDataUrl, fullPrompt, state.styleType, isPublic);
+            console.log("Saving image to Supabase...", { fullPrompt, originalPrompt: userPrompt, styleType: state.styleType, isPublic });
+            const result = await saveImageToSupabase(processedDataUrl, fullPrompt, userPrompt, state.styleType, isPublic);
             console.log("Image saved successfully:", result);
           } catch (saveError) {
             console.error("Failed to save image:", saveError);
@@ -238,12 +238,13 @@ function AIImageGenerator() {
     });
   };
 
-  const saveImageToSupabase = async (imageDataUrl: string, prompt: string, styleType: string, isPublic: boolean) => {
+  const saveImageToSupabase = async (imageDataUrl: string, fullPrompt: string, originalPrompt: string, styleType: string, isPublic: boolean) => {
     const response = await fetch("/api/save-image", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        prompt,
+        prompt: fullPrompt,
+        originalPrompt,
         styleType,
         imageDataUrl,
         isPublic,

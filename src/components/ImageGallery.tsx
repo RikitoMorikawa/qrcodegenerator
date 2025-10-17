@@ -147,7 +147,7 @@ export default function ImageGallery() {
                   <span className="text-xs text-gray-500">{new Date(image.created_at).toLocaleDateString("ja-JP")}</span>
                 </div>
 
-                <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed">{image.prompt}</p>
+                <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed">{image.original_prompt || image.prompt}</p>
               </div>
 
               {/* ホバー時のオーバーレイ */}

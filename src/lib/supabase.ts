@@ -26,6 +26,7 @@ export const supabaseAdmin = (() => {
 export type GeneratedImage = {
   id: string;
   prompt: string;
+  original_prompt: string;
   style_type: string;
   image_url: string;
   is_public: boolean;
