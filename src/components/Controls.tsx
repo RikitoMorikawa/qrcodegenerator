@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { useQrStyle, type StyleType, type DotsStyle, type CornersStyle } from "@/context/qrStyle";
+import { useQrStyle, type StyleType, type DotsStyle, type CornersStyle, type GenerationType } from "@/context/qrStyle";
 import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
 
 export default function Controls() {
@@ -30,7 +30,12 @@ export default function Controls() {
 
       <div className="space-y-3">
         <ImageUploader isDisabled={state.isGeneratingAI} />
-        <AIImageGenerator onGeneratingChange={handleGeneratingChange} />
+        <GenerationTypeSelector />
+        {state.generationType === "logo" ? (
+          <AIImageGenerator onGeneratingChange={handleGeneratingChange} />
+        ) : (
+          <ArtisticQRGenerator onGeneratingChange={handleGeneratingChange} />
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -593,6 +598,361 @@ function ImageUploader({ isDisabled }: { isDisabled: boolean }) {
         </div>
       )}
     </div>
+  );
+}
+
+// 生成タイプ選択コンポーネント
+function GenerationTypeSelector() {
+  const { state, setState } = useQrStyle();
+
+  const onChange = (generationType: typeof state.generationType) => {
+    setState((s) => ({
+      ...s,
+      generationType,
+      // タイプ変更時に関連する状態をクリア
+      logoDataUrl: undefined,
+      artisticQrDataUrl: undefined,
+      uploadedImageUrl: undefined,
+    }));
+  };
+
+  return (
+    <div className="space-y-3">
+      <label className="block text-sm font-medium">生成タイプ</label>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => onChange("logo")}
+          className={`px-3 py-2 text-sm font-medium rounded-md border transition-all duration-200 ${
+            state.generationType === "logo"
+              ? "bg-gradient-to-r from-cyan-400 to-purple-600 text-white border-transparent shadow-lg"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+          }`}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+              />
+            </svg>
+            AIロゴ
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange("artistic")}
+          className={`px-3 py-2 text-sm font-medium rounded-md border transition-all duration-200 ${
+            state.generationType === "artistic"
+              ? "bg-gradient-to-r from-pink-400 to-orange-600 text-white border-transparent shadow-lg"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+          }`}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
+              />
+            </svg>
+            アートQR
+          </div>
+        </button>
+      </div>
+      <p className="text-xs text-gray-500">{state.generationType === "logo" ? "QRコードにロゴを追加します" : "QRコード全体をアート作品として生成します"}</p>
+    </div>
+  );
+}
+
+// アートQRコード生成コンポーネント
+function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGenerating: boolean) => void }) {
+  const { state, setState } = useQrStyle();
+  const [isPending, startTransition] = useTransition();
+  const [progress, setProgress] = React.useState<string>("");
+  const [showFullScreenProgress, setShowFullScreenProgress] = React.useState(false);
+  const [progressPercent, setProgressPercent] = React.useState(0);
+  const [isPublic, setIsPublic] = React.useState(true);
+
+  const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
+    setState((s) => ({ ...s, [key]: value }));
+  };
+
+  const handleGenerate = async () => {
+    const userPrompt = state.aiPrompt.trim();
+    if (!userPrompt || !state.text) return;
+
+    onGeneratingChange(true);
+    setShowFullScreenProgress(true);
+    setProgressPercent(0);
+    setProgress("アートQRコードを生成中...");
+
+    startTransition(async () => {
+      try {
+        const updateProgress = (percent: number, message: string) => {
+          setProgressPercent(percent);
+          setProgress(message);
+        };
+
+        const startTime = Date.now();
+        const progressTimeouts: NodeJS.Timeout[] = [];
+
+        // 段階的な進捗表示
+        progressTimeouts.push(setTimeout(() => updateProgress(10, "AIサーバーに接続中..."), 100));
+        progressTimeouts.push(setTimeout(() => updateProgress(20, "アートQRコードを生成中..."), 500));
+        progressTimeouts.push(setTimeout(() => updateProgress(35, "高品質画像を生成中..."), 2000));
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒タイムアウト
+
+        const res = await fetch("/api/artistic-qr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: state.text,
+            prompt: userPrompt,
+            styleType: state.styleType,
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+        progressTimeouts.forEach((timeout) => clearTimeout(timeout));
+
+        if (!res.ok) {
+          const err = await safeJson(res);
+          throw new Error(err?.error || res.statusText);
+        }
+
+        updateProgress(60, "画像を受信中...");
+        const json = await res.json();
+
+        updateProgress(80, "最終調整中...");
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        setState((s) => ({
+          ...s,
+          artisticQrDataUrl: json.dataUrl,
+          logoDataUrl: undefined, // アートQR生成時はロゴをクリア
+          uploadedImageUrl: undefined,
+        }));
+
+        // 画像を自動保存
+        if (json.dataUrl) {
+          try {
+            await saveArtisticQRToSupabase(json.dataUrl, userPrompt, state.styleType, isPublic, state.text);
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent("image-saved"));
+            }, 500);
+          } catch (saveError) {
+            console.error("Failed to save artistic QR:", saveError);
+          }
+        }
+
+        updateProgress(100, "完了！");
+        setTimeout(() => {
+          setProgress("");
+          setShowFullScreenProgress(false);
+          setProgressPercent(0);
+          onGeneratingChange(false);
+        }, 1500);
+      } catch (error: unknown) {
+        setProgress("");
+        setShowFullScreenProgress(false);
+        setProgressPercent(0);
+        onGeneratingChange(false);
+        const err = error as Error;
+        if (err.name === "AbortError") {
+          alert("生成がタイムアウトしました。もう一度お試しください。");
+        } else {
+          alert(`アートQRコード生成に失敗しました: ${err.message || "不明なエラー"}`);
+        }
+      }
+    });
+  };
+
+  const saveArtisticQRToSupabase = async (imageDataUrl: string, prompt: string, styleType: string, isPublic: boolean, qrText: string) => {
+    const response = await fetch("/api/save-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: `[アートQR] ${prompt}`,
+        originalPrompt: prompt,
+        styleType,
+        imageDataUrl,
+        isPublic,
+        qrText,
+        isArtisticQR: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to save artistic QR");
+    }
+
+    return response.json();
+  };
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!isPending) {
+          handleGenerate();
+        }
+      }}
+      className="space-y-3"
+    >
+      <label className="block text-sm font-medium">アートQRコード生成</label>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-600">スタイル</label>
+          <select className="input text-sm" value={state.styleType} onChange={(e) => onChange("styleType", e.target.value as StyleType)} disabled={isPending}>
+            <option value="normal">未設定</option>
+            <option value="cute">可愛い</option>
+            <option value="cool">カッコイイ</option>
+            <option value="elegant">オシャレ</option>
+            <option value="playful">元気</option>
+            <option value="retro">レトロ</option>
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-600">公開設定</label>
+          <select
+            className="input text-sm"
+            value={isPublic ? "public" : "private"}
+            onChange={(e) => setIsPublic(e.target.value === "public")}
+            disabled={isPending}
+          >
+            <option value="public">公開</option>
+            <option value="private">非公開</option>
+          </select>
+        </div>
+      </div>
+
+      <input
+        name="prompt"
+        className="input"
+        placeholder="例: 走っている猫、宇宙の星空、桜の花びら..."
+        value={state.aiPrompt}
+        onChange={(e) => onChange("aiPrompt", e.target.value)}
+        disabled={isPending}
+      />
+
+      {/* プログレス表示 */}
+      {showFullScreenProgress && (
+        <div className="mt-4 bg-gradient-to-br from-pink-900 via-purple-900 to-orange-900 rounded-lg p-6 text-white relative overflow-hidden">
+          {/* アニメーション背景 */}
+          <div className="absolute inset-0">
+            {[...Array(15)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white opacity-10 animate-pulse"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${Math.random() * 4 + 2}px`,
+                  height: `${Math.random() * 4 + 2}px`,
+                  animationDelay: `${Math.random() * 3}s`,
+                  animationDuration: `${Math.random() * 3 + 2}s`,
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="relative text-center">
+            <div className="mb-6">
+              <div className="relative inline-block">
+                <div
+                  className="absolute inset-0 rounded-full border-4 border-transparent border-t-pink-400 border-r-orange-400 animate-spin"
+                  style={{ width: "60px", height: "60px", left: "-6px", top: "-6px" }}
+                />
+                <svg className="animate-spin h-12 w-12 text-pink-300 mx-auto" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg className="h-6 w-6 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <h3 className="text-xl font-bold text-white mb-2">アートQRコード生成中</h3>
+            <p className="text-pink-200 font-semibold mb-4">{progress}</p>
+
+            <div className="relative mb-4">
+              <div className="bg-white/20 rounded-full h-3 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400 rounded-full h-3 transition-all duration-700 ease-out"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <div className="text-right mt-1">
+                <span className="text-xs font-semibold text-pink-200">{progressPercent}%</span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-white text-sm font-medium">芸術的なQRコードを生成しています</p>
+              <p className="text-pink-200 text-xs">30秒〜60秒程度お待ちください</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button
+        type="submit"
+        className={`w-full transition-all duration-200 bg-gradient-to-r from-pink-400 to-orange-600 text-white border-0 shadow-lg shadow-pink-400/20 rounded-md px-3 py-2 text-sm font-medium ${
+          isPending ? "cursor-not-allowed" : "hover:scale-102 hover:shadow-xl hover:shadow-pink-400/30"
+        }`}
+        disabled={isPending || !state.text.trim()}
+      >
+        {isPending ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            生成中...
+          </span>
+        ) : (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
+              />
+            </svg>
+            アートQRを生成
+          </span>
+        )}
+      </button>
+
+      {!state.text.trim() && <p className="text-xs text-red-500 text-center">URLを入力してください</p>}
+    </form>
   );
 }
 

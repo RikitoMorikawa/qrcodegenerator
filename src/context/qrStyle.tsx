@@ -6,6 +6,7 @@ export type DotsStyle = "rounded" | "dots" | "classy" | "classy-rounded" | "squa
 export type CornersStyle = "dot" | "square" | "extra-rounded";
 
 export type StyleType = "normal" | "cute" | "cool" | "elegant" | "playful" | "retro";
+export type GenerationType = "logo" | "artistic"; // 生成タイプ: ロゴ生成 or アートQRコード生成
 
 export type QrStyleState = {
   text: string;
@@ -22,6 +23,8 @@ export type QrStyleState = {
   // AI生成設定
   styleType: StyleType;
   aiPrompt: string; // AI生成のプロンプト入力値
+  generationType: GenerationType; // 生成タイプ
+  artisticQrDataUrl?: string; // アートQRコード生成結果
   // UI状態
   isGeneratingAI: boolean; // AI生成中かどうか
 };
@@ -39,6 +42,8 @@ const defaultState: QrStyleState = {
   // AI生成設定
   styleType: "normal", // デフォルトは未設定（普通）
   aiPrompt: "", // AI生成のプロンプト入力値
+  generationType: "logo", // デフォルトはロゴ生成
+  artisticQrDataUrl: undefined, // アートQRコード生成結果
   // UI状態
   isGeneratingAI: false, // 初期状態は生成中ではない
 };

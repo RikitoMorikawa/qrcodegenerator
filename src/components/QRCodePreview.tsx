@@ -118,6 +118,9 @@ export default function QRCodePreview() {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [hasPublished, setHasPublished] = useState(false);
 
+  // アートQRコードの場合は通常のQRコード生成をスキップ
+  const isArtisticMode = state.generationType === "artistic" && state.artisticQrDataUrl;
+
   // client-side only: dynamic import and create instance
   useEffect(() => {
     let isMounted = true;
@@ -168,11 +171,13 @@ export default function QRCodePreview() {
 
   // update when state changes
   useEffect(() => {
-    updateQr();
+    if (!isArtisticMode) {
+      updateQr();
+    }
     // ロゴが変更された時は公開状態をリセット
     setHasPublished(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
+  }, [state, isArtisticMode]);
 
   // リサイズ時にQRコードサイズを調整
   useEffect(() => {
@@ -245,12 +250,24 @@ export default function QRCodePreview() {
   };
 
   const handleDownload = async (ext: "png" | "jpeg" | "webp" | "svg") => {
-    if (!qrRef.current) return;
-    await qrRef.current.download({ extension: ext, name: "qr-code" });
+    if (isArtisticMode && state.artisticQrDataUrl) {
+      // アートQRコードの場合は直接ダウンロード
+      const link = document.createElement("a");
+      link.href = state.artisticQrDataUrl;
+      link.download = `artistic-qr-code.${ext === "svg" ? "png" : ext}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (qrRef.current) {
+      await qrRef.current.download({ extension: ext, name: "qr-code" });
+    }
   };
 
-  // 公開可能かどうかの判定（AI生成ロゴのみ公開可能）
-  const canPublish = Boolean(state.logoDataUrl && !state.uploadedImageUrl);
+  // 公開可能かどうかの判定（AI生成ロゴまたはアートQRコードのみ公開可能）
+  const canPublish = Boolean(
+    (state.logoDataUrl && !state.uploadedImageUrl) || // AI生成ロゴ
+      (state.generationType === "artistic" && state.artisticQrDataUrl) // アートQRコード
+  );
 
   const handlePublishClick = () => {
     setShowConfirmDialog(true);
@@ -268,31 +285,45 @@ export default function QRCodePreview() {
   };
 
   const saveQRCodeToGallery = async () => {
-    if (!qrRef.current) return;
-
     try {
-      // QRコードをBlobとして取得（より確実な方法）
-      const blob = await qrRef.current.getRawData("png");
-      if (!blob) {
-        throw new Error("QRコードの画像データを取得できませんでした");
+      let dataUrl: string;
+      let qrInfo: any;
+
+      if (isArtisticMode && state.artisticQrDataUrl) {
+        // アートQRコードの場合
+        dataUrl = state.artisticQrDataUrl;
+        qrInfo = {
+          url: state.text,
+          logoType: "アートQRコード",
+          style: `アート生成・${state.styleType}スタイル`,
+          colors: "フルカラー",
+          isArtisticQR: true,
+        };
+      } else if (qrRef.current) {
+        // 通常のQRコードの場合
+        const blob = await qrRef.current.getRawData("png");
+        if (!blob) {
+          throw new Error("QRコードの画像データを取得できませんでした");
+        }
+
+        // BlobをBase64に変換
+        const reader = new FileReader();
+        dataUrl = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        qrInfo = {
+          url: state.text,
+          logoType: state.logoDataUrl ? "AI生成ロゴ" : "ロゴなし",
+          style: `${state.dotsStyle}ドット・${state.cornersStyle}コーナー`,
+          colors: `QR:${state.color} / 背景:${state.bgColor}`,
+          isArtisticQR: false,
+        };
+      } else {
+        throw new Error("QRコードデータが見つかりません");
       }
-
-      // BlobをBase64に変換
-      const reader = new FileReader();
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-
-      // QRコードの情報を構築
-      const qrInfo = {
-        url: state.text,
-        logoType: state.logoDataUrl ? "AI生成ロゴ" : "ロゴなし",
-        style: `${state.dotsStyle}ドット・${state.cornersStyle}コーナー`,
-        colors: `QR:${state.color} / 背景:${state.bgColor}`,
-      };
-
 
       // Supabaseに保存
       const response = await fetch("/api/save-qrcode", {
@@ -326,11 +357,22 @@ export default function QRCodePreview() {
         style={{
           width: "min(528px, 100%)", // スマホでは画面幅に合わせる
           height: "min(528px, calc(100vw - 40px))", // スマホでは正方形に調整、若干上下スペース追加
-          backgroundColor: state.bgColor, // プレビューコンテナも背景色に合わせる
+          backgroundColor: isArtisticMode ? "#f3f4f6" : state.bgColor, // アートQRコードの場合は中性的な背景
           opacity: state.isGeneratingAI ? 0.7 : 1, // 生成中は少し薄くする
         }}
       >
-        <div ref={containerRef} className="flex items-center justify-center" style={{ maxWidth: "100%" }} />
+        {isArtisticMode && state.artisticQrDataUrl ? (
+          // アートQRコードを表示
+          <img
+            src={state.artisticQrDataUrl}
+            alt="Artistic QR Code"
+            className="max-w-full max-h-full object-contain rounded"
+            style={{ maxWidth: "512px", maxHeight: "512px" }}
+          />
+        ) : (
+          // 通常のQRコードを表示
+          <div ref={containerRef} className="flex items-center justify-center" style={{ maxWidth: "100%" }} />
+        )}
       </div>
       <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
         <button
