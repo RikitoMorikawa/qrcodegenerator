@@ -5,29 +5,41 @@ import { GeneratedImage } from "@/lib/supabase";
 
 // 装飾的なQRコードパターンコンポーネント
 const QRPattern = () => {
+  // 固定パターンを生成（毎回同じパターン）
+  const generateFixedPattern = () => {
+    const pattern = [
+      1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1,
+      0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1,
+      0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1,
+    ];
+    return pattern;
+  };
+
+  const pattern = generateFixedPattern();
+
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative bg-white">
       {/* コーナーの位置検出パターン */}
-      <div className="absolute top-1 left-1 w-6 h-6 border-2 border-white">
-        <div className="absolute top-1 left-1 w-2 h-2 bg-white"></div>
+      <div className="absolute top-2 left-2 w-8 h-8 border-2 border-black">
+        <div className="absolute top-1.5 left-1.5 w-3 h-3 bg-black"></div>
       </div>
-      <div className="absolute top-1 right-1 w-6 h-6 border-2 border-white">
-        <div className="absolute top-1 right-1 w-2 h-2 bg-white"></div>
+      <div className="absolute top-2 right-2 w-8 h-8 border-2 border-black">
+        <div className="absolute top-1.5 right-1.5 w-3 h-3 bg-black"></div>
       </div>
-      <div className="absolute bottom-1 left-1 w-6 h-6 border-2 border-white">
-        <div className="absolute bottom-1 left-1 w-2 h-2 bg-white"></div>
+      <div className="absolute bottom-2 left-2 w-8 h-8 border-2 border-black">
+        <div className="absolute bottom-1.5 left-1.5 w-3 h-3 bg-black"></div>
       </div>
 
-      {/* ランダムドットパターン */}
-      <div className="absolute inset-8 grid grid-cols-12 gap-px">
-        {Array.from({ length: 144 }, (_, i) => (
-          <div key={i} className={`w-full h-full ${Math.random() > 0.5 ? "bg-white" : "bg-transparent"}`} />
+      {/* 固定ドットパターン */}
+      <div className="absolute inset-12 grid grid-cols-12 gap-0.5">
+        {pattern.map((filled, i) => (
+          <div key={i} className={`w-full h-full rounded-sm ${filled ? "bg-black" : "bg-transparent"}`} />
         ))}
       </div>
 
       {/* タイミングパターン（水平・垂直線） */}
-      <div className="absolute top-7 left-8 right-8 h-px bg-white opacity-60"></div>
-      <div className="absolute left-7 top-8 bottom-8 w-px bg-white opacity-60"></div>
+      <div className="absolute top-10 left-12 right-12 h-0.5 bg-black opacity-70"></div>
+      <div className="absolute left-10 top-12 bottom-12 w-0.5 bg-black opacity-70"></div>
     </div>
   );
 };
@@ -186,16 +198,16 @@ export default function ImageGallery() {
           {images.map((image) => (
             <div
               key={image.id}
-              className="group relative bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all duration-200"
+              className="group relative bg-white rounded-lg overflow-hidden border border-gray-300 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md"
             >
               <div className="aspect-square relative overflow-hidden">
                 {/* 装飾的なQRコードパターン背景 */}
-                <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0 opacity-30">
                   <QRPattern />
                 </div>
 
                 {/* メイン画像 */}
-                <div className="absolute inset-2 bg-gray-900 rounded overflow-hidden">
+                <div className="absolute inset-3 bg-white rounded overflow-hidden shadow-inner">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={image.image_url}
@@ -203,7 +215,7 @@ export default function ImageGallery() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
                 </div>
               </div>
 
