@@ -53,13 +53,7 @@ body::after {
   transform: translateX(-50%);
   width: 1200px;
   height: 800px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(61, 78, 242, 0.6) 0%,
-    rgba(146, 7, 255, 0.5) 25%,
-    rgba(35, 166, 213, 0.4) 45%,
-    transparent 70%
-  );
+  background: radial-gradient(ellipse at center, rgba(61, 78, 242, 0.6) 0%, rgba(146, 7, 255, 0.5) 25%, rgba(35, 166, 213, 0.4) 45%, transparent 70%);
   filter: blur(120px);
   z-index: 0;
   pointer-events: none;
@@ -79,7 +73,8 @@ body::after {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
     transform: translateX(-50%) scale(1);
   }
@@ -140,7 +135,8 @@ body::after {
 }
 
 @keyframes pulse-particle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
@@ -379,4 +375,14 @@ body::after {
 
 .scrollbar-thin::-webkit-scrollbar-track {
   background-color: #1f2937;
+}
+
+/* スクロールバーを完全に隠す */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
