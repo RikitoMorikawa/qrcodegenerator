@@ -198,28 +198,34 @@ export default function ImageGallery() {
           {images.map((image) => (
             <div
               key={image.id}
-              className="group relative bg-white rounded-lg overflow-hidden border border-gray-300 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="group relative bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all duration-200 shadow-sm hover:shadow-md"
             >
-              <div className="aspect-square relative overflow-hidden">
+              {/* QR部分（白背景） */}
+              <div className="aspect-square relative overflow-hidden bg-white">
                 {/* 装飾的なQRコードパターン背景 */}
                 <div className="absolute inset-0 opacity-30">
                   <QRPattern />
                 </div>
 
-                {/* メイン画像 */}
-                <div className="absolute inset-3 bg-white rounded overflow-hidden shadow-inner">
+                {/* メイン画像エリア */}
+                <div className="absolute inset-6 flex items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={image.image_url}
                     alt={image.prompt}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-200 drop-shadow-sm"
                     loading="lazy"
+                    style={{
+                      backgroundColor: "transparent",
+                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
+                    }}
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-white/10 transition-colors duration-200 rounded" />
                 </div>
               </div>
 
-              <div className="p-3">
+              {/* 説明部分（ダーク背景） */}
+              <div className="p-3 bg-gray-800/50">
                 <div className="flex items-center gap-2 mb-2">
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${
@@ -229,7 +235,7 @@ export default function ImageGallery() {
                     {getImageTypeIcon(image.style_type)}
                     {getStyleLabel(image.style_type)}
                   </span>
-                  <span className="text-xs text-gray-500">{new Date(image.created_at).toLocaleDateString("ja-JP")}</span>
+                  <span className="text-xs text-gray-400">{new Date(image.created_at).toLocaleDateString("ja-JP")}</span>
                 </div>
 
                 <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed">{image.original_prompt || image.prompt}</p>

@@ -83,17 +83,24 @@ export function removeBackgroundAdvanced(dataUrl: string): Promise<string> {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
+        const a = data[i + 3];
 
         // 白〜薄いグレーを透明にする
         const brightness = (r + g + b) / 3;
         const colorVariance = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
 
-        if (brightness > 230 && colorVariance < 20) {
+        if (brightness > 220 && colorVariance < 25) {
           // 白に近く、色の変化が少ない場合は透明にする
           data[i + 3] = 0;
-        } else if (brightness > 245) {
+        } else if (brightness > 240) {
           // 非常に明るい場合は透明にする
           data[i + 3] = 0;
+        } else if (brightness > 200 && colorVariance < 15) {
+          // 薄いグレーも透明にする
+          data[i + 3] = 0;
+        } else if (brightness > 180 && brightness < 220 && colorVariance < 10) {
+          // 中間的な明るさでも色の変化が少ない場合は半透明にする
+          data[i + 3] = Math.floor(a * 0.3);
         }
       }
 

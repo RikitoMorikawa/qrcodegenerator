@@ -17,10 +17,11 @@ export async function POST(req: NextRequest) {
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
     const filePath = `generated-images/${fileName}`;
 
-    // Supabase Storageにアップロード
+    // Supabase Storageにアップロード（PNG形式で透明背景を保持）
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage.from("images").upload(filePath, buffer, {
       contentType: "image/png",
       upsert: false,
+      cacheControl: "3600",
     });
 
     if (uploadError) {
