@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     // キャッシュチェック
     const cacheKey = `img_${Buffer.from(prompt).toString("base64")}`;
     if (imageCache.has(cacheKey)) {
-      return NextResponse.json({ dataUrl: imageCache.get(cacheKey) });
+      return NextResponse.json({ dataUrl: imageCache.get(cacheKey), fromCache: true });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       imageCache.set(cacheKey, dataUrl);
     }
 
-    return NextResponse.json({ dataUrl });
+    return NextResponse.json({ dataUrl, fromCache: false });
   } catch (e: unknown) {
     const error = e as Error;
     console.error("/api/ai-image error", error?.message || e);

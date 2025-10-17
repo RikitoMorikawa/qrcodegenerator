@@ -121,12 +121,16 @@ function AIImageGenerator() {
           setProgress(message);
         };
 
-        // 初期進捗を段階的に進める
-        setTimeout(() => updateProgress(5, "AI画像を生成中..."), 50);
-        setTimeout(() => updateProgress(12, "AI画像を生成中..."), 150);
-        setTimeout(() => updateProgress(18, "AIサーバーに接続中..."), 250);
-        setTimeout(() => updateProgress(25, "AIサーバーに接続中..."), 350);
-        setTimeout(() => updateProgress(32, "AI画像を生成中..."), 450);
+        // レスポンス時間を測定してキャッシュヒットを検出
+        const startTime = Date.now();
+        const progressTimeouts: NodeJS.Timeout[] = [];
+
+        // 初期進捗を段階的に進める（最初の5秒で20-30%まで）
+        progressTimeouts.push(setTimeout(() => updateProgress(5, "AI画像を生成中..."), 100));
+        progressTimeouts.push(setTimeout(() => updateProgress(12, "AI画像を生成中..."), 300));
+        progressTimeouts.push(setTimeout(() => updateProgress(18, "AIサーバーに接続中..."), 600));
+        progressTimeouts.push(setTimeout(() => updateProgress(25, "AIサーバーに接続中..."), 1000));
+        progressTimeouts.push(setTimeout(() => updateProgress(30, "AI画像を生成中..."), 1500));
 
         // プロンプトに設定を追加
         const styleModifier = generateStyleModifier(state.styleType);
@@ -134,6 +138,13 @@ function AIImageGenerator() {
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒タイムアウト
+
+        // 5秒後に次の段階へ進む
+        progressTimeouts.push(
+          setTimeout(() => {
+            updateProgress(35, "高品質画像を生成中...");
+          }, 5000)
+        );
 
         const res = await fetch("/api/ai-image", {
           method: "POST",
@@ -143,47 +154,62 @@ function AIImageGenerator() {
         });
 
         clearTimeout(timeoutId);
+        const responseTime = Date.now() - startTime;
+        const isCacheHit = responseTime < 2000; // 2秒以内はキャッシュヒットと判定
 
         if (!res.ok) {
           const err = await safeJson(res);
           throw new Error(err?.error || res.statusText);
         }
 
-        // API完了後の段階的進捗
-        updateProgress(45, "画像を受信中...");
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // キャッシュヒットの場合は進行中のタイムアウトをクリア
+        if (isCacheHit) {
+          progressTimeouts.forEach((timeout) => clearTimeout(timeout));
+          updateProgress(80, "キャッシュから取得中...");
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        } else {
+          // API完了後の段階的進捗（新規生成の場合）
+          updateProgress(50, "画像を受信中...");
+          await new Promise((resolve) => setTimeout(resolve, 400));
+        }
 
-        updateProgress(55, "画像を処理中...");
-        const json = (await res.json()) as { dataUrl: string };
+        updateProgress(isCacheHit ? 85 : 60, "画像を処理中...");
+        const json = (await res.json()) as { dataUrl: string; fromCache?: boolean };
 
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        updateProgress(65, "背景を透明化中...");
+        // APIからのキャッシュ情報も考慮
+        const isActualCacheHit = isCacheHit || json.fromCache;
 
-        await new Promise((resolve) => setTimeout(resolve, 200));
-        updateProgress(75, "背景を透明化中...");
+        await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 200 : 500));
+        updateProgress(isActualCacheHit ? 90 : 70, "背景を透明化中...");
+
+        await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 200 : 400));
+        updateProgress(isActualCacheHit ? 95 : 80, "背景を透明化中...");
 
         // 背景除去処理を適用
         const processedDataUrl = await removeBackgroundAdvanced(json.dataUrl);
 
-        updateProgress(85, "最終調整中...");
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(isActualCacheHit ? 98 : 90, "最終調整中...");
+        await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 200 : 400));
 
-        updateProgress(92, "最終調整中...");
+        updateProgress(isActualCacheHit ? 99 : 95, "最終調整中...");
         setState((s) => ({
           ...s,
           logoDataUrl: processedDataUrl,
           uploadedImageUrl: undefined, // AI生成時はアップロード画像をクリア
         }));
 
-        await new Promise((resolve) => setTimeout(resolve, 200));
-        updateProgress(100, "完了！");
+        await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 100 : 300));
+        updateProgress(100, isActualCacheHit ? "キャッシュから完了！" : "完了！");
 
-        // 100%表示を少し見せてから非表示
-        setTimeout(() => {
-          setProgress("");
-          setShowFullScreenProgress(false);
-          setProgressPercent(0);
-        }, 1500);
+        // 100%表示を少し見せてから非表示（キャッシュヒット時は短縮）
+        setTimeout(
+          () => {
+            setProgress("");
+            setShowFullScreenProgress(false);
+            setProgressPercent(0);
+          },
+          isActualCacheHit ? 800 : 1500
+        );
       } catch (error: unknown) {
         setProgress("");
         setShowFullScreenProgress(false);
@@ -255,43 +281,103 @@ function AIImageGenerator() {
 
       {/* Full Screen Progress Overlay */}
       {showFullScreenProgress && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center shadow-2xl">
-            <div className="mb-6">
-              <div className="relative inline-block">
-                <svg className="animate-spin h-16 w-16 text-blue-600 mx-auto" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          {/* リッチな背景 */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+            {/* アニメーション背景パーティクル */}
+            <div className="absolute inset-0">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full bg-white opacity-10 animate-pulse"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    width: `${Math.random() * 4 + 2}px`,
+                    height: `${Math.random() * 4 + 2}px`,
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${Math.random() * 2 + 2}s`,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* グラデーション波形 */}
+            <div className="absolute inset-0 opacity-30">
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-y-12 animate-pulse"
+                style={{
+                  background: "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)",
+                  animation: "wave 4s ease-in-out infinite",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* メインコンテンツ */}
+          <div className="relative flex items-center justify-center min-h-screen p-4">
+            <div className="bg-white/95 backdrop-blur-lg rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-white/20">
+              <div className="mb-8">
+                <div className="relative inline-block">
+                  {/* 外側の回転リング */}
+                  <div
+                    className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 border-r-purple-500 animate-spin"
+                    style={{ width: "80px", height: "80px", left: "-8px", top: "-8px" }}
                   />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                  {/* メインスピナー */}
+                  <svg className="animate-spin h-16 w-16 text-blue-600 mx-auto" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
                     <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
+
+                  {/* 中央アイコン */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">AI画像生成中</h3>
+              <p className="text-xl text-blue-600 font-semibold mb-6">{progress}</p>
+
+              {/* プログレスバー */}
+              <div className="relative mb-6">
+                <div className="bg-gray-200 rounded-full h-4 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full h-4 transition-all duration-700 ease-out relative"
+                    style={{ width: `${progressPercent}%` }}
+                  >
+                    {/* プログレスバーの光沢効果 */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse" />
+                  </div>
+                </div>
+                <div className="text-right mt-2">
+                  <span className="text-sm font-semibold text-gray-600">{progressPercent}%</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-gray-700 font-medium">高品質なロゴを生成しています</p>
+                <p className="text-gray-500 text-sm">数秒〜30秒程度お待ちください</p>
+                <div className="flex items-center justify-center gap-1 mt-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
+                  ))}
                 </div>
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">AI画像生成中</h3>
-            <p className="text-lg text-blue-600 font-semibold mb-4">{progress}</p>
-            <div className="bg-gray-200 rounded-full h-3 mb-4">
-              <div
-                className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-full h-3 transition-all duration-500 ease-out"
-                style={{ width: `${progressPercent}%` }}
-              ></div>
-            </div>
-            <p className="text-gray-600 text-sm">
-              高品質なロゴを生成しています
-              <br />
-              数秒〜30秒程度お待ちください
-            </p>
           </div>
         </div>
       )}
