@@ -263,10 +263,9 @@ export default function QRCodePreview() {
     }
   };
 
-  // 公開可能かどうかの判定（AI生成ロゴまたはアートQRコードのみ公開可能）
+  // 公開可能かどうかの判定（AI生成ロゴのみ公開可能、アートQRは専用ギャラリーへ）
   const canPublish = Boolean(
-    (state.logoDataUrl && !state.uploadedImageUrl) || // AI生成ロゴ
-      (state.generationType === "artistic" && state.artisticQrDataUrl) // アートQRコード
+    state.logoDataUrl && !state.uploadedImageUrl && state.generationType === "logo" // AI生成ロゴのみ
   );
 
   const handlePublishClick = () => {
@@ -353,15 +352,27 @@ export default function QRCodePreview() {
   return (
     <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
       <div
-        className={`rounded-lg border p-2 max-w-full overflow-hidden flex items-center justify-center relative ${state.isGeneratingAI ? "pointer-events-none" : ""}`}
+        className={`rounded-lg border p-2 max-w-full overflow-hidden relative ${state.isGeneratingAI ? "pointer-events-none" : ""}`}
         style={{
           width: "min(528px, 100%)", // スマホでは画面幅に合わせる
           height: "min(528px, calc(100vw - 40px))", // スマホでは正方形に調整、若干上下スペース追加
           backgroundColor: isArtisticMode ? "#f3f4f6" : state.bgColor, // アートQRコードの場合は中性的な背景
         }}
       >
-        {state.isGeneratingAI && state.generationProgress ? (
-          // AI生成中のプログレス表示（最前面に表示）
+        {/* 通常のQRコード（背景レイヤー） */}
+        {!isArtisticMode && <div ref={containerRef} className="absolute inset-0 flex items-center justify-center" />}
+
+        {/* アートQRコード（背景レイヤー） */}
+        {isArtisticMode && state.artisticQrDataUrl && !state.isGeneratingAI && (
+          <img
+            src={state.artisticQrDataUrl}
+            alt="Artistic QR Code"
+            className="absolute inset-0 w-full h-full object-contain rounded p-2"
+          />
+        )}
+
+        {/* AI生成中のプログレス表示（最前面レイヤー） */}
+        {state.isGeneratingAI && state.generationProgress && (
           <div className="absolute inset-0 bg-gradient-to-br from-pink-900 via-purple-900 to-orange-900 rounded-lg flex items-center justify-center overflow-hidden z-50">
             {/* 背景パーティクル */}
             <div className="absolute inset-0">
@@ -414,17 +425,6 @@ export default function QRCodePreview() {
               )}
             </div>
           </div>
-        ) : isArtisticMode && state.artisticQrDataUrl ? (
-          // アートQRコードのみを表示（シンプル）
-          <img
-            src={state.artisticQrDataUrl}
-            alt="Artistic QR Code"
-            className="max-w-full max-h-full object-contain rounded"
-            style={{ maxWidth: "512px", maxHeight: "512px" }}
-          />
-        ) : (
-          // 通常のQRコードを表示
-          <div ref={containerRef} className="flex items-center justify-center" style={{ maxWidth: "100%" }} />
         )}
       </div>
       <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">

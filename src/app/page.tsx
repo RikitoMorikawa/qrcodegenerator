@@ -5,6 +5,7 @@ import Controls from "@/components/Controls";
 import QRCodePreview from "@/components/QRCodePreview";
 import HelpModal from "@/components/HelpModal";
 import ImageGallery from "@/components/ImageGallery";
+import ArtisticQRGallery from "@/components/ArtisticQRGallery";
 import { QrStyleProvider } from "@/context/qrStyle";
 
 export default function Home() {
@@ -83,6 +84,11 @@ export default function Home() {
           {/* 画像ギャラリーセクション */}
           <div className="mt-6 sm:mt-8">
             <ImageGallery />
+          </div>
+
+          {/* アートQRコードギャラリーセクション */}
+          <div className="mt-6 sm:mt-8">
+            <ArtisticQRGallery />
           </div>
         </div>
 

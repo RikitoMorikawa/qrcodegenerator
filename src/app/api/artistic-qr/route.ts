@@ -86,44 +86,42 @@ This will be used as an artistic background, so make it visually stunning and co
     const artImageResponse = await fetch(artImageUrl);
     const artImageBuffer = await artImageResponse.arrayBuffer();
 
-    // 5. QRコードとアート画像を合成（読み取り性重視）
+    // 5. QRコードとアート画像を合成（読み取り性重視、シンプルな方法）
     // QRコードをBase64からBufferに変換
     const qrBase64 = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
     const qrBuffer = Buffer.from(qrBase64, "base64");
 
-    // アート画像を明るく、鮮やかに処理
+    // アート画像を処理（明るく鮮やかに、より強く）
     const processedArt = await sharp(Buffer.from(artImageBuffer))
       .resize(1024, 1024, { fit: "cover" })
       .modulate({
-        brightness: 1.3, // より明るく
-        saturation: 1.4, // より鮮やかに
+        brightness: 1.6, // さらに明るく
+        saturation: 1.8, // 彩度をさらに高く
       })
-      .blur(1) // 軽くぼかしてQRパターンを際立たせる
+      .blur(3) // もう少しぼかしてQRパターンを際立たせる
       .toBuffer();
 
-    // QRコードを強調処理
+    // QRコードを強調（二値化して明確に、コントラストを強く）
     const qrEnhanced = await sharp(qrBuffer)
       .resize(1024, 1024)
-      .threshold(128) // 二値化して黒白をはっきりさせる
+      .threshold(128) // 二値化
+      .linear(1.5, 0) // コントラストを強化
       .toBuffer();
 
-    // 2段階合成：まずアート画像を減光、次にQRコードを重ねる
-    const darkened = await sharp(processedArt)
-      .modulate({
-        brightness: 0.6, // アート画像を暗くしてQRコントラストを確保
-      })
-      .toBuffer();
-
-    // QRコードを上に重ねる（オーバーレイモード）
-    const composited = await sharp(darkened)
+    // シンプルにmultiplyブレンドで合成
+    // アート画像にQRパターンを焼き込む形
+    const composited = await sharp(processedArt)
       .composite([
         {
           input: qrEnhanced,
-          blend: "lighten", // QRの明るい部分（白）をアートに重ねる
+          blend: "multiply", // 乗算モード：QRの黒がアートを暗く、白は変化なし
         },
       ])
-      .linear(1.5, -30) // コントラストを強化（係数1.5、オフセット-30）
-      .sharpen({ sigma: 2 }) // 強めにシャープ化
+      .modulate({
+        brightness: 1.4, // 最終的に明るさをさらに調整
+        saturation: 1.3, // 彩度も補正
+      })
+      .sharpen({ sigma: 3 }) // さらに強くシャープ化して読み取り性向上
       .png()
       .toBuffer();
 

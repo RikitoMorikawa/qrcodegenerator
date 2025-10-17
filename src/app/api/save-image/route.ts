@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, originalPrompt, styleType, imageDataUrl, isPublic = true } = await req.json();
+    const { prompt, originalPrompt, styleType, imageDataUrl, isPublic = true, isArtisticQR = false, qrText } = await req.json();
 
     if (!prompt || !imageDataUrl || !originalPrompt) {
       return NextResponse.json({ error: "prompt, originalPrompt and imageDataUrl are required" }, { status: 400 });
@@ -41,6 +41,8 @@ export async function POST(req: NextRequest) {
         style_type: styleType || "normal",
         image_url: urlData.publicUrl,
         is_public: isPublic,
+        is_artistic_qr: isArtisticQR,
+        qr_text: qrText || null,
       })
       .select()
       .single();
