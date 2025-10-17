@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useQrStyle } from "@/context/qrStyle";
-import { Upload, X } from "lucide-react";
+import { Upload, X, CheckCircle } from "lucide-react";
 
 // 透明な画像を作成する関数
 const createTransparentImage = () => {
@@ -14,6 +14,31 @@ const createTransparentImage = () => {
     ctx.clearRect(0, 0, 100, 100); // 完全に透明
   }
   return canvas.toDataURL("image/png");
+};
+
+// 成功ダイアログコンポーネント
+const SuccessDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-gray-700">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle size={32} className="text-green-400" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">公開完了！</h3>
+          <div className="text-gray-300 mb-6">QRコードがギャラリーに公開されました</div>
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl hover:from-green-700 hover:to-blue-700 transition-all duration-200 font-medium"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // カスタム確認ダイアログコンポーネント
@@ -90,6 +115,7 @@ export default function QRCodePreview() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const qrRef = useRef<any>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   // client-side only: dynamic import and create instance
   useEffect(() => {
@@ -226,7 +252,12 @@ export default function QRCodePreview() {
 
   const handleConfirmPublish = async () => {
     setShowConfirmDialog(false);
-    await saveQRCodeToGallery();
+    try {
+      await saveQRCodeToGallery();
+      setShowSuccessDialog(true);
+    } catch (error) {
+      // エラーハンドリングは既にsaveQRCodeToGallery内で行われている
+    }
   };
 
   const saveQRCodeToGallery = async () => {
@@ -272,7 +303,6 @@ export default function QRCodePreview() {
       console.log("Save QR code result:", result);
 
       if (response.ok) {
-        alert("QRコードをギャラリーに保存しました！");
         // ギャラリーを更新するためのイベントを発火
         window.dispatchEvent(new CustomEvent("qrcode-saved"));
       } else {
@@ -280,7 +310,7 @@ export default function QRCodePreview() {
       }
     } catch (error) {
       console.error("QRコード保存エラー:", error);
-      alert(`QRコードの保存に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`);
+      throw error; // エラーを再スローして上位でハンドリング
     }
   };
 
@@ -317,6 +347,9 @@ export default function QRCodePreview() {
 
       {/* カスタム確認ダイアログ */}
       <ConfirmDialog isOpen={showConfirmDialog} onClose={() => setShowConfirmDialog(false)} onConfirm={handleConfirmPublish} url={state.text} />
+
+      {/* 成功ダイアログ */}
+      <SuccessDialog isOpen={showSuccessDialog} onClose={() => setShowSuccessDialog(false)} />
     </div>
   );
 }
