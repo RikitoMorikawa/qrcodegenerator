@@ -30,5 +30,11 @@
     "eslint-config-next": "15.5.5",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "@img/sharp-darwin-arm64": "^0.34.4",
+    "@img/sharp-darwin-x64": "^0.34.4",
+    "@img/sharp-linux-arm64": "^0.34.4",
+    "@img/sharp-linux-x64": "^0.34.4"
   }
 }
