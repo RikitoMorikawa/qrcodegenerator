@@ -22,6 +22,8 @@ export type QrStyleState = {
   // AI生成設定
   styleType: StyleType;
   aiPrompt: string; // AI生成のプロンプト入力値
+  // UI状態
+  isGeneratingAI: boolean; // AI生成中かどうか
 };
 
 const defaultState: QrStyleState = {
@@ -37,6 +39,8 @@ const defaultState: QrStyleState = {
   // AI生成設定
   styleType: "normal", // デフォルトは未設定（普通）
   aiPrompt: "", // AI生成のプロンプト入力値
+  // UI状態
+  isGeneratingAI: false, // 初期状態は生成中ではない
 };
 
 type QrStyleContextValue = {

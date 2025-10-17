@@ -324,35 +324,60 @@ export default function QRCodePreview() {
   return (
     <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
       <div
-        className="rounded-lg border p-2 max-w-full overflow-hidden flex items-center justify-center"
+        className={`rounded-lg border p-2 max-w-full overflow-hidden flex items-center justify-center ${state.isGeneratingAI ? "pointer-events-none" : ""}`}
         style={{
           width: "min(528px, 100%)", // スマホでは画面幅に合わせる
           height: "min(528px, calc(100vw - 40px))", // スマホでは正方形に調整、若干上下スペース追加
           backgroundColor: state.bgColor, // プレビューコンテナも背景色に合わせる
+          opacity: state.isGeneratingAI ? 0.7 : 1, // 生成中は少し薄くする
         }}
       >
         <div ref={containerRef} className="flex items-center justify-center" style={{ maxWidth: "100%" }} />
       </div>
       <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
-        <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("png")}>
+        <button
+          className={`btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
+          onClick={() => handleDownload("png")}
+          disabled={state.isGeneratingAI}
+        >
           PNG
         </button>
-        <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("jpeg")}>
+        <button
+          className={`btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
+          onClick={() => handleDownload("jpeg")}
+          disabled={state.isGeneratingAI}
+        >
           JPEG
         </button>
-        <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("webp")}>
+        <button
+          className={`btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
+          onClick={() => handleDownload("webp")}
+          disabled={state.isGeneratingAI}
+        >
           WEBP
         </button>
-        <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("svg")}>
+        <button
+          className={`btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
+          onClick={() => handleDownload("svg")}
+          disabled={state.isGeneratingAI}
+        >
           SVG
         </button>
         <button
           className={`btn text-xs px-2 py-1 flex items-center gap-1 ${
-            canPublish && !hasPublished ? "btn-primary" : "bg-gray-600 text-gray-400 cursor-not-allowed"
+            canPublish && !hasPublished && !state.isGeneratingAI ? "btn-primary" : "bg-gray-600 text-gray-400 cursor-not-allowed"
           }`}
-          onClick={canPublish && !hasPublished ? handlePublishClick : undefined}
-          disabled={!canPublish || hasPublished}
-          title={hasPublished ? "既に公開済みです" : !canPublish ? "AI生成ロゴのみ公開できます" : "QRコードを公開"}
+          onClick={canPublish && !hasPublished && !state.isGeneratingAI ? handlePublishClick : undefined}
+          disabled={!canPublish || hasPublished || state.isGeneratingAI}
+          title={
+            state.isGeneratingAI
+              ? "AI生成中は公開できません"
+              : hasPublished
+              ? "既に公開済みです"
+              : !canPublish
+              ? "AI生成ロゴのみ公開できます"
+              : "QRコードを公開"
+          }
         >
           <Upload size={12} />
           {hasPublished ? "公開済み" : "公開"}

@@ -6,22 +6,31 @@ import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
 
 export default function Controls() {
   const { state, setState } = useQrStyle();
-  const [isGenerating, setIsGenerating] = React.useState(false);
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
     setState((s) => ({ ...s, [key]: value }));
+  };
+
+  const handleGeneratingChange = (isGenerating: boolean) => {
+    setState((s) => ({ ...s, isGeneratingAI: isGenerating }));
   };
 
   return (
     <div className="grid gap-6">
       <div className="space-y-3">
         <label className="block text-sm font-medium">URL</label>
-        <input className="input" value={state.text} onChange={(e) => onChange("text", e.target.value)} placeholder="https://..." disabled={isGenerating} />
+        <input
+          className="input"
+          value={state.text}
+          onChange={(e) => onChange("text", e.target.value)}
+          placeholder="https://..."
+          disabled={state.isGeneratingAI}
+        />
       </div>
 
       <div className="space-y-3">
-        <ImageUploader isDisabled={isGenerating} />
-        <AIImageGenerator onGeneratingChange={setIsGenerating} />
+        <ImageUploader isDisabled={state.isGeneratingAI} />
+        <AIImageGenerator onGeneratingChange={handleGeneratingChange} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -531,14 +540,26 @@ function ImageUploader({ isDisabled }: { isDisabled: boolean }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={state.uploadedImageUrl} alt="アップロード画像" className="max-w-20 max-h-20 object-contain" />
           </div>
-          <button type="button" onClick={handleRemoveImage} className="btn w-full text-red-600 border-red-300 hover:bg-red-50" disabled={isDisabled}>
+          <button
+            type="button"
+            onClick={handleRemoveImage}
+            className={`btn w-full ${
+              isDisabled ? "bg-gray-600 text-gray-400 cursor-not-allowed border-gray-600" : "text-red-600 border-red-300 hover:bg-red-50"
+            }`}
+            disabled={isDisabled}
+          >
             画像を削除
           </button>
         </div>
       ) : (
         <div className="space-y-2">
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" disabled={isDisabled} />
-          <button type="button" onClick={() => fileInputRef.current?.click()} className="btn btn-primary w-full" disabled={isDisabled}>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={`btn w-full ${isDisabled ? "bg-gray-600 text-gray-400 cursor-not-allowed" : "btn-primary hover:bg-blue-700"}`}
+            disabled={isDisabled}
+          >
             <span className="flex items-center justify-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
