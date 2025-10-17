@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     // Use Images API to generate high-quality logo
     const result = await openai.images.generate({
       model: "dall-e-3",
-      prompt: `${prompt}, high quality character design, on pure white background for easy removal, vector-style flat design, crisp clean lines, professional logo quality, no text, perfect icon style, simple clean background.`,
+      prompt: `${prompt}, high quality character design, completely isolated on pure white background (#FFFFFF), vector-style flat design, crisp clean lines, professional logo quality, no text, perfect icon style, minimal clean background, no shadows, no gradients on background, solid white background only.`,
       size: "1024x1024",
       quality: "hd", // 高品質に変更
       response_format: "b64_json",
