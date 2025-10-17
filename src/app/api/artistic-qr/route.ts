@@ -4,8 +4,12 @@ import sharp from "sharp";
 
 // アートQRコード生成API
 export async function POST(request: NextRequest) {
+  console.log("[artistic-qr] POST handler called");
+
   try {
-    const { text, prompt, styleType = "normal" } = await request.json();
+    const body = await request.json();
+    console.log("[artistic-qr] Request body:", body);
+    const { text, prompt, styleType = "normal" } = body;
 
     if (!text || !prompt) {
       return NextResponse.json({ error: "Text and prompt are required" }, { status: 400 });
@@ -86,8 +90,8 @@ This will be used as an artistic background, so make it visually stunning and co
     const artImageResponse = await fetch(artImageUrl);
     const artImageBuffer = await artImageResponse.arrayBuffer();
 
-    // 5. QRコードとアート画像を合成（読み取り性重視：白背景 + 色付きQRパターン）
-    // QRコードをBase64からBufferに変換
+    // 5. QRコードとアート画像を合成（読み取り性重視、シンプルな方法）
+    console.log("[artistic-qr] Starting image composition");
     const qrBase64 = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
     const qrBuffer = Buffer.from(qrBase64, "base64");
 
@@ -148,6 +152,7 @@ This will be used as an artistic background, so make it visually stunning and co
       .sharpen({ sigma: 2.5 })
       .png()
       .toBuffer();
+    console.log("[artistic-qr] Image composition completed");
 
     const artDataUrl = `data:image/png;base64,${composited.toString("base64")}`;
 
@@ -169,9 +174,15 @@ This will be used as an artistic background, so make it visually stunning and co
       },
     });
   } catch (error) {
-    console.error("Artistic QR generation error:", error);
+    console.error("[artistic-qr] Error occurred:", error);
+    console.error("[artistic-qr] Error stack:", error instanceof Error ? error.stack : "No stack");
     return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to generate artistic QR code" }, { status: 500 });
   }
+}
+
+// Vercelで405エラーが出る場合のフォールバック
+export async function GET() {
+  return NextResponse.json({ error: "This endpoint only accepts POST requests" }, { status: 405 });
 }
 
 // スタイル修飾子を取得

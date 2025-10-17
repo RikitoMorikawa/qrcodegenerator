@@ -75,18 +75,24 @@ export default function ArtisticQRGallery() {
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         {items.map((item) => (
-          <div
+          <a
             key={item.id}
-            className="group relative aspect-square rounded-lg overflow-hidden border border-gray-700 hover:border-pink-400 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-pink-400/20"
+            href={item.image_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative aspect-square rounded-lg overflow-hidden border border-gray-700 hover:border-pink-400 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-pink-400/20 cursor-pointer block"
           >
             <img src={item.image_url} alt={item.prompt} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between">
+              <div className="flex justify-center items-center flex-1">
+                <p className="text-white text-sm font-semibold">クリックで拡大</p>
+              </div>
+              <div className="p-3 text-white">
                 <p className="text-xs font-semibold line-clamp-2 mb-1">{item.prompt}</p>
                 <p className="text-xs text-gray-300 line-clamp-1">{item.qr_text}</p>
               </div>
             </div>
-          </div>
+          </a>
         ))}
       </div>
     </div>
