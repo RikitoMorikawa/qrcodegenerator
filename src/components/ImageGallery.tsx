@@ -83,7 +83,6 @@ export default function ImageGallery() {
         throw new Error(data.error || "Failed to fetch images");
       }
 
-      console.log("Images fetched:", data.images);
       setImages(data.images);
     } catch (err) {
       console.error("Error fetching images:", err);
