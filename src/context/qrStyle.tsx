@@ -28,6 +28,8 @@ export type QrStyleState = {
   actualQrDataUrl?: string; // 実際のQRコード（アート生成時の参考用）
   // UI状態
   isGeneratingAI: boolean; // AI生成中かどうか
+  generationProgress?: string; // 生成プログレスメッセージ
+  generationPercent?: number; // 生成プログレス（0-100）
 };
 
 const defaultState: QrStyleState = {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import QRCode from "qrcode";
+import sharp from "sharp";
 
 // アートQRコード生成API
 export async function POST(request: NextRequest) {
@@ -10,15 +11,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Text and prompt are required" }, { status: 400 });
     }
 
-    // 1. まず確実に読み取れるQRコードを生成
+    // 1. まず確実に読み取れるQRコードを生成（高解像度）
     const qrCodeDataUrl = await QRCode.toDataURL(text, {
       width: 1024,
-      margin: 4,
+      margin: 2,
       color: {
         dark: "#000000",
         light: "#FFFFFF",
       },
-      errorCorrectionLevel: "H", // 最高レベルのエラー訂正
+      errorCorrectionLevel: "H", // 最高レベルのエラー訂正（30%まで復元可能）
     });
 
     // 2. QRコードの詳細情報を取得
@@ -35,51 +36,24 @@ export async function POST(request: NextRequest) {
       qrPattern += "\n";
     }
 
-    // 2. QRコード構造を保持したアート生成
+    // 2. アート画像を生成（QRコードとは別に）
     const styleModifier = getStyleModifier(styleType);
 
-    // 3. 添付画像のような高品質アートQRコード生成プロンプト
-    const artPrompt = `Create a masterpiece artistic QR code featuring: "${prompt}"
+    // プロンプトをシンプルに：テーマに沿った美しい背景画像を生成
+    const artPrompt = `Create a beautiful, vibrant artistic background featuring: "${prompt}"
 
-REFERENCE STYLE: Like a beautiful digital artwork where "${prompt}" is seamlessly integrated into a functional QR code structure, similar to high-end generative art.
+Style: ${styleModifier || "Vibrant, colorful, high-contrast digital art"}
+Requirements:
+- Rich, saturated colors with high contrast
+- Detailed textures and patterns
+- Professional digital artwork quality
+- Abstract or stylized interpretation of "${prompt}"
+- Suitable as a background for overlay composition
+- High visual impact with depth and dimension
 
-QR CODE STRUCTURE (MUST PRESERVE):
-- ${size}×${size} precise grid layout
-- Three corner detection squares: top-left, top-right, bottom-left (7×7 modules each)
-- Each corner square: thick black border, white interior space, black center dot
-- Data modules arranged in exact grid pattern for "${text}"
-- Clear module separation and high contrast
+This will be used as an artistic background, so make it visually stunning and colorful!`;
 
-ARTISTIC INTEGRATION FOR "${prompt}":
-🎨 VISUAL STYLE: ${styleModifier || "Vibrant, detailed, professional digital art with rich textures"}
-🎨 MAIN SUBJECT: Feature "${prompt}" as the central artistic element flowing through the QR structure
-🎨 COLOR HARMONY: Use a rich palette with deep blues, vibrant oranges, purples, and teals
-🎨 TEXTURE & DETAIL: Add intricate patterns, gradients, and artistic flourishes
-🎨 DIMENSIONAL DEPTH: Create layers and depth that make the artwork pop
-
-FUSION TECHNIQUE:
-- Transform QR data modules into colorful geometric patterns and "${prompt}"-themed elements
-- Make corner detection squares into ornate, decorative frames with artistic borders
-- Let "${prompt}" imagery flow organically through white spaces while respecting QR boundaries
-- Use pixelated/mosaic effects that honor the QR grid while being visually stunning
-- Create seamless integration where technology and art become indistinguishable
-
-COMPOSITION GOALS:
-- The "${prompt}" should be the hero of the composition
-- QR functionality preserved through strategic color and contrast choices
-- Professional gallery-worthy artistic quality
-- Perfect balance of recognition and beauty
-
-TECHNICAL EXCELLENCE:
-✓ Museum-quality digital artwork aesthetic
-✓ Perfect QR code functionality for "${text}"
-✓ High contrast maintained throughout
-✓ Professional composition and color theory
-✓ Scannable by any QR reader
-
-Create a breathtaking fusion where "${prompt}" and QR code technology become one unified masterpiece!`;
-
-    // 3. アートQRコードを生成
+    // 3. アート画像を生成
     const artResponse = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
@@ -111,8 +85,49 @@ Create a breathtaking fusion where "${prompt}" and QR code technology become one
     // 4. 生成されたアート画像をダウンロード
     const artImageResponse = await fetch(artImageUrl);
     const artImageBuffer = await artImageResponse.arrayBuffer();
-    const artImageBase64 = Buffer.from(artImageBuffer).toString("base64");
-    const artDataUrl = `data:image/png;base64,${artImageBase64}`;
+
+    // 5. QRコードとアート画像を合成（読み取り性重視）
+    // QRコードをBase64からBufferに変換
+    const qrBase64 = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
+    const qrBuffer = Buffer.from(qrBase64, "base64");
+
+    // アート画像を明るく、鮮やかに処理
+    const processedArt = await sharp(Buffer.from(artImageBuffer))
+      .resize(1024, 1024, { fit: "cover" })
+      .modulate({
+        brightness: 1.3, // より明るく
+        saturation: 1.4, // より鮮やかに
+      })
+      .blur(1) // 軽くぼかしてQRパターンを際立たせる
+      .toBuffer();
+
+    // QRコードを強調処理
+    const qrEnhanced = await sharp(qrBuffer)
+      .resize(1024, 1024)
+      .threshold(128) // 二値化して黒白をはっきりさせる
+      .toBuffer();
+
+    // 2段階合成：まずアート画像を減光、次にQRコードを重ねる
+    const darkened = await sharp(processedArt)
+      .modulate({
+        brightness: 0.6, // アート画像を暗くしてQRコントラストを確保
+      })
+      .toBuffer();
+
+    // QRコードを上に重ねる（オーバーレイモード）
+    const composited = await sharp(darkened)
+      .composite([
+        {
+          input: qrEnhanced,
+          blend: "lighten", // QRの明るい部分（白）をアートに重ねる
+        },
+      ])
+      .linear(1.5, -30) // コントラストを強化（係数1.5、オフセット-30）
+      .sharpen({ sigma: 2 }) // 強めにシャープ化
+      .png()
+      .toBuffer();
+
+    const artDataUrl = `data:image/png;base64,${composited.toString("base64")}`;
 
     // 読み取りテスト用の情報も含めて返す
     return NextResponse.json({

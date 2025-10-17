@@ -736,9 +736,6 @@ function GenerationTypeSelector() {
 function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGenerating: boolean) => void }) {
   const { state, setState } = useQrStyle();
   const [isPending, startTransition] = useTransition();
-  const [progress, setProgress] = React.useState<string>("");
-  const [showFullScreenProgress, setShowFullScreenProgress] = React.useState(false);
-  const [progressPercent, setProgressPercent] = React.useState(0);
   const [isPublic, setIsPublic] = React.useState(true);
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
@@ -750,15 +747,20 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
     if (!userPrompt || !state.text) return;
 
     onGeneratingChange(true);
-    setShowFullScreenProgress(true);
-    setProgressPercent(0);
-    setProgress("アートQRコードを生成中...");
+    setState((s) => ({
+      ...s,
+      generationProgress: "アートQRコードを生成中...",
+      generationPercent: 0,
+    }));
 
     startTransition(async () => {
       try {
         const updateProgress = (percent: number, message: string) => {
-          setProgressPercent(percent);
-          setProgress(message);
+          setState((s) => ({
+            ...s,
+            generationProgress: message,
+            generationPercent: percent,
+          }));
         };
 
         const startTime = Date.now();
@@ -819,15 +821,19 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
 
         updateProgress(100, "完了！");
         setTimeout(() => {
-          setProgress("");
-          setShowFullScreenProgress(false);
-          setProgressPercent(0);
+          setState((s) => ({
+            ...s,
+            generationProgress: undefined,
+            generationPercent: undefined,
+          }));
           onGeneratingChange(false);
         }, 1500);
       } catch (error: unknown) {
-        setProgress("");
-        setShowFullScreenProgress(false);
-        setProgressPercent(0);
+        setState((s) => ({
+          ...s,
+          generationProgress: undefined,
+          generationPercent: undefined,
+        }));
         onGeneratingChange(false);
         const err = error as Error;
         if (err.name === "AbortError") {
@@ -909,78 +915,6 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
         onChange={(e) => onChange("aiPrompt", e.target.value)}
         disabled={isPending}
       />
-
-      {/* プログレス表示 */}
-      {showFullScreenProgress && (
-        <div className="mt-4 bg-gradient-to-br from-pink-900 via-purple-900 to-orange-900 rounded-lg p-6 text-white relative overflow-hidden">
-          {/* アニメーション背景 */}
-          <div className="absolute inset-0">
-            {[...Array(15)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full bg-white opacity-10 animate-pulse"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: `${Math.random() * 4 + 2}px`,
-                  height: `${Math.random() * 4 + 2}px`,
-                  animationDelay: `${Math.random() * 3}s`,
-                  animationDuration: `${Math.random() * 3 + 2}s`,
-                }}
-              />
-            ))}
-          </div>
-
-          <div className="relative text-center">
-            <div className="mb-6">
-              <div className="relative inline-block">
-                <div
-                  className="absolute inset-0 rounded-full border-4 border-transparent border-t-pink-400 border-r-orange-400 animate-spin"
-                  style={{ width: "60px", height: "60px", left: "-6px", top: "-6px" }}
-                />
-                <svg className="animate-spin h-12 w-12 text-pink-300 mx-auto" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg className="h-6 w-6 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <h3 className="text-xl font-bold text-white mb-2">アートQRコード生成中</h3>
-            <p className="text-pink-200 font-semibold mb-4">{progress}</p>
-
-            <div className="relative mb-4">
-              <div className="bg-white/20 rounded-full h-3 overflow-hidden">
-                <div
-                  className="bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400 rounded-full h-3 transition-all duration-700 ease-out"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-              <div className="text-right mt-1">
-                <span className="text-xs font-semibold text-pink-200">{progressPercent}%</span>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-white text-sm font-medium">芸術的なQRコードを生成しています</p>
-              <p className="text-pink-200 text-xs">30秒〜60秒程度お待ちください</p>
-            </div>
-          </div>
-        </div>
-      )}
 
       <button
         type="submit"

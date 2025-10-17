@@ -353,15 +353,68 @@ export default function QRCodePreview() {
   return (
     <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
       <div
-        className={`rounded-lg border p-2 max-w-full overflow-hidden flex items-center justify-center ${state.isGeneratingAI ? "pointer-events-none" : ""}`}
+        className={`rounded-lg border p-2 max-w-full overflow-hidden flex items-center justify-center relative ${state.isGeneratingAI ? "pointer-events-none" : ""}`}
         style={{
           width: "min(528px, 100%)", // スマホでは画面幅に合わせる
           height: "min(528px, calc(100vw - 40px))", // スマホでは正方形に調整、若干上下スペース追加
           backgroundColor: isArtisticMode ? "#f3f4f6" : state.bgColor, // アートQRコードの場合は中性的な背景
-          opacity: state.isGeneratingAI ? 0.7 : 1, // 生成中は少し薄くする
         }}
       >
-        {isArtisticMode && state.artisticQrDataUrl ? (
+        {state.isGeneratingAI && state.generationProgress ? (
+          // AI生成中のプログレス表示（最前面に表示）
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-900 via-purple-900 to-orange-900 rounded-lg flex items-center justify-center overflow-hidden z-50">
+            {/* 背景パーティクル */}
+            <div className="absolute inset-0">
+              {[...Array(15)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full bg-white opacity-10 animate-pulse"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    width: `${Math.random() * 4 + 2}px`,
+                    height: `${Math.random() * 4 + 2}px`,
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${Math.random() * 3 + 2}s`,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* プログレスコンテンツ */}
+            <div className="relative text-center p-6 z-10">
+              <div className="mb-6">
+                <div className="relative inline-block">
+                  <div
+                    className="absolute inset-0 rounded-full border-4 border-transparent border-t-pink-400 border-r-orange-400 animate-spin"
+                    style={{ width: "60px", height: "60px", left: "-6px", top: "-6px" }}
+                  />
+                  <svg className="animate-spin h-12 w-12 text-pink-300 mx-auto" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                {state.generationType === "artistic" ? "アートQRコード生成中" : "AI画像生成中"}
+              </h3>
+              <p className="text-pink-200 font-semibold mb-4">{state.generationProgress}</p>
+              {state.generationPercent !== undefined && (
+                <div className="relative mb-4">
+                  <div className="bg-white/20 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400 rounded-full h-3 transition-all duration-700 ease-out"
+                      style={{ width: `${state.generationPercent}%` }}
+                    />
+                  </div>
+                  <div className="text-right mt-1">
+                    <span className="text-xs font-semibold text-pink-200">{state.generationPercent}%</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : isArtisticMode && state.artisticQrDataUrl ? (
           // アートQRコードのみを表示（シンプル）
           <img
             src={state.artisticQrDataUrl}
