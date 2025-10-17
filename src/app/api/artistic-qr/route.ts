@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import QRCode from "qrcode";
 
 // アートQRコード生成API
 export async function POST(request: NextRequest) {
@@ -9,30 +10,58 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Text and prompt are required" }, { status: 400 });
     }
 
-    // スタイル修飾子を追加
+    // 1. まず確実に読み取れるQRコードを生成
+    const qrCodeDataUrl = await QRCode.toDataURL(text, {
+      width: 1024,
+      margin: 4,
+      color: {
+        dark: "#000000",
+        light: "#FFFFFF",
+      },
+      errorCorrectionLevel: "H", // 最高レベルのエラー訂正
+    });
+
+    // 2. QRコード構造を保持したアート生成
     const styleModifier = getStyleModifier(styleType);
 
-    // アートQRコード生成用の詳細なプロンプト
-    const enhancedPrompt = `Create a highly artistic and visually stunning QR code that seamlessly integrates: ${prompt}. 
+    // 読み取り性を最優先にしたバランス型プロンプト
+    const artPrompt = `Create a QR code with subtle artistic elements inspired by: "${prompt}"
 
-REQUIREMENTS:
-- Must maintain functional QR code structure with three corner detection squares
-- Incorporate the theme "${prompt}" creatively into the QR pattern
-- Use vibrant, rich colors and artistic elements
-- The design should be beautiful enough to be art, but still scannable
-- High contrast between light and dark areas for readability
-- Creative interpretation of QR modules as artistic elements
-${styleModifier ? `- Style: ${styleModifier}` : ""}
+PRIORITY 1 - QR CODE FUNCTIONALITY (MUST PRESERVE):
+- Standard black and white QR code structure
+- Three corner detection squares: exact 7x7 black borders, white interior, black 3x3 center
+- Perfect grid alignment of data modules
+- High contrast black (#000000) and white (#FFFFFF) areas
+- Clear timing patterns and alignment markers
+- Proper quiet zone (white border)
 
-ARTISTIC ELEMENTS:
-- Transform QR modules into thematic shapes, textures, or patterns
-- Use gradients, shadows, and artistic effects
-- Blend the subject matter naturally with QR structure
-- Make it look like a masterpiece that happens to be a QR code
+PRIORITY 2 - SUBTLE ARTISTIC ENHANCEMENT:
+Theme: ${prompt}
+Style: ${styleModifier || "elegant and subtle"}
 
-OUTPUT: High-resolution, colorful, artistic QR code that maintains scannability while being visually captivating.`;
+ALLOWED ARTISTIC MODIFICATIONS (MINIMAL):
+✓ Corner squares: Add subtle decorative elements INSIDE the white areas only
+✓ Data modules: Replace solid black squares with themed shapes (stars, dots, small icons) but maintain same size and contrast
+✓ Background: Add very light artistic texture in white areas only (10-20% opacity)
+✓ Colors: Use dark colors for "black" areas and light colors for "white" areas, maintaining high contrast
 
-    // OpenAI DALL-E 3を使用してアートQRコードを生成
+FORBIDDEN MODIFICATIONS:
+✗ Do not change corner square positioning or size
+✗ Do not merge or connect separate modules
+✗ Do not add elements that cross module boundaries
+✗ Do not reduce contrast below 70%
+✗ Do not add text or complex graphics over QR structure
+
+TECHNICAL SPECIFICATIONS:
+- Maintain exact QR code proportions and grid
+- Ensure all corner detection patterns are clearly defined
+- Keep timing patterns visible and unobstructed
+- Preserve module spacing and alignment
+- Test-scannable appearance is essential
+
+RESULT: A QR code that is 90% functional standard QR code + 10% subtle artistic enhancement with "${prompt}" theme.`;
+
+    // 3. アートQRコードを生成
     const artResponse = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
@@ -41,10 +70,10 @@ OUTPUT: High-resolution, colorful, artistic QR code that maintains scannability 
       },
       body: JSON.stringify({
         model: "dall-e-3",
-        prompt: enhancedPrompt,
+        prompt: artPrompt,
         n: 1,
         size: "1024x1024",
-        quality: "hd", // 高品質で生成
+        quality: "hd",
         response_format: "url",
       }),
     });
@@ -55,28 +84,34 @@ OUTPUT: High-resolution, colorful, artistic QR code that maintains scannability 
     }
 
     const artData = await artResponse.json();
-    const imageUrl = artData.data[0]?.url;
+    const artImageUrl = artData.data[0]?.url;
 
-    if (!imageUrl) {
-      throw new Error("No image generated from OpenAI");
+    if (!artImageUrl) {
+      throw new Error("No art image generated from OpenAI");
     }
 
-    // 画像をダウンロードしてBase64に変換
-    const imageResponse = await fetch(imageUrl);
-    if (!imageResponse.ok) {
-      throw new Error("Failed to download generated image");
-    }
+    // 4. 生成されたアート画像をダウンロード
+    const artImageResponse = await fetch(artImageUrl);
+    const artImageBuffer = await artImageResponse.arrayBuffer();
+    const artImageBase64 = Buffer.from(artImageBuffer).toString("base64");
+    const artDataUrl = `data:image/png;base64,${artImageBase64}`;
 
-    const imageBuffer = await imageResponse.arrayBuffer();
-    const base64Image = Buffer.from(imageBuffer).toString("base64");
-    const dataUrl = `data:image/png;base64,${base64Image}`;
-
+    // 読み取りテスト用の情報も含めて返す
     return NextResponse.json({
-      dataUrl,
+      dataUrl: artDataUrl, // メインはアートQRコード
+      fallbackQR: qrCodeDataUrl, // フォールバック用の通常QRコード
       originalPrompt: prompt,
       qrText: text,
       styleType,
-      fromCache: false, // 新規生成
+      actualQrCode: qrCodeDataUrl,
+      fromCache: false,
+      // 読み取り性向上のためのメタデータ
+      qrMetadata: {
+        errorCorrectionLevel: "H",
+        version: "auto",
+        targetUrl: text,
+        generationApproach: "artistic-subtle",
+      },
     });
   } catch (error) {
     console.error("Artistic QR generation error:", error);

@@ -606,6 +606,9 @@ function GenerationTypeSelector() {
   const { state, setState } = useQrStyle();
 
   const onChange = (generationType: typeof state.generationType) => {
+    // 生成中は変更を無効化
+    if (state.isGeneratingAI) return;
+
     setState((s) => ({
       ...s,
       generationType,
@@ -623,8 +626,11 @@ function GenerationTypeSelector() {
         <button
           type="button"
           onClick={() => onChange("logo")}
+          disabled={state.isGeneratingAI}
           className={`px-3 py-2 text-sm font-medium rounded-md border transition-all duration-200 ${
-            state.generationType === "logo"
+            state.isGeneratingAI
+              ? "opacity-50 cursor-not-allowed bg-gray-300 text-gray-500"
+              : state.generationType === "logo"
               ? "bg-gradient-to-r from-cyan-400 to-purple-600 text-white border-transparent shadow-lg"
               : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
           }`}
@@ -644,8 +650,11 @@ function GenerationTypeSelector() {
         <button
           type="button"
           onClick={() => onChange("artistic")}
+          disabled={state.isGeneratingAI}
           className={`px-3 py-2 text-sm font-medium rounded-md border transition-all duration-200 ${
-            state.generationType === "artistic"
+            state.isGeneratingAI
+              ? "opacity-50 cursor-not-allowed bg-gray-300 text-gray-500"
+              : state.generationType === "artistic"
               ? "bg-gradient-to-r from-pink-400 to-orange-600 text-white border-transparent shadow-lg"
               : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
           }`}
@@ -663,7 +672,7 @@ function GenerationTypeSelector() {
           </div>
         </button>
       </div>
-      <p className="text-xs text-gray-500">{state.generationType === "logo" ? "QRコードにロゴを追加します" : "QRコード全体をアート作品として生成します"}</p>
+      <p className="text-xs text-gray-500">{state.generationType === "logo" ? "QRコードにロゴを追加します" : "読み取り可能なアートQRコードを生成します"}</p>
     </div>
   );
 }
@@ -730,12 +739,13 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
         updateProgress(60, "画像を受信中...");
         const json = await res.json();
 
-        updateProgress(80, "最終調整中...");
+        updateProgress(90, "最終調整中...");
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         setState((s) => ({
           ...s,
-          artisticQrDataUrl: json.dataUrl,
+          artisticQrDataUrl: json.dataUrl, // 生成されたアートQRコード
+          actualQrDataUrl: json.actualQrCode, // フォールバック用の通常QRコード
           logoDataUrl: undefined, // アートQR生成時はロゴをクリア
           uploadedImageUrl: undefined,
         }));

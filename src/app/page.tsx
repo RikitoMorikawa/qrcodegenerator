@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Controls from "@/components/Controls";
 import QRCodePreview from "@/components/QRCodePreview";
 import HelpModal from "@/components/HelpModal";
@@ -9,19 +9,47 @@ import { QrStyleProvider } from "@/context/qrStyle";
 
 export default function Home() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const particles = useMemo(() => {
+    if (!isMounted) return [];
+    return [...Array(8)].map((_, i) => ({
+      left: 30 + Math.random() * 40, // 中央付近（30-70%）
+      top: 15 + Math.random() * 20, // タイトル下部（15-35%）
+      delay: Math.random() * 5,
+      duration: 4 + Math.random() * 3,
+    }));
+  }, [isMounted]);
 
   return (
     <QrStyleProvider>
-      <div className="min-h-screen p-3 sm:p-6 lg:p-10 relative overflow-hidden">
-        {/* decorative blobs - スマホでは小さく */}
-        <div className="blob blob-pink" style={{ width: 180, height: 180, top: -40, left: -30 }} />
-        <div className="blob blob-sky" style={{ width: 220, height: 220, top: 80, right: -60 }} />
-        <div className="blob blob-lime" style={{ width: 200, height: 200, bottom: -40, left: 80 }} />
+      <div className="min-h-screen p-3 sm:p-6 lg:p-10 relative overflow-hidden" style={{ position: "relative", zIndex: 1 }}>
+        {/* 光の粒子エフェクト */}
+        {isMounted && (
+          <div className="particle-container">
+            {particles.map((particle, i) => (
+              <div
+                key={i}
+                className="particle"
+                style={{
+                  left: `${particle.left}%`,
+                  top: `${particle.top}%`,
+                  animationDelay: `${particle.delay}s`,
+                  animationDuration: `${particle.duration}s`,
+                }}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Help Button - スマホでは小さく、位置調整 */}
         <button
           onClick={() => setIsHelpOpen(true)}
-          className="fixed top-4 right-4 sm:top-6 sm:right-10 z-40 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full p-2 sm:p-3 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-110 group"
+          className="fixed top-4 right-4 sm:top-6 sm:right-10 z-50 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full p-2 sm:p-3 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-110 group"
           title="使い方ガイド"
         >
           <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,13 +64,11 @@ export default function Home() {
 
         <div className="container relative">
           <header className="header">
-            <div>
-              <div className="title">AI QR Code Generator</div>
-              <div className="subtitle">
-                テキスト、ロゴ、カラーを自在に。
-                <br className="sm:hidden" />
-                AIロゴ生成にも対応。
-              </div>
+            <div className="title">AI QR Code Generator</div>
+            <div className="subtitle">
+              テキスト、ロゴ、カラーを自在に。
+              <br className="sm:hidden" />
+              AIロゴ生成にも対応。
             </div>
           </header>
           <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-[1.4fr_1fr]">

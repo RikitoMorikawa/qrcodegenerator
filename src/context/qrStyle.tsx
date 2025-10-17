@@ -25,6 +25,7 @@ export type QrStyleState = {
   aiPrompt: string; // AI生成のプロンプト入力値
   generationType: GenerationType; // 生成タイプ
   artisticQrDataUrl?: string; // アートQRコード生成結果
+  actualQrDataUrl?: string; // 実際のQRコード（アート生成時の参考用）
   // UI状態
   isGeneratingAI: boolean; // AI生成中かどうか
 };
@@ -44,6 +45,7 @@ const defaultState: QrStyleState = {
   aiPrompt: "", // AI生成のプロンプト入力値
   generationType: "logo", // デフォルトはロゴ生成
   artisticQrDataUrl: undefined, // アートQRコード生成結果
+  actualQrDataUrl: undefined, // 実際のQRコード（アート生成時の参考用）
   // UI状態
   isGeneratingAI: false, // 初期状態は生成中ではない
 };
