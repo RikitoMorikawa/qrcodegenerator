@@ -216,9 +216,7 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
         // 画像を自動保存（キャッシュからの場合はスキップ）
         if (processedDataUrl && !isActualCacheHit) {
           try {
-            console.log("Saving image to Supabase...", { fullPrompt, originalPrompt: userPrompt, styleType: state.styleType, isPublic });
             const result = await saveImageToSupabase(processedDataUrl, fullPrompt, userPrompt, state.styleType, isPublic);
-            console.log("Image saved successfully:", result);
 
             // 画像保存成功時にギャラリー更新イベントを発火（少し遅延させてDB反映を確実にする）
             setTimeout(() => {
@@ -285,7 +283,9 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        handleGenerate();
+        if (!isPending) {
+          handleGenerate();
+        }
       }}
       className="space-y-3"
     >
@@ -425,7 +425,13 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
         </div>
       )}
 
-      <button type="submit" className="btn btn-primary w-full" disabled={isPending}>
+      <button
+        type="submit"
+        className={`w-full transition-all duration-200 bg-gradient-to-r from-cyan-400 to-purple-600 text-white border-0 shadow-lg shadow-cyan-400/20 rounded-md px-3 py-2 text-sm font-medium ${
+          isPending ? "cursor-not-allowed" : "hover:scale-102 hover:shadow-xl hover:shadow-cyan-400/30"
+        }`}
+        onClick={isPending ? (e) => e.preventDefault() : undefined}
+      >
         {isPending ? (
           <span className="flex items-center justify-center gap-2">
             <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -564,7 +570,11 @@ function ImageUploader({ isDisabled }: { isDisabled: boolean }) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className={`btn w-full ${isDisabled ? "bg-gray-600 text-gray-400 cursor-not-allowed" : "btn-primary hover:bg-blue-700"}`}
+            className={`w-full transition-all duration-200 rounded-md px-3 py-2 text-sm font-medium border-0 ${
+              isDisabled
+                ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-cyan-400 to-purple-600 text-white shadow-lg shadow-cyan-400/20 hover:scale-102 hover:shadow-xl hover:shadow-cyan-400/30"
+            }`}
             disabled={isDisabled}
           >
             <span className="flex items-center justify-center gap-2">
