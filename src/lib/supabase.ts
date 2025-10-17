@@ -23,6 +23,13 @@ export const supabaseAdmin = (() => {
   return createClient(supabaseUrl, supabaseServiceRoleKey);
 })();
 
+export type QRDetails = {
+  url: string;
+  logoType: string;
+  style: string;
+  colors: string;
+};
+
 export type GeneratedImage = {
   id: string;
   prompt: string;
@@ -31,4 +38,5 @@ export type GeneratedImage = {
   image_url: string;
   is_public: boolean;
   created_at: string;
+  qr_details?: QRDetails;
 };

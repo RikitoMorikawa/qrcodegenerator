@@ -150,6 +150,49 @@ export default function QRCodePreview() {
     await qrRef.current.download({ extension: ext, name: "qr-code" });
   };
 
+  const saveQRCodeToGallery = async () => {
+    if (!qrRef.current) return;
+
+    try {
+      // QRコードをcanvasとして取得
+      const canvas = qrRef.current._canvas;
+      if (!canvas) return;
+
+      // canvasをdata URLに変換
+      const dataUrl = canvas.toDataURL("image/png");
+
+      // QRコードの情報を構築
+      const qrInfo = {
+        url: state.text,
+        logoType: state.logoDataUrl ? "AI生成ロゴ" : "ロゴなし",
+        style: `${state.dotsStyle}ドット・${state.cornersStyle}コーナー`,
+        colors: `QR:${state.color} / 背景:${state.bgColor}`,
+      };
+
+      // Supabaseに保存
+      const response = await fetch("/api/save-qrcode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          qrDataUrl: dataUrl,
+          qrInfo,
+          isPublic: true,
+        }),
+      });
+
+      if (response.ok) {
+        alert("QRコードをギャラリーに保存しました！");
+        // ギャラリーを更新するためのイベントを発火
+        window.dispatchEvent(new CustomEvent("qrcode-saved"));
+      } else {
+        throw new Error("保存に失敗しました");
+      }
+    } catch (error) {
+      console.error("QRコード保存エラー:", error);
+      alert("QRコードの保存に失敗しました");
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
       <div
@@ -174,6 +217,17 @@ export default function QRCodePreview() {
         </button>
         <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("svg")}>
           SVG
+        </button>
+        <button className="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={saveQRCodeToGallery}>
+          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"
+            />
+          </svg>
+          保存
         </button>
       </div>
     </div>
