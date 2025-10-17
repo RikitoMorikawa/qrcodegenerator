@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { useQrStyle } from "@/context/qrStyle";
+import { Upload } from "lucide-react";
 
 // 透明な画像を作成する関数
 const createTransparentImage = () => {
@@ -230,15 +231,8 @@ export default function QRCodePreview() {
         <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("svg")}>
           SVG
         </button>
-        <button className="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={saveQRCodeToGallery}>
-          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"
-            />
-          </svg>
+        <button className="btn btn-primary text-xs px-2 py-1 flex items-center gap-1" onClick={saveQRCodeToGallery}>
+          <Upload size={12} />
           公開
         </button>
       </div>
