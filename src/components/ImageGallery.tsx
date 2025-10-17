@@ -58,8 +58,18 @@ export default function ImageGallery() {
       fetchImages();
     };
 
+    // AI生成画像保存イベントをリッスン
+    const handleImageSaved = () => {
+      fetchImages();
+    };
+
     window.addEventListener("qrcode-saved", handleQRCodeSaved);
-    return () => window.removeEventListener("qrcode-saved", handleQRCodeSaved);
+    window.addEventListener("image-saved", handleImageSaved);
+
+    return () => {
+      window.removeEventListener("qrcode-saved", handleQRCodeSaved);
+      window.removeEventListener("image-saved", handleImageSaved);
+    };
   }, []);
 
   const fetchImages = async () => {

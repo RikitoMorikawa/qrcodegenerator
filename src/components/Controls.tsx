@@ -219,6 +219,11 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
             console.log("Saving image to Supabase...", { fullPrompt, originalPrompt: userPrompt, styleType: state.styleType, isPublic });
             const result = await saveImageToSupabase(processedDataUrl, fullPrompt, userPrompt, state.styleType, isPublic);
             console.log("Image saved successfully:", result);
+
+            // 画像保存成功時にギャラリー更新イベントを発火（少し遅延させてDB反映を確実にする）
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent("image-saved"));
+            }, 500);
           } catch (saveError) {
             console.error("Failed to save image:", saveError);
             // 保存エラーは表示しないが、ログに記録
