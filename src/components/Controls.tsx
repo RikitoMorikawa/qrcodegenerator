@@ -213,8 +213,8 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
           uploadedImageUrl: undefined, // AI生成時はアップロード画像をクリア
         }));
 
-        // 画像を自動保存
-        if (processedDataUrl) {
+        // 画像を自動保存（キャッシュからの場合はスキップ）
+        if (processedDataUrl && !isActualCacheHit) {
           try {
             console.log("Saving image to Supabase...", { fullPrompt, originalPrompt: userPrompt, styleType: state.styleType, isPublic });
             const result = await saveImageToSupabase(processedDataUrl, fullPrompt, userPrompt, state.styleType, isPublic);
@@ -223,6 +223,8 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
             console.error("Failed to save image:", saveError);
             // 保存エラーは表示しないが、ログに記録
           }
+        } else if (isActualCacheHit) {
+          console.log("Skipping image save for cached result");
         }
 
         await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 100 : 300));
