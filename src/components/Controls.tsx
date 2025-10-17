@@ -6,6 +6,7 @@ import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
 
 export default function Controls() {
   const { state, setState } = useQrStyle();
+  const [isGenerating, setIsGenerating] = React.useState(false);
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
     setState((s) => ({ ...s, [key]: value }));
@@ -15,12 +16,12 @@ export default function Controls() {
     <div className="grid gap-6">
       <div className="space-y-3">
         <label className="block text-sm font-medium">URL</label>
-        <input className="input" value={state.text} onChange={(e) => onChange("text", e.target.value)} placeholder="https://..." />
+        <input className="input" value={state.text} onChange={(e) => onChange("text", e.target.value)} placeholder="https://..." disabled={isGenerating} />
       </div>
 
       <div className="space-y-3">
-        <ImageUploader />
-        <AIImageGenerator />
+        <ImageUploader isDisabled={isGenerating} />
+        <AIImageGenerator onGeneratingChange={setIsGenerating} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -93,7 +94,7 @@ function generateStyleModifier(styleType: StyleType): string {
   return styleModifiers[styleType];
 }
 
-function AIImageGenerator() {
+function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGenerating: boolean) => void }) {
   const { state, setState } = useQrStyle();
   const [isPending, startTransition] = useTransition();
   const [progress, setProgress] = React.useState<string>("");
@@ -109,6 +110,9 @@ function AIImageGenerator() {
   const handleGenerate = async () => {
     const userPrompt = state.aiPrompt.trim();
     if (!userPrompt) return;
+
+    // 生成開始を親に通知
+    onGeneratingChange(true);
 
     // 即座に進捗表示を開始
     setShowFullScreenProgress(true);
@@ -221,6 +225,7 @@ function AIImageGenerator() {
             setProgress("");
             setShowFullScreenProgress(false);
             setProgressPercent(0);
+            onGeneratingChange(false); // 生成完了を親に通知
           },
           isActualCacheHit ? 800 : 1500
         );
@@ -228,6 +233,7 @@ function AIImageGenerator() {
         setProgress("");
         setShowFullScreenProgress(false);
         setProgressPercent(0);
+        onGeneratingChange(false); // エラー時も生成終了を親に通知
         const err = error as Error;
         if (err.name === "AbortError") {
           alert("生成がタイムアウトしました。もう一度お試しください。");
@@ -434,7 +440,7 @@ function AIImageGenerator() {
   );
 }
 
-function ImageUploader() {
+function ImageUploader({ isDisabled }: { isDisabled: boolean }) {
   const { state, setState } = useQrStyle();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -519,18 +525,20 @@ function ImageUploader() {
 
       {state.uploadedImageUrl ? (
         <div className="space-y-2">
-          <div className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+          <div
+            className={`flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 ${isDisabled ? "opacity-50" : ""}`}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={state.uploadedImageUrl} alt="アップロード画像" className="max-w-20 max-h-20 object-contain" />
           </div>
-          <button type="button" onClick={handleRemoveImage} className="btn w-full text-red-600 border-red-300 hover:bg-red-50">
+          <button type="button" onClick={handleRemoveImage} className="btn w-full text-red-600 border-red-300 hover:bg-red-50" disabled={isDisabled}>
             画像を削除
           </button>
         </div>
       ) : (
         <div className="space-y-2">
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
-          <button type="button" onClick={() => fileInputRef.current?.click()} className="btn btn-primary w-full">
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" disabled={isDisabled} />
+          <button type="button" onClick={() => fileInputRef.current?.click()} className="btn btn-primary w-full" disabled={isDisabled}>
             <span className="flex items-center justify-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -543,7 +551,7 @@ function ImageUploader() {
               画像を選択
             </span>
           </button>
-          <p className="text-xs text-gray-500 text-center">PNG、JPEG、WebP等の画像ファイルに対応</p>
+          <p className={`text-xs text-gray-500 text-center ${isDisabled ? "opacity-50" : ""}`}>PNG、JPEG、WebP等の画像ファイルに対応</p>
         </div>
       )}
     </div>
