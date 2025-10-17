@@ -38,7 +38,7 @@ export default function Controls() {
           <label className="block text-sm font-medium">QRコードの色</label>
           <input type="color" className="w-full h-10 rounded border" value={state.color} onChange={(e) => onChange("color", e.target.value)} />
           <div className="flex gap-1 flex-wrap">
-            {["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"].map((color) => (
+            {["#000000", "#FFFFFF", "#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4"].map((color) => (
               <button
                 key={color}
                 className="w-7 h-7 sm:w-6 sm:h-6 rounded border-2 border-white shadow-sm"
@@ -52,7 +52,7 @@ export default function Controls() {
           <label className="block text-sm font-medium">背景色</label>
           <input type="color" className="w-full h-10 rounded border" value={state.bgColor} onChange={(e) => onChange("bgColor", e.target.value)} />
           <div className="flex gap-1 flex-wrap">
-            {["#FFFFFF", "#F3F4F6", "#FEF3C7", "#DBEAFE", "#D1FAE5", "#FCE7F3"].map((color) => (
+            {["#000000", "#FFFFFF", "#F3F4F6", "#FEF3C7", "#DBEAFE", "#D1FAE5", "#FCE7F3", "#E0F2FE", "#FFF7ED"].map((color) => (
               <button
                 key={color}
                 className="w-7 h-7 sm:w-6 sm:h-6 rounded border-2 border-gray-300 shadow-sm"
