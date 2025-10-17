@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Controls from "@/components/Controls";
 import QRCodePreview from "@/components/QRCodePreview";
 import HelpModal from "@/components/HelpModal";
+import ImageGallery from "@/components/ImageGallery";
 import { QrStyleProvider } from "@/context/qrStyle";
 
 export default function Home() {
@@ -51,6 +52,11 @@ export default function Home() {
             <div className="card p-3 sm:p-4 lg:p-5 flex items-start justify-center lg:w-[560px] lg:flex-shrink-0">
               <QRCodePreview />
             </div>
+          </div>
+
+          {/* 画像ギャラリーセクション */}
+          <div className="mt-6 sm:mt-8">
+            <ImageGallery />
           </div>
         </div>
 

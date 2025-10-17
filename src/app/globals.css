@@ -177,3 +177,10 @@ body {
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+/* テキスト省略用のクラス */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

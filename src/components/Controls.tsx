@@ -99,6 +99,8 @@ function AIImageGenerator() {
   const [progress, setProgress] = React.useState<string>("");
   const [showFullScreenProgress, setShowFullScreenProgress] = React.useState(false);
   const [progressPercent, setProgressPercent] = React.useState(0);
+  const [isPublic, setIsPublic] = React.useState(true);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
     setState((s) => ({ ...s, [key]: value }));
@@ -198,6 +200,16 @@ function AIImageGenerator() {
           uploadedImageUrl: undefined, // AI生成時はアップロード画像をクリア
         }));
 
+        // 画像を自動保存
+        if (processedDataUrl) {
+          try {
+            await saveImageToSupabase(processedDataUrl, fullPrompt, state.styleType, isPublic);
+          } catch (saveError) {
+            console.error("Failed to save image:", saveError);
+            // 保存エラーは表示しないが、ログに記録
+          }
+        }
+
         await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 100 : 300));
         updateProgress(100, isActualCacheHit ? "キャッシュから完了！" : "完了！");
 
@@ -224,6 +236,26 @@ function AIImageGenerator() {
     });
   };
 
+  const saveImageToSupabase = async (imageDataUrl: string, prompt: string, styleType: string, isPublic: boolean) => {
+    const response = await fetch("/api/save-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt,
+        styleType,
+        imageDataUrl,
+        isPublic,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to save image");
+    }
+
+    return response.json();
+  };
+
   return (
     <form
       onSubmit={(e) => {
@@ -234,16 +266,31 @@ function AIImageGenerator() {
     >
       <label className="block text-sm font-medium">AIロゴ生成</label>
 
-      <div className="space-y-2">
-        <label className="block text-xs font-medium text-gray-600">スタイル</label>
-        <select className="input text-sm" value={state.styleType} onChange={(e) => onChange("styleType", e.target.value as StyleType)} disabled={isPending}>
-          <option value="normal">未設定</option>
-          <option value="cute">可愛い</option>
-          <option value="cool">カッコイイ</option>
-          <option value="elegant">オシャレ</option>
-          <option value="playful">元気</option>
-          <option value="retro">レトロ</option>
-        </select>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-600">スタイル</label>
+          <select className="input text-sm" value={state.styleType} onChange={(e) => onChange("styleType", e.target.value as StyleType)} disabled={isPending}>
+            <option value="normal">未設定</option>
+            <option value="cute">可愛い</option>
+            <option value="cool">カッコイイ</option>
+            <option value="elegant">オシャレ</option>
+            <option value="playful">元気</option>
+            <option value="retro">レトロ</option>
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-600">公開設定</label>
+          <select
+            className="input text-sm"
+            value={isPublic ? "public" : "private"}
+            onChange={(e) => setIsPublic(e.target.value === "public")}
+            disabled={isPending}
+          >
+            <option value="public">公開</option>
+            <option value="private">非公開</option>
+          </select>
+        </div>
       </div>
 
       <input
