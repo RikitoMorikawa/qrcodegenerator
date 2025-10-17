@@ -21,45 +21,51 @@ export async function POST(request: NextRequest) {
       errorCorrectionLevel: "H", // 最高レベルのエラー訂正
     });
 
+    // 2. QRコードの詳細情報を取得
+    const qrInfo = await QRCode.create(text, { errorCorrectionLevel: "H" });
+    const modules = qrInfo.modules;
+    const size = modules.size;
+
+    // QRコードのパターンを文字列として表現
+    let qrPattern = "";
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        qrPattern += modules.get(row, col) ? "█" : "░";
+      }
+      qrPattern += "\n";
+    }
+
     // 2. QRコード構造を保持したアート生成
     const styleModifier = getStyleModifier(styleType);
 
-    // 読み取り性を最優先にしたバランス型プロンプト
-    const artPrompt = `Create a QR code with subtle artistic elements inspired by: "${prompt}"
+    // 3. より効果的なアートQRコード生成プロンプト
+    const artPrompt = `Create a beautiful artistic QR code with theme: "${prompt}"
 
-PRIORITY 1 - QR CODE FUNCTIONALITY (MUST PRESERVE):
-- Standard black and white QR code structure
-- Three corner detection squares: exact 7x7 black borders, white interior, black 3x3 center
-- Perfect grid alignment of data modules
-- High contrast black (#000000) and white (#FFFFFF) areas
-- Clear timing patterns and alignment markers
-- Proper quiet zone (white border)
+EXACT QR STRUCTURE (CRITICAL):
+- ${size}×${size} grid of modules
+- Three corner detection squares (7×7 each) at top-left, top-right, bottom-left
+- Each corner: black border, white middle, black center dot
+- Precise data pattern for URL: "${text}"
+- High contrast between black and white areas
 
-PRIORITY 2 - SUBTLE ARTISTIC ENHANCEMENT:
-Theme: ${prompt}
-Style: ${styleModifier || "elegant and subtle"}
+ARTISTIC VISION:
+Transform this functional QR code into a "${prompt}" masterpiece:
+- Black modules → Dark ${prompt}-themed artistic elements
+- White modules → Light ${prompt}-themed artistic elements
+- Corner squares → Stylized ${prompt} frames/portals
+- Overall composition tells the story of "${prompt}"
+- ${styleModifier ? `Style: ${styleModifier}` : ""}
 
-ALLOWED ARTISTIC MODIFICATIONS (MINIMAL):
-✓ Corner squares: Add subtle decorative elements INSIDE the white areas only
-✓ Data modules: Replace solid black squares with themed shapes (stars, dots, small icons) but maintain same size and contrast
-✓ Background: Add very light artistic texture in white areas only (10-20% opacity)
-✓ Colors: Use dark colors for "black" areas and light colors for "white" areas, maintaining high contrast
+TECHNICAL REQUIREMENTS:
+✓ Maintain exact QR grid structure and proportions
+✓ Preserve corner detection pattern positioning
+✓ Keep high contrast (dark vs light areas)
+✓ Ensure scannability for "${text}"
+✓ Each module clearly defined and separated
 
-FORBIDDEN MODIFICATIONS:
-✗ Do not change corner square positioning or size
-✗ Do not merge or connect separate modules
-✗ Do not add elements that cross module boundaries
-✗ Do not reduce contrast below 70%
-✗ Do not add text or complex graphics over QR structure
+RESULT: A stunning "${prompt}" artwork that functions as a perfect QR code for "${text}".
 
-TECHNICAL SPECIFICATIONS:
-- Maintain exact QR code proportions and grid
-- Ensure all corner detection patterns are clearly defined
-- Keep timing patterns visible and unobstructed
-- Preserve module spacing and alignment
-- Test-scannable appearance is essential
-
-RESULT: A QR code that is 90% functional standard QR code + 10% subtle artistic enhancement with "${prompt}" theme.`;
+Make it look like "${prompt}" has been magically transformed into a working QR code!`;
 
     // 3. アートQRコードを生成
     const artResponse = await fetch("https://api.openai.com/v1/images/generations", {
