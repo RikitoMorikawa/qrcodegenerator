@@ -463,35 +463,65 @@ export async function createVibrantArtQR(qrDataUrl: string, artDataUrl: string):
             const isBackground =
               ((artBrightness > 220 && saturation < 0.2) || (artBrightness > 180 && saturation < 0.1) || (artR > 240 && artG > 240 && artB > 240)) && !hasEdge;
 
-            // 右下エリア内かどうかをチェック（プロンプトに沿ったものの全体像を表示）
-            const isInBottomRightArea = distanceFromArtCenter < artRadius * 1.2;
+            // 右下の円形エリア内かどうかをチェック（厳密な円形制限）
+            const isInCircle = distanceFromArtCenter < artRadius;
 
-            if (!isBackground && isInBottomRightArea) {
-              // 右下エリア内のアートの主要部分（猫など）：アートをそのまま鮮明に表示
-              data[i] = artR;
-              data[i + 1] = artG;
-              data[i + 2] = artB;
-            } else if (!isBackground && distanceFromArtCenter < artRadius * 1.5) {
-              // 右下エリア周辺のアートの主要部分：アートを薄くブレンド（全体像を確保）
-              const blendRatio = 0.7;
-              if (qrBrightness < 100) {
-                data[i] = Math.min(artR * 0.6, 100);
-                data[i + 1] = Math.min(artG * 0.6, 100);
-                data[i + 2] = Math.min(artB * 0.6, 100);
+            if (isInCircle) {
+              // 円形エリア内：円の中だけのアートを表示（背景全体とは別）
+
+              // 円の中心からの相対位置を計算（0-1の範囲）
+              const relativeX = (x - (artCenterX - artRadius)) / (artRadius * 2);
+              const relativeY = (y - (artCenterY - artRadius)) / (artRadius * 2);
+
+              // 円の中心に配置するためのアート座標を計算
+              const circleArtX = Math.floor(relativeX * 1024);
+              const circleArtY = Math.floor(relativeY * 1024);
+
+              // 座標が有効範囲内かチェック
+              if (circleArtX >= 0 && circleArtX < 1024 && circleArtY >= 0 && circleArtY < 1024) {
+                const circleArtI = (circleArtY * 1024 + circleArtX) * 4;
+                const circleArtR = artData[circleArtI];
+                const circleArtG = artData[circleArtI + 1];
+                const circleArtB = artData[circleArtI + 2];
+
+                // 円の中のアートピクセルの分析
+                const circleArtBrightness = (circleArtR + circleArtG + circleArtB) / 3;
+                const maxColor = Math.max(circleArtR, circleArtG, circleArtB);
+                const minColor = Math.min(circleArtR, circleArtG, circleArtB);
+                const saturation = maxColor > 0 ? (maxColor - minColor) / maxColor : 0;
+
+                // エッジ検出
+                const hasEdge = checkForEdge(circleArtX, circleArtY, artData, 1024);
+
+                // 背景かどうかを判定
+                const isCircleBackground =
+                  ((circleArtBrightness > 220 && saturation < 0.2) ||
+                    (circleArtBrightness > 180 && saturation < 0.1) ||
+                    (circleArtR > 240 && circleArtG > 240 && circleArtB > 240)) &&
+                  !hasEdge;
+
+                if (!isCircleBackground) {
+                  // 円の中のアートの主要部分（猫など）：アートをそのまま鮮明に表示
+                  data[i] = circleArtR;
+                  data[i + 1] = circleArtG;
+                  data[i + 2] = circleArtB;
+                } else {
+                  // 円の中の背景部分：QRコードとアートを軽くブレンド
+                  if (qrBrightness < 100) {
+                    // QRの黒い部分：アートの背景色を暗くしてQRを見やすく
+                    data[i] = Math.min(circleArtR * 0.3, 50);
+                    data[i + 1] = Math.min(circleArtG * 0.3, 50);
+                    data[i + 2] = Math.min(circleArtB * 0.3, 50);
+                  } else {
+                    // QRの白い部分：アートの背景色を明るくしてコントラスト確保
+                    const brightnessBoost = 1.6;
+                    data[i] = Math.min(circleArtR * brightnessBoost, 240);
+                    data[i + 1] = Math.min(circleArtG * brightnessBoost, 240);
+                    data[i + 2] = Math.min(circleArtB * brightnessBoost, 240);
+                  }
+                }
               } else {
-                data[i] = artR * blendRatio + qrData[i] * (1 - blendRatio);
-                data[i + 1] = artG * blendRatio + qrData[i + 1] * (1 - blendRatio);
-                data[i + 2] = artB * blendRatio + qrData[i + 2] * (1 - blendRatio);
-              }
-            } else if (isBackground && isInBottomRightArea) {
-              // 右下エリア内の背景部分：QRコードを優先（背景は最小限の影響）
-              if (qrBrightness < 100) {
-                // QRの黒い部分：ほぼ黒で表示
-                data[i] = Math.min(artR * 0.1, 20);
-                data[i + 1] = Math.min(artG * 0.1, 20);
-                data[i + 2] = Math.min(artB * 0.1, 20);
-              } else {
-                // QRの白い部分：QRコードを優先
+                // 座標が無効な場合はQRコードを表示
                 data[i] = qrData[i];
                 data[i + 1] = qrData[i + 1];
                 data[i + 2] = qrData[i + 2];
