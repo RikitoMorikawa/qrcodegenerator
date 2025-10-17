@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <!-- リッチな背景 -->
+    <linearGradient id="richBgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a202c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d3748;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- 統一カラー（右下の色合い） -->
+    <linearGradient id="unifiedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- ソフトなシャドウ -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="1" stdDeviation="1" flood-opacity="0.4"/>
+    </filter>
+    
+    <!-- グロー効果 -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="32" height="32" rx="6" ry="6" fill="url(#richBgGradient)"/>
+  
+  <!-- 角の位置検出パターン（統一カラー、より丸み、細い枠線） -->
+  <!-- 左上 -->
+  <rect x="2" y="2" width="12" height="12" rx="3" ry="3" fill="url(#unifiedGradient)" filter="url(#softShadow)"/>
+  <rect x="3.5" y="3.5" width="9" height="9" rx="2.5" ry="2.5" fill="#1a202c"/>
+  <rect x="7" y="7" width="2" height="2" rx="1" ry="1" fill="url(#unifiedGradient)"/>
+  
+  <!-- 右上 -->
+  <rect x="18" y="2" width="12" height="12" rx="3" ry="3" fill="url(#unifiedGradient)" filter="url(#softShadow)"/>
+  <rect x="19.5" y="3.5" width="9" height="9" rx="2.5" ry="2.5" fill="#1a202c"/>
+  <rect x="23" y="7" width="2" height="2" rx="1" ry="1" fill="url(#unifiedGradient)"/>
+  
+  <!-- 左下 -->
+  <rect x="2" y="18" width="12" height="12" rx="3" ry="3" fill="url(#unifiedGradient)" filter="url(#softShadow)"/>
+  <rect x="3.5" y="19.5" width="9" height="9" rx="2.5" ry="2.5" fill="#1a202c"/>
+  <rect x="7" y="23" width="2" height="2" rx="1" ry="1" fill="url(#unifiedGradient)"/>
+  
+  <!-- 右下の装飾模様 -->
+  <!-- 格子状のパターン（丸み追加） -->
+  <rect x="19" y="19" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="22" y="19" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="25" y="19" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="28" y="19" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  
+  <rect x="19" y="22" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="25" y="22" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="28" y="22" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  
+  <rect x="19" y="25" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="22" y="25" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="28" y="25" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  
+  <rect x="19" y="28" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="22" y="28" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="25" y="28" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  <rect x="28" y="28" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  
+  <!-- 中央の装飾パターン -->
+  <rect x="13" y="13" width="6" height="6" rx="2" ry="2" fill="url(#unifiedGradient)" filter="url(#glow)"/>
+  <rect x="14.5" y="14.5" width="3" height="3" rx="1.5" ry="1.5" fill="#1a202c"/>
+  
+  <!-- 上部の装飾 -->
+  <rect x="15" y="2" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  
+  <!-- 右側の装飾 -->
+  <rect x="28" y="15" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  
+  <!-- 下部の装飾 -->
+  <rect x="15" y="28" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  
+  <!-- 左側の装飾 -->
+  <rect x="2" y="15" width="2" height="2" rx="0.8" fill="url(#unifiedGradient)"/>
+  
+  <!-- 追加の装飾要素 -->
+  <circle cx="16.5" cy="20.5" r="0.8" fill="url(#unifiedGradient)"/>
+  <circle cx="15" cy="22.5" r="0.6" fill="url(#unifiedGradient)"/>
+  <circle cx="18" cy="22.5" r="0.6" fill="url(#unifiedGradient)"/>
+</svg>
