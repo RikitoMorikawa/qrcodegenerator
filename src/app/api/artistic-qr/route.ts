@@ -1,33 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import QRCode from "qrcode";
 
-// Dynamic import for Sharp to handle Vercel deployment issues
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let sharp: any;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  sharp = require("sharp");
-  console.log("[artistic-qr] Sharp loaded successfully");
-} catch (error) {
-  console.error("[artistic-qr] Failed to load sharp:", error);
-  console.error("[artistic-qr] Platform:", process.platform, "Arch:", process.arch);
-  console.error("[artistic-qr] Node version:", process.version);
-}
-
-// アートQRコード生成API
+// アートQRコード生成API（Sharpなしバージョン）
 export async function POST(request: NextRequest) {
   console.log("[artistic-qr] POST handler called");
-
-  // Check if Sharp is available
-  if (!sharp) {
-    console.error("[artistic-qr] Sharp is not available");
-    return NextResponse.json(
-      {
-        error: "Image processing is temporarily unavailable. Please try again later.",
-      },
-      { status: 503 }
-    );
-  }
 
   try {
     const body = await request.json();
@@ -37,6 +13,8 @@ export async function POST(request: NextRequest) {
     if (!text || !prompt) {
       return NextResponse.json({ error: "Text and prompt are required" }, { status: 400 });
     }
+
+    console.log("[artistic-qr] Generating artistic QR without Sharp (Canvas-based approach)");
 
     // 1. まず確実に読み取れるQRコードを生成（高解像度）
     const qrCodeDataUrl = await QRCode.toDataURL(text, {
@@ -48,12 +26,6 @@ export async function POST(request: NextRequest) {
       },
       errorCorrectionLevel: "H", // 最高レベルのエラー訂正（30%まで復元可能）
     });
-
-    // 2. QRコードの詳細情報を取得
-    const qrInfo = await QRCode.create(text, { errorCorrectionLevel: "H" });
-    const modules = qrInfo.modules;
-
-    // QRコードの詳細情報は取得済み（modules）
 
     // 2. アート画像を生成（QRコードとは別に）
     const styleModifier = getStyleModifier(styleType);
@@ -101,91 +73,25 @@ This will be used as an artistic background, so make it visually stunning and co
       throw new Error("No art image generated from OpenAI");
     }
 
-    // 4. 生成されたアート画像をダウンロード
-    const artImageResponse = await fetch(artImageUrl);
-    const artImageBuffer = await artImageResponse.arrayBuffer();
+    console.log("[artistic-qr] Art image generated successfully");
 
-    // 5. QRコードとアート画像を合成（読み取り性重視、シンプルな方法）
-    console.log("[artistic-qr] Starting image composition");
-    const qrBase64 = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
-    const qrBuffer = Buffer.from(qrBase64, "base64");
-
-    // アート画像を処理（明るく鮮やかに）
-    const processedArt = await sharp(Buffer.from(artImageBuffer))
-      .resize(1024, 1024, { fit: "cover" })
-      .modulate({
-        brightness: 1.5, // かなり明るく
-        saturation: 1.6, // 彩度高く
-      })
-      .blur(3) // ぼかしてQRパターンを際立たせる
-      .toBuffer();
-
-    // QRコードを処理（二値化して明確に）
-    const qrEnhanced = await sharp(qrBuffer)
-      .resize(1024, 1024)
-      .threshold(128) // 二値化で白黒を明確に
-      .toBuffer();
-
-    // 白い背景を作成
-    const whiteBackground = await sharp({
-      create: {
-        width: 1024,
-        height: 1024,
-        channels: 4,
-        background: { r: 255, g: 255, b: 255, alpha: 1 },
-      },
-    })
-      .png()
-      .toBuffer();
-
-    // 合成手順：
-    // 1. 白背景から開始
-    // 2. アート画像を overlay で重ねる（適度な透明度で）
-    // 3. QRパターンを multiply で焼き込む
-    const artWithAlpha = await sharp(processedArt)
-      .composite([
-        {
-          input: Buffer.from([255, 255, 255, 178]), // 約70%透明度の白
-          raw: { width: 1, height: 1, channels: 4 },
-          tile: true,
-          blend: "dest-in",
-        },
-      ])
-      .toBuffer();
-
-    const composited = await sharp(whiteBackground)
-      .composite([
-        {
-          input: artWithAlpha,
-          blend: "over", // アートを上に重ねる
-        },
-        {
-          input: qrEnhanced,
-          blend: "multiply", // QRパターンを乗算で焼き込む
-        },
-      ])
-      .sharpen({ sigma: 2.5 })
-      .png()
-      .toBuffer();
-    console.log("[artistic-qr] Image composition completed");
-
-    const artDataUrl = `data:image/png;base64,${composited.toString("base64")}`;
-
-    // 読み取りテスト用の情報も含めて返す
+    // Sharpを使わずに、アート画像とQRコードを別々に提供
+    // フロントエンドでCanvasを使って合成することも可能
     return NextResponse.json({
-      dataUrl: artDataUrl, // メインはアートQRコード
+      dataUrl: artImageUrl, // メインはアート画像
       fallbackQR: qrCodeDataUrl, // フォールバック用の通常QRコード
       originalPrompt: prompt,
       qrText: text,
       styleType,
       actualQrCode: qrCodeDataUrl,
       fromCache: false,
+      processingMethod: "canvas-based",
       // 読み取り性向上のためのメタデータ
       qrMetadata: {
         errorCorrectionLevel: "H",
         version: "auto",
         targetUrl: text,
-        generationApproach: "artistic-subtle",
+        generationApproach: "artistic-separate",
       },
     });
   } catch (error) {

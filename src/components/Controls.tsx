@@ -37,9 +37,7 @@ export default function Controls() {
             onClick={() => setActiveTab("ai")}
             disabled={state.isGeneratingAI}
             className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 ${
-              activeTab === "ai"
-                ? "border-cyan-400 text-cyan-400"
-                : "border-transparent text-gray-400 hover:text-gray-300"
+              activeTab === "ai" ? "border-cyan-400 text-cyan-400" : "border-transparent text-gray-400 hover:text-gray-300"
             } ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             <div className="flex items-center gap-2">
@@ -59,9 +57,7 @@ export default function Controls() {
             onClick={() => setActiveTab("upload")}
             disabled={state.isGeneratingAI}
             className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 ${
-              activeTab === "upload"
-                ? "border-purple-400 text-purple-400"
-                : "border-transparent text-gray-400 hover:text-gray-300"
+              activeTab === "upload" ? "border-purple-400 text-purple-400" : "border-transparent text-gray-400 hover:text-gray-300"
             } ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             <div className="flex items-center gap-2">
@@ -711,6 +707,10 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
         updateProgress(90, "最終調整中...");
         await new Promise((resolve) => setTimeout(resolve, 500));
 
+        // 処理方法に応じてメッセージを調整
+        const processingMethod = json.processingMethod || "standard";
+        const isSharpFallback = processingMethod === "fallback-no-sharp";
+
         setState((s) => ({
           ...s,
           artisticQrDataUrl: json.dataUrl, // 生成されたアートQRコード
@@ -731,7 +731,7 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
           }
         }
 
-        updateProgress(100, "完了！");
+        updateProgress(100, isSharpFallback ? "完了！（シンプル版）" : "完了！");
         setTimeout(() => {
           setState((s) => ({
             ...s,
