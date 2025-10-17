@@ -271,7 +271,6 @@ export default function ImageGallery() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="title">公開されたQRコード</h2>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-500">{qrCodeImages.length}件</span>
             <button
               onClick={fetchImages}
               className="btn text-sm flex items-center gap-2 hover:bg-gray-700/50 transition-colors duration-200"
