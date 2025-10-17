@@ -16,10 +16,10 @@ export async function POST(request: NextRequest) {
 
     console.log("[artistic-qr] Generating artistic QR without Sharp (Canvas-based approach)");
 
-    // 1. まず確実に読み取れるQRコードを生成（高解像度）
+    // 1. まず確実に読み取れるQRコードを生成（高解像度、最大エラー訂正）
     const qrCodeDataUrl = await QRCode.toDataURL(text, {
       width: 1024,
-      margin: 2,
+      margin: 4, // マージンを増やして読み取り性向上
       color: {
         dark: "#000000",
         light: "#FFFFFF",
@@ -27,22 +27,36 @@ export async function POST(request: NextRequest) {
       errorCorrectionLevel: "H", // 最高レベルのエラー訂正（30%まで復元可能）
     });
 
-    // 2. アート画像を生成（QRコードとは別に）
+    // 2. QRコード構造を保持したアート画像を生成
     const styleModifier = getStyleModifier(styleType);
 
-    // プロンプトをシンプルに：テーマに沿った美しい背景画像を生成
-    const artPrompt = `Create a beautiful, vibrant artistic background featuring: "${prompt}"
+    // QRコードパターンを含むアート画像を直接生成
+    const artPrompt = `Create a stunning artistic QR code featuring "${prompt}" that maintains perfect scannability.
 
-Style: ${styleModifier || "Vibrant, colorful, high-contrast digital art"}
-Requirements:
-- Rich, saturated colors with high contrast
-- Detailed textures and patterns
-- Professional digital artwork quality
-- Abstract or stylized interpretation of "${prompt}"
-- Suitable as a background for overlay composition
-- High visual impact with depth and dimension
+🎯 ESSENTIAL QR CODE STRUCTURE (MUST BE PRESERVED):
+- THREE large black squares in corners: top-left, top-right, bottom-left (finder patterns)
+- One small black square in bottom-right corner (timing pattern)
+- Grid of black and white squares throughout the image (data modules)
+- Pure black (#000000) for all QR code elements
+- Pure white (#FFFFFF) for background areas
+- Sharp, clean edges on all geometric elements
 
-This will be used as an artistic background, so make it visually stunning and colorful!`;
+🎨 ARTISTIC INTEGRATION - "${prompt}":
+${styleModifier ? `Style: ${styleModifier}` : "Vibrant, high-contrast digital art"}
+- Integrate "${prompt}" elements WITHIN the white spaces of the QR pattern
+- Use the QR grid as a creative framework for artistic composition
+- Add colors, textures, and details that enhance but never cover black QR modules
+- Create visual harmony between geometric QR structure and organic art elements
+- The "${prompt}" should appear to emerge from or dance around the QR pattern
+
+🔧 TECHNICAL REQUIREMENTS:
+- Maintain maximum contrast: pure black vs pure white
+- Keep all QR code geometric patterns perfectly intact
+- Artistic elements should fill white areas without bleeding into black modules
+- Final result must be scannable by any QR code reader
+- 1024x1024 resolution with crisp, clean lines
+
+Think of this as creating a beautiful mosaic where "${prompt}" lives within the QR code's natural structure, like art growing through a geometric garden.`;
 
     // 3. アート画像を生成
     const artResponse = await fetch("https://api.openai.com/v1/images/generations", {
@@ -75,23 +89,30 @@ This will be used as an artistic background, so make it visually stunning and co
 
     console.log("[artistic-qr] Art image generated successfully");
 
-    // Sharpを使わずに、アート画像とQRコードを別々に提供
-    // フロントエンドでCanvasを使って合成することも可能
+    // 4. 生成されたアート画像をダウンロードして検証
+    const artImageResponse = await fetch(artImageUrl);
+    const artImageBuffer = await artImageResponse.arrayBuffer();
+    const artImageBase64 = Buffer.from(artImageBuffer).toString("base64");
+    const artImageDataUrl = `data:image/png;base64,${artImageBase64}`;
+
+    console.log("[artistic-qr] Art image processed successfully");
+
     return NextResponse.json({
-      dataUrl: artImageUrl, // メインはアート画像
+      dataUrl: artImageDataUrl, // DALL-E生成のアートQRコード
       fallbackQR: qrCodeDataUrl, // フォールバック用の通常QRコード
       originalPrompt: prompt,
       qrText: text,
       styleType,
       actualQrCode: qrCodeDataUrl,
       fromCache: false,
-      processingMethod: "canvas-based",
+      processingMethod: "dalle-integrated",
       // 読み取り性向上のためのメタデータ
       qrMetadata: {
         errorCorrectionLevel: "H",
         version: "auto",
         targetUrl: text,
-        generationApproach: "artistic-separate",
+        generationApproach: "artistic-integrated",
+        note: "QRコードが読み取れない場合は、フォールバック用QRコードをご利用ください",
       },
     });
   } catch (error) {

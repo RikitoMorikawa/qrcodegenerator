@@ -364,11 +364,39 @@ export default function QRCodePreview() {
 
         {/* アートQRコード（背景レイヤー） */}
         {isArtisticMode && state.artisticQrDataUrl && !state.isGeneratingAI && (
-          <img
-            src={state.artisticQrDataUrl}
-            alt="Artistic QR Code"
-            className="absolute inset-0 w-full h-full object-contain rounded p-2"
-          />
+          <div className="absolute inset-0 w-full h-full">
+            <img src={state.artisticQrDataUrl} alt="Artistic QR Code" className="w-full h-full object-contain rounded p-2" />
+            {/* フォールバック用QRコード表示ボタン */}
+            {state.actualQrDataUrl && (
+              <div className="absolute bottom-2 right-2 z-10">
+                <button
+                  onClick={() => {
+                    // フォールバック用QRコードを表示するモーダルを開く
+                    const modal = document.createElement("div");
+                    modal.className = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50";
+                    modal.innerHTML = `
+                      <div class="bg-white p-6 rounded-lg max-w-sm mx-4">
+                        <h3 class="text-lg font-semibold mb-4 text-center">通常のQRコード</h3>
+                        <img src="${state.actualQrDataUrl}" alt="Fallback QR Code" class="w-full h-auto" />
+                        <p class="text-sm text-gray-600 mt-2 text-center">アートQRコードが読み取れない場合はこちらをお使いください</p>
+                        <button class="w-full mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">閉じる</button>
+                      </div>
+                    `;
+                    modal.addEventListener("click", (e) => {
+                      if (e.target === modal || (e.target as HTMLElement).tagName === "BUTTON") {
+                        document.body.removeChild(modal);
+                      }
+                    });
+                    document.body.appendChild(modal);
+                  }}
+                  className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 text-xs px-2 py-1 rounded shadow-lg transition-all"
+                  title="通常のQRコードを表示"
+                >
+                  📱 QR
+                </button>
+              </div>
+            )}
+          </div>
         )}
 
         {/* AI生成中のプログレス表示（最前面レイヤー） */}
@@ -404,33 +432,25 @@ export default function QRCodePreview() {
                 <div className="relative inline-block">
                   <div
                     className={`absolute inset-0 rounded-full border-4 border-transparent animate-spin ${
-                      state.generationType === "artistic"
-                        ? "border-t-pink-400 border-r-orange-400"
-                        : "border-t-blue-400 border-r-purple-400"
+                      state.generationType === "artistic" ? "border-t-pink-400 border-r-orange-400" : "border-t-blue-400 border-r-purple-400"
                     }`}
                     style={{ width: "60px", height: "60px", left: "-6px", top: "-6px" }}
                   />
                   <svg
-                    className={`animate-spin h-12 w-12 mx-auto ${
-                      state.generationType === "artistic" ? "text-pink-300" : "text-blue-300"
-                    }`}
+                    className={`animate-spin h-12 w-12 mx-auto ${state.generationType === "artistic" ? "text-pink-300" : "text-blue-300"}`}
                     viewBox="0 0 24 24"
                   >
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                {state.generationType === "artistic" ? "アートQRコード生成中" : "AI画像生成中"}
-              </h3>
-              <p
-                className={`font-semibold mb-4 ${
-                  state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"
-                }`}
-              >
-                {state.generationProgress}
-              </p>
+              <h3 className="text-xl font-bold text-white mb-2">{state.generationType === "artistic" ? "アートQRコード生成中" : "AI画像生成中"}</h3>
+              <p className={`font-semibold mb-4 ${state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"}`}>{state.generationProgress}</p>
               {state.generationPercent !== undefined && (
                 <div className="relative mb-4">
                   <div className="bg-white/20 rounded-full h-3 overflow-hidden">
@@ -444,11 +464,7 @@ export default function QRCodePreview() {
                     />
                   </div>
                   <div className="text-right mt-1">
-                    <span
-                      className={`text-xs font-semibold ${
-                        state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"
-                      }`}
-                    >
+                    <span className={`text-xs font-semibold ${state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"}`}>
                       {state.generationPercent}%
                     </span>
                   </div>
