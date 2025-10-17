@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { RefreshCw } from "lucide-react";
 import { GeneratedImage } from "@/lib/supabase";
 
 // 装飾的なQRコードパターンコンポーネント
@@ -259,15 +260,7 @@ export default function ImageGallery() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="title">生成された画像</h2>
           <button onClick={fetchImages} className="btn text-sm" disabled={loading}>
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            更新
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           </button>
         </div>
         {renderImageSlider(aiGeneratedImages, false)}
@@ -277,8 +270,15 @@ export default function ImageGallery() {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="title">公開されたQRコード</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-xs text-gray-500">{qrCodeImages.length}件</span>
+            <button
+              onClick={fetchImages}
+              className="btn text-sm flex items-center gap-2 hover:bg-gray-700/50 transition-colors duration-200"
+              disabled={loading}
+            >
+              <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+            </button>
           </div>
         </div>
         {renderImageSlider(qrCodeImages, true)}
