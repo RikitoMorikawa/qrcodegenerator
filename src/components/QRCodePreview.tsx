@@ -117,7 +117,6 @@ export default function QRCodePreview() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [hasPublished, setHasPublished] = useState(false);
-  const [showActualQR, setShowActualQR] = useState(false);
 
   // アートQRコードの場合は通常のQRコード生成をスキップ
   const isArtisticMode = state.generationType === "artistic" && state.artisticQrDataUrl;
@@ -288,7 +287,7 @@ export default function QRCodePreview() {
   const saveQRCodeToGallery = async () => {
     try {
       let dataUrl: string;
-      let qrInfo: any;
+      let qrInfo: unknown;
 
       if (isArtisticMode && state.artisticQrDataUrl) {
         // アートQRコードの場合
@@ -363,35 +362,13 @@ export default function QRCodePreview() {
         }}
       >
         {isArtisticMode && state.artisticQrDataUrl ? (
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* アートQRコードを表示 */}
-            <img
-              src={state.artisticQrDataUrl}
-              alt="Artistic QR Code"
-              className="max-w-full max-h-full object-contain rounded"
-              style={{ maxWidth: "512px", maxHeight: "512px" }}
-            />
-
-            {/* 読み取りテスト用の通常QRコード切り替えボタン */}
-            {state.actualQrDataUrl && (
-              <button
-                onClick={() => setShowActualQR(!showActualQR)}
-                className="absolute top-2 right-2 bg-blue-600/80 hover:bg-blue-700/90 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors shadow-lg"
-                title={showActualQR ? "アートQRに戻す" : "読み取りテスト用QRを表示"}
-              >
-                {showActualQR ? "🎨 アート" : "📱 テスト"}
-              </button>
-            )}
-
-            {/* 読み取りテスト用QRコードオーバーレイ */}
-            {showActualQR && state.actualQrDataUrl && (
-              <div className="absolute inset-0 bg-white/95 flex flex-col items-center justify-center rounded p-4">
-                <div className="text-sm text-gray-600 mb-2 text-center">読み取りテスト用QRコード</div>
-                <div ref={containerRef} className="flex items-center justify-center" style={{ maxWidth: "100%" }} />
-                <div className="text-xs text-gray-500 mt-2 text-center">このQRコードで読み取りをテストしてください</div>
-              </div>
-            )}
-          </div>
+          // アートQRコードのみを表示（シンプル）
+          <img
+            src={state.artisticQrDataUrl}
+            alt="Artistic QR Code"
+            className="max-w-full max-h-full object-contain rounded"
+            style={{ maxWidth: "512px", maxHeight: "512px" }}
+          />
         ) : (
           // 通常のQRコードを表示
           <div ref={containerRef} className="flex items-center justify-center" style={{ maxWidth: "100%" }} />

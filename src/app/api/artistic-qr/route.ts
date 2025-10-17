@@ -38,34 +38,46 @@ export async function POST(request: NextRequest) {
     // 2. QRコード構造を保持したアート生成
     const styleModifier = getStyleModifier(styleType);
 
-    // 3. より効果的なアートQRコード生成プロンプト
-    const artPrompt = `Create a beautiful artistic QR code with theme: "${prompt}"
+    // 3. 添付画像のような高品質アートQRコード生成プロンプト
+    const artPrompt = `Create a masterpiece artistic QR code featuring: "${prompt}"
 
-EXACT QR STRUCTURE (CRITICAL):
-- ${size}×${size} grid of modules
-- Three corner detection squares (7×7 each) at top-left, top-right, bottom-left
-- Each corner: black border, white middle, black center dot
-- Precise data pattern for URL: "${text}"
-- High contrast between black and white areas
+REFERENCE STYLE: Like a beautiful digital artwork where "${prompt}" is seamlessly integrated into a functional QR code structure, similar to high-end generative art.
 
-ARTISTIC VISION:
-Transform this functional QR code into a "${prompt}" masterpiece:
-- Black modules → Dark ${prompt}-themed artistic elements
-- White modules → Light ${prompt}-themed artistic elements
-- Corner squares → Stylized ${prompt} frames/portals
-- Overall composition tells the story of "${prompt}"
-- ${styleModifier ? `Style: ${styleModifier}` : ""}
+QR CODE STRUCTURE (MUST PRESERVE):
+- ${size}×${size} precise grid layout
+- Three corner detection squares: top-left, top-right, bottom-left (7×7 modules each)
+- Each corner square: thick black border, white interior space, black center dot
+- Data modules arranged in exact grid pattern for "${text}"
+- Clear module separation and high contrast
 
-TECHNICAL REQUIREMENTS:
-✓ Maintain exact QR grid structure and proportions
-✓ Preserve corner detection pattern positioning
-✓ Keep high contrast (dark vs light areas)
-✓ Ensure scannability for "${text}"
-✓ Each module clearly defined and separated
+ARTISTIC INTEGRATION FOR "${prompt}":
+🎨 VISUAL STYLE: ${styleModifier || "Vibrant, detailed, professional digital art with rich textures"}
+🎨 MAIN SUBJECT: Feature "${prompt}" as the central artistic element flowing through the QR structure
+🎨 COLOR HARMONY: Use a rich palette with deep blues, vibrant oranges, purples, and teals
+🎨 TEXTURE & DETAIL: Add intricate patterns, gradients, and artistic flourishes
+🎨 DIMENSIONAL DEPTH: Create layers and depth that make the artwork pop
 
-RESULT: A stunning "${prompt}" artwork that functions as a perfect QR code for "${text}".
+FUSION TECHNIQUE:
+- Transform QR data modules into colorful geometric patterns and "${prompt}"-themed elements
+- Make corner detection squares into ornate, decorative frames with artistic borders
+- Let "${prompt}" imagery flow organically through white spaces while respecting QR boundaries
+- Use pixelated/mosaic effects that honor the QR grid while being visually stunning
+- Create seamless integration where technology and art become indistinguishable
 
-Make it look like "${prompt}" has been magically transformed into a working QR code!`;
+COMPOSITION GOALS:
+- The "${prompt}" should be the hero of the composition
+- QR functionality preserved through strategic color and contrast choices
+- Professional gallery-worthy artistic quality
+- Perfect balance of recognition and beauty
+
+TECHNICAL EXCELLENCE:
+✓ Museum-quality digital artwork aesthetic
+✓ Perfect QR code functionality for "${text}"
+✓ High contrast maintained throughout
+✓ Professional composition and color theory
+✓ Scannable by any QR reader
+
+Create a breathtaking fusion where "${prompt}" and QR code technology become one unified masterpiece!`;
 
     // 3. アートQRコードを生成
     const artResponse = await fetch("https://api.openai.com/v1/images/generations", {
