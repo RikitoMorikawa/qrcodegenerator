@@ -255,127 +255,98 @@ function AIImageGenerator() {
         disabled={isPending}
       />
 
-      {progress && (
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-4 shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <div className="font-semibold text-lg">{progress}</div>
-              <div className="text-blue-100 text-sm mt-1">しばらくお待ちください...</div>
-            </div>
-          </div>
-          <div className="mt-3 bg-white bg-opacity-20 rounded-full h-2">
-            <div className="bg-white rounded-full h-2 transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
-          </div>
-        </div>
-      )}
-
-      {/* Full Screen Progress Overlay */}
+      {/* Card内ローディング表示 */}
       {showFullScreenProgress && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          {/* リッチな背景 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-            {/* アニメーション背景パーティクル */}
-            <div className="absolute inset-0">
-              {[...Array(20)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute rounded-full bg-white opacity-10 animate-pulse"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    width: `${Math.random() * 4 + 2}px`,
-                    height: `${Math.random() * 4 + 2}px`,
-                    animationDelay: `${Math.random() * 3}s`,
-                    animationDuration: `${Math.random() * 2 + 2}s`,
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* グラデーション波形 */}
-            <div className="absolute inset-0 opacity-30">
+        <div className="mt-4 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-lg p-6 text-white relative overflow-hidden">
+          {/* アニメーション背景パーティクル */}
+          <div className="absolute inset-0">
+            {[...Array(10)].map((_, i) => (
               <div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-y-12 animate-pulse"
+                key={i}
+                className="absolute rounded-full bg-white opacity-10 animate-pulse"
                 style={{
-                  background: "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)",
-                  animation: "wave 4s ease-in-out infinite",
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${Math.random() * 3 + 1}px`,
+                  height: `${Math.random() * 3 + 1}px`,
+                  animationDelay: `${Math.random() * 3}s`,
+                  animationDuration: `${Math.random() * 2 + 2}s`,
                 }}
               />
-            </div>
+            ))}
+          </div>
+
+          {/* グラデーション波形 */}
+          <div className="absolute inset-0 opacity-20">
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-y-12"
+              style={{
+                background: "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)",
+                animation: "wave 4s ease-in-out infinite",
+              }}
+            />
           </div>
 
           {/* メインコンテンツ */}
-          <div className="relative flex items-center justify-center min-h-screen p-4">
-            <div className="bg-white/95 backdrop-blur-lg rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-white/20">
-              <div className="mb-8">
-                <div className="relative inline-block">
-                  {/* 外側の回転リング */}
-                  <div
-                    className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 border-r-purple-500 animate-spin"
-                    style={{ width: "80px", height: "80px", left: "-8px", top: "-8px" }}
-                  />
+          <div className="relative text-center">
+            <div className="mb-6">
+              <div className="relative inline-block">
+                {/* 外側の回転リング */}
+                <div
+                  className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-400 border-r-purple-400 animate-spin"
+                  style={{ width: "60px", height: "60px", left: "-6px", top: "-6px" }}
+                />
 
-                  {/* メインスピナー */}
-                  <svg className="animate-spin h-16 w-16 text-blue-600 mx-auto" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                {/* メインスピナー */}
+                <svg className="animate-spin h-12 w-12 text-blue-300 mx-auto" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+
+                {/* 中央アイコン */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg className="h-6 w-6 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                     />
                   </svg>
-
-                  {/* 中央アイコン */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                      />
-                    </svg>
-                  </div>
                 </div>
               </div>
+            </div>
 
-              <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">AI画像生成中</h3>
-              <p className="text-xl text-blue-600 font-semibold mb-6">{progress}</p>
+            <h3 className="text-xl font-bold text-white mb-2">AI画像生成中</h3>
+            <p className="text-blue-200 font-semibold mb-4">{progress}</p>
 
-              {/* プログレスバー */}
-              <div className="relative mb-6">
-                <div className="bg-gray-200 rounded-full h-4 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full h-4 transition-all duration-700 ease-out relative"
-                    style={{ width: `${progressPercent}%` }}
-                  >
-                    {/* プログレスバーの光沢効果 */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse" />
-                  </div>
-                </div>
-                <div className="text-right mt-2">
-                  <span className="text-sm font-semibold text-gray-600">{progressPercent}%</span>
+            {/* プログレスバー */}
+            <div className="relative mb-4">
+              <div className="bg-white/20 rounded-full h-3 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full h-3 transition-all duration-700 ease-out relative"
+                  style={{ width: `${progressPercent}%` }}
+                >
+                  {/* プログレスバーの光沢効果 */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse" />
                 </div>
               </div>
+              <div className="text-right mt-1">
+                <span className="text-xs font-semibold text-blue-200">{progressPercent}%</span>
+              </div>
+            </div>
 
-              <div className="space-y-2">
-                <p className="text-gray-700 font-medium">高品質なロゴを生成しています</p>
-                <p className="text-gray-500 text-sm">数秒〜30秒程度お待ちください</p>
-                <div className="flex items-center justify-center gap-1 mt-4">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
-                  ))}
-                </div>
+            <div className="space-y-1">
+              <p className="text-white text-sm font-medium">高品質なロゴを生成しています</p>
+              <p className="text-blue-200 text-xs">数秒〜30秒程度お待ちください</p>
+              <div className="flex items-center justify-center gap-1 mt-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="w-1.5 h-1.5 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
+                ))}
               </div>
             </div>
           </div>
