@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useQrStyle } from "@/context/qrStyle";
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 
 // 透明な画像を作成する関数
 const createTransparentImage = () => {
@@ -16,11 +16,80 @@ const createTransparentImage = () => {
   return canvas.toDataURL("image/png");
 };
 
+// カスタム確認ダイアログコンポーネント
+const ConfirmDialog = ({ isOpen, onClose, onConfirm, url }: { isOpen: boolean; onClose: () => void; onConfirm: () => void; url: string }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 rounded-2xl p-0 max-w-md w-full shadow-2xl border border-gray-700">
+        {/* ヘッダー部分 */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-700 p-6 rounded-t-2xl text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <Upload size={20} className="text-white" />
+              </div>
+              <h3 className="text-xl font-bold">QRコードを公開</h3>
+            </div>
+            <button onClick={onClose} className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200">
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+
+        {/* コンテンツ部分 */}
+        <div className="p-6">
+          <div className="text-gray-300 mb-4 text-base leading-relaxed">このQRコードをギャラリーに公開します。</div>
+
+          {/* URL表示ボックス */}
+          <div className="bg-gradient-to-r from-gray-800 to-blue-900/50 p-4 rounded-xl border border-gray-600 mb-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+            <div className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <span>公開されるURL:</span>
+            </div>
+            <div className="text-sm font-mono text-gray-100 break-all bg-gray-800 px-3 py-2 rounded-lg border border-gray-600">{url}</div>
+          </div>
+
+          {/* 警告メッセージ */}
+          <div className="bg-amber-900/30 border border-amber-700/50 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+              <div className="text-sm text-amber-200 leading-relaxed">公開されると、他のユーザーもこのQRコードとURLを見ることができるようになります。</div>
+            </div>
+          </div>
+        </div>
+
+        {/* ボタン部分 */}
+        <div className="px-6 pb-6 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-3 text-gray-300 border border-gray-600 rounded-xl hover:bg-gray-800 hover:border-gray-500 transition-all duration-200 font-medium"
+          >
+            キャンセル
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-700 text-white rounded-xl hover:from-blue-700 hover:to-purple-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+          >
+            公開する
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function QRCodePreview() {
   const { state } = useQrStyle();
   const containerRef = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const qrRef = useRef<any>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // client-side only: dynamic import and create instance
   useEffect(() => {
@@ -151,6 +220,15 @@ export default function QRCodePreview() {
     await qrRef.current.download({ extension: ext, name: "qr-code" });
   };
 
+  const handlePublishClick = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmPublish = async () => {
+    setShowConfirmDialog(false);
+    await saveQRCodeToGallery();
+  };
+
   const saveQRCodeToGallery = async () => {
     if (!qrRef.current) return;
 
@@ -231,11 +309,14 @@ export default function QRCodePreview() {
         <button className="btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" onClick={() => handleDownload("svg")}>
           SVG
         </button>
-        <button className="btn btn-primary text-xs px-2 py-1 flex items-center gap-1" onClick={saveQRCodeToGallery}>
+        <button className="btn btn-primary text-xs px-2 py-1 flex items-center gap-1" onClick={handlePublishClick}>
           <Upload size={12} />
           公開
         </button>
       </div>
+
+      {/* カスタム確認ダイアログ */}
+      <ConfirmDialog isOpen={showConfirmDialog} onClose={() => setShowConfirmDialog(false)} onConfirm={handleConfirmPublish} url={state.text} />
     </div>
   );
 }

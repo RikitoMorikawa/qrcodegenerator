@@ -145,17 +145,17 @@ export default function ImageGallery() {
             key={image.id}
             className="group relative bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all duration-200 shadow-sm hover:shadow-md"
           >
-            {/* QR部分（白背景） */}
+            {/* 画像部分（白背景） */}
             <div className="aspect-square relative overflow-hidden bg-white">
-              {/* 装飾的なQRコードパターン背景（QRコードの場合のみ） */}
-              {isQRCode && (
+              {/* 装飾的なQRコードパターン背景（AI生成画像の場合のみ） */}
+              {!isQRCode && (
                 <div className="absolute inset-0 opacity-30">
                   <QRPattern />
                 </div>
               )}
 
               {/* メイン画像エリア */}
-              <div className={`absolute ${isQRCode ? "inset-6" : "inset-3"} flex items-center justify-center`}>
+              <div className={`absolute ${!isQRCode ? "inset-6" : "inset-3"} flex items-center justify-center`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={image.image_url}
