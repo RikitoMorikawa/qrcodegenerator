@@ -11,7 +11,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Failed to fetch images" }, { status: 500 });
     }
 
-    return NextResponse.json({ images: data || [] });
+    // qr_detailsがJSON文字列の場合はパースする
+    const processedData = (data || []).map((item) => ({
+      ...item,
+      qr_details: item.qr_details && typeof item.qr_details === "string" ? JSON.parse(item.qr_details) : item.qr_details,
+    }));
+
+    return NextResponse.json({ images: processedData });
   } catch (error) {
     console.error("Fetch images error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

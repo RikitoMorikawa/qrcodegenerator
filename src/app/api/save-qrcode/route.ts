@@ -5,6 +5,12 @@ export async function POST(req: NextRequest) {
   try {
     const { qrDataUrl, qrInfo, isPublic = true } = await req.json();
 
+    console.log("Received QR save request:", {
+      qrInfo,
+      isPublic,
+      dataUrlLength: qrDataUrl?.length,
+    });
+
     if (!qrDataUrl || !qrInfo) {
       return NextResponse.json({ error: "qrDataUrl and qrInfo are required" }, { status: 400 });
     }

@@ -1,7 +1,36 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { GeneratedImage, QRDetails } from "@/lib/supabase";
+import { GeneratedImage } from "@/lib/supabase";
+
+// 装飾的なQRコードパターンコンポーネント
+const QRPattern = () => {
+  return (
+    <div className="w-full h-full relative">
+      {/* コーナーの位置検出パターン */}
+      <div className="absolute top-1 left-1 w-6 h-6 border-2 border-white">
+        <div className="absolute top-1 left-1 w-2 h-2 bg-white"></div>
+      </div>
+      <div className="absolute top-1 right-1 w-6 h-6 border-2 border-white">
+        <div className="absolute top-1 right-1 w-2 h-2 bg-white"></div>
+      </div>
+      <div className="absolute bottom-1 left-1 w-6 h-6 border-2 border-white">
+        <div className="absolute bottom-1 left-1 w-2 h-2 bg-white"></div>
+      </div>
+
+      {/* ランダムドットパターン */}
+      <div className="absolute inset-8 grid grid-cols-12 gap-px">
+        {Array.from({ length: 144 }, (_, i) => (
+          <div key={i} className={`w-full h-full ${Math.random() > 0.5 ? "bg-white" : "bg-transparent"}`} />
+        ))}
+      </div>
+
+      {/* タイミングパターン（水平・垂直線） */}
+      <div className="absolute top-7 left-8 right-8 h-px bg-white opacity-60"></div>
+      <div className="absolute left-7 top-8 bottom-8 w-px bg-white opacity-60"></div>
+    </div>
+  );
+};
 
 export default function ImageGallery() {
   const [images, setImages] = useState<GeneratedImage[]>([]);
@@ -160,14 +189,22 @@ export default function ImageGallery() {
               className="group relative bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all duration-200"
             >
               <div className="aspect-square relative overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={image.image_url}
-                  alt={image.prompt}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+                {/* 装飾的なQRコードパターン背景 */}
+                <div className="absolute inset-0 opacity-10">
+                  <QRPattern />
+                </div>
+
+                {/* メイン画像 */}
+                <div className="absolute inset-2 bg-gray-900 rounded overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.image_url}
+                    alt={image.prompt}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+                </div>
               </div>
 
               <div className="p-3">
@@ -184,13 +221,6 @@ export default function ImageGallery() {
                 </div>
 
                 <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed">{image.original_prompt || image.prompt}</p>
-
-                {/* QRコードの場合は追加情報を表示 */}
-                {image.style_type === "qrcode" && image.qr_details && (
-                  <div className="mt-2 text-xs text-gray-400">
-                    <div>URL: {(image.qr_details as QRDetails).url}</div>
-                  </div>
-                )}
               </div>
 
               {/* ホバー時のオーバーレイ */}

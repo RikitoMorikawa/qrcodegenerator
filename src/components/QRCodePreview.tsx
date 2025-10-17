@@ -154,12 +154,19 @@ export default function QRCodePreview() {
     if (!qrRef.current) return;
 
     try {
-      // QRコードをcanvasとして取得
-      const canvas = qrRef.current._canvas;
-      if (!canvas) return;
+      // QRコードをBlobとして取得（より確実な方法）
+      const blob = await qrRef.current.getRawData("png");
+      if (!blob) {
+        throw new Error("QRコードの画像データを取得できませんでした");
+      }
 
-      // canvasをdata URLに変換
-      const dataUrl = canvas.toDataURL("image/png");
+      // BlobをBase64に変換
+      const reader = new FileReader();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
 
       // QRコードの情報を構築
       const qrInfo = {
@@ -168,6 +175,8 @@ export default function QRCodePreview() {
         style: `${state.dotsStyle}ドット・${state.cornersStyle}コーナー`,
         colors: `QR:${state.color} / 背景:${state.bgColor}`,
       };
+
+      console.log("Saving QR code:", { qrInfo, dataUrlLength: dataUrl.length });
 
       // Supabaseに保存
       const response = await fetch("/api/save-qrcode", {
@@ -180,16 +189,19 @@ export default function QRCodePreview() {
         }),
       });
 
+      const result = await response.json();
+      console.log("Save QR code result:", result);
+
       if (response.ok) {
         alert("QRコードをギャラリーに保存しました！");
         // ギャラリーを更新するためのイベントを発火
         window.dispatchEvent(new CustomEvent("qrcode-saved"));
       } else {
-        throw new Error("保存に失敗しました");
+        throw new Error(result.error || "保存に失敗しました");
       }
     } catch (error) {
       console.error("QRコード保存エラー:", error);
-      alert("QRコードの保存に失敗しました");
+      alert(`QRコードの保存に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`);
     }
   };
 
