@@ -293,7 +293,6 @@ export default function QRCodePreview() {
         colors: `QR:${state.color} / 背景:${state.bgColor}`,
       };
 
-      console.log("Saving QR code:", { qrInfo, dataUrlLength: dataUrl.length });
 
       // Supabaseに保存
       const response = await fetch("/api/save-qrcode", {
@@ -307,7 +306,6 @@ export default function QRCodePreview() {
       });
 
       const result = await response.json();
-      console.log("Save QR code result:", result);
 
       if (response.ok) {
         // ギャラリーを更新するためのイベントを発火
