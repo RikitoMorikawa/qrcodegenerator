@@ -206,7 +206,7 @@ function AIImageGenerator() {
       }}
       className="space-y-3"
     >
-      <label className="block text-sm font-medium">AIロゴ生成（OpenAI）</label>
+      <label className="block text-sm font-medium">AIロゴ生成</label>
 
       <div className="space-y-2">
         <label className="block text-xs font-medium text-gray-600">スタイル</label>
