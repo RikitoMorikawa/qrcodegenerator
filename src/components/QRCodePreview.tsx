@@ -140,7 +140,7 @@ export default function QRCodePreview() {
         qrOptions: {
           errorCorrectionLevel: "H", // 最高エラー訂正レベル（30%まで復元可能）
           mode: "Byte", // バイトモードで安定性向上
-          typeNumber: 0, // 自動選択で最適化
+          typeNumber: 6, // より細かい模様にするため固定値を指定（21x21 → 41x41ドット）
         },
         dotsOptions: {
           type: state.dotsStyle, // 動的にスタイルを適用
@@ -154,8 +154,8 @@ export default function QRCodePreview() {
         // 初期状態でも中央をクリアにする
         image: transparentImage,
         imageOptions: {
-          margin: 0, // 標準的なマージン
-          imageSize: 0.7, // ロゴを70%のサイズで表示
+          margin: 0, // 標準的なマージン（元に戻す）
+          imageSize: 0.7, // ロゴを70%のサイズで表示（元に戻す）
           hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
         },
       });
@@ -202,8 +202,8 @@ export default function QRCodePreview() {
     // 読み取り性を最優先にした画像オプション
     const imageOptions = {
       crossOrigin: "anonymous",
-      margin: 0, // 標準的なマージン
-      imageSize: 0.7, // ロゴを70%のサイズで表示
+      margin: 0, // 標準的なマージン（元に戻す）
+      imageSize: 0.7, // ロゴを70%のサイズで表示（元に戻す）
       hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
       saveAsBlob: true, // 透明背景をサポート
       // 高品質レンダリング設定
@@ -221,7 +221,7 @@ export default function QRCodePreview() {
       qrOptions: {
         errorCorrectionLevel: "H", // 最高エラー訂正レベル（30%まで復元可能）
         mode: "Byte", // バイトモードで安定性向上
-        typeNumber: 0, // 自動選択で最適化
+        typeNumber: 6, // より細かい模様にするため固定値を指定（21x21 → 41x41ドット）
       },
       backgroundOptions: {
         color: state.bgColor,
