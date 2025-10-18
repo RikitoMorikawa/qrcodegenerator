@@ -126,22 +126,26 @@ export default function ArtisticQRGallery() {
         {/* 横スライドギャラリー */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide pb-2"
+          className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 px-2"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
           }}
         >
           {items.map((item) => (
-            <a
+            <div
               key={item.id}
-              href={item.image_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative flex-shrink-0 w-48 sm:w-56 aspect-square rounded-lg overflow-hidden border border-gray-700 hover:border-pink-400 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-pink-400/20 cursor-pointer block"
+              className="group relative flex-shrink-0 w-48 sm:w-56 aspect-square cursor-pointer p-1"
             >
-              <img src={item.image_url} alt={item.prompt} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between">
+              <a
+                href={item.image_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full h-full rounded-lg overflow-hidden border-2 border-gray-700 transition-transform duration-300 group-hover:scale-105"
+              >
+                <img src={item.image_url} alt={item.prompt} className="w-full h-full object-cover" />
+              </a>
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between pointer-events-none rounded-lg">
                 <div className="flex justify-center items-center flex-1">
                   <div className="text-center">
                     <p className="text-white text-sm font-semibold mb-1">クリックで拡大</p>
@@ -171,7 +175,7 @@ export default function ArtisticQRGallery() {
                   </div>
                 </div>
               </div>
-            </a>
+            </div>
           ))}
         </div>
       </div>
