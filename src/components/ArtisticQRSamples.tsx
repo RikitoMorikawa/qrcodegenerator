@@ -246,7 +246,7 @@ export default function ArtisticQRSamples() {
               />
 
               {/* QRコード上のオーバーレイ情報 - 左下配置でQRを読み取れないようにする */}
-              <div className="absolute bottom-4 left-6 pointer-events-none">
+              <div className="absolute bottom-4 left-16 pointer-events-none">
                 <div className="bg-black/60 backdrop-blur-md rounded-xl px-4 py-3 border border-gray-600/30 shadow-xl max-w-xs">
                   <div className="space-y-2">
                     <div className="bg-gradient-to-r from-pink-500/15 to-purple-600/15 rounded-lg px-3 py-1.5 border border-pink-400/20">
