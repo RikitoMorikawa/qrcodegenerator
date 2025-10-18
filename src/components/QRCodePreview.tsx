@@ -184,16 +184,6 @@ export default function QRCodePreview() {
   // 通常のQRコードを表示する条件（より明確に）
   const showNormalQR = state.generationType !== "artistic" || (state.generationType === "artistic" && state.isGeneratingAI);
 
-  // デバッグ用ログ
-  console.log("QRCodePreview state:", {
-    generationType: state.generationType,
-    artisticQrDataUrl: !!state.artisticQrDataUrl,
-    isGeneratingAI: state.isGeneratingAI,
-    isArtisticMode,
-    showArtisticSamples,
-    showNormalQR,
-  });
-
   // client-side only: dynamic import and create instance
   useEffect(() => {
     let isMounted = true;
