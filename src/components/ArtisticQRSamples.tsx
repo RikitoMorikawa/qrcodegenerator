@@ -249,18 +249,18 @@ export default function ArtisticQRSamples() {
               />
 
               {/* プロンプト情報 - 上部左から中央寄りに配置（少し下に） */}
-              <div className="absolute top-8 left-16 pointer-events-none">
-                <div className="bg-black/60 backdrop-blur-md rounded-xl px-4 py-2 border border-gray-600/30 shadow-xl max-w-xs">
-                  <div className="bg-gradient-to-r from-pink-500/15 to-purple-600/15 rounded-lg px-3 py-1.5 border border-pink-400/20">
-                    <p className="text-xs font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
+              <div className="absolute top-8 left-16 sm:left-16 left-4 pointer-events-none">
+                <div className="bg-black/60 backdrop-blur-md rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-600/30 shadow-xl max-w-xs sm:max-w-xs max-w-48">
+                  <div className="bg-gradient-to-r from-pink-500/15 to-purple-600/15 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 border border-pink-400/20">
+                    <p className="text-xs sm:text-xs text-[10px] font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
                   </div>
                 </div>
               </div>
 
               {/* スタイル情報 - 下部左から中央寄りに配置（少し上に） */}
-              <div className="absolute bottom-8 left-16 pointer-events-none">
-                <div className="bg-black/60 backdrop-blur-md rounded-xl px-4 py-2 border border-gray-600/30 shadow-xl">
-                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium border border-pink-400/30 shadow-lg">
+              <div className="absolute bottom-8 sm:bottom-8 bottom-4 left-16 sm:left-16s-none">
+                <div className="bg-black/60 backdrop-blur-md rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 border border-gray-600/30 shadow-xl">
+                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-xs text-[10px] font-medium border border-pink-400/30 shadow-lg">
                     {currentSample.style_type}
                   </span>
                 </div>
