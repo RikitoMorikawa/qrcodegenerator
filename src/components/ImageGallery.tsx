@@ -49,6 +49,7 @@ export default function ImageGallery() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAIImagesExpanded, setIsAIImagesExpanded] = useState(false);
+  const [isQRCodesExpanded, setIsQRCodesExpanded] = useState(true); // 初期表示は開いた状態
 
   useEffect(() => {
     fetchImages();
@@ -290,17 +291,29 @@ export default function ImageGallery() {
       </div>
 
       {/* QRコードセクション */}
-      <div className="card p-6">
-        <div className="mb-4">
-          <h2 className="title !mb-0">公開されたロゴQRコード</h2>
+      <div className="card">
+        <div
+          className="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-800/30 transition-colors duration-200"
+          onClick={() => setIsQRCodesExpanded(!isQRCodesExpanded)}
+        >
+          <div className={`transform transition-transform duration-300 ${isQRCodesExpanded ? "rotate-90" : ""}`}>
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+          <h2 className="title text-lg !mb-0">公開されたQRコード</h2>
         </div>
-        <div className="mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">全{qrCodeImages.length}件</span>
-            <span className="text-xs text-gray-500">最新50件まで表示</span>
+        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isQRCodesExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+          <div className="px-6 pb-2">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">全{qrCodeImages.length}件</span>
+                <span className="text-xs text-gray-500">最新50件まで表示</span>
+              </div>
+            </div>
+            {renderImageSlider(qrCodeImages, true)}
           </div>
         </div>
-        {renderImageSlider(qrCodeImages, true)}
       </div>
     </div>
   );
