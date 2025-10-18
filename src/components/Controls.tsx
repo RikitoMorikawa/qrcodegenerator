@@ -377,11 +377,11 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
         const startTime = Date.now();
         const progressTimeouts: NodeJS.Timeout[] = [];
 
-        // 初期進捗を段階的に進める（20%刻みで0-80%まで）
-        progressTimeouts.push(setTimeout(() => updateProgress(20, "AIサーバーに接続中..."), 1200));
-        progressTimeouts.push(setTimeout(() => updateProgress(40, "AI画像を生成中..."), 2400));
-        progressTimeouts.push(setTimeout(() => updateProgress(60, "高品質画像を生成中..."), 3600));
-        progressTimeouts.push(setTimeout(() => updateProgress(80, "高品質画像を生成中..."), 4800));
+        // 初期進捗を段階的に進める（20%刻みで0-80%まで、各段階の時間をさらに1.5倍延長）
+        progressTimeouts.push(setTimeout(() => updateProgress(20, "AIサーバーに接続中..."), 3600));
+        progressTimeouts.push(setTimeout(() => updateProgress(40, "AI画像を生成中..."), 7200));
+        progressTimeouts.push(setTimeout(() => updateProgress(60, "高品質画像を生成中..."), 10800));
+        progressTimeouts.push(setTimeout(() => updateProgress(80, "高品質画像を生成中..."), 14400));
 
         // プロンプトに設定を追加
         const styleModifier = generateStyleModifier(state.styleType);
@@ -851,11 +851,11 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
         const startTime = Date.now();
         const progressTimeouts: NodeJS.Timeout[] = [];
 
-        // 段階的な進捗表示（20%刻みで0-80%まで）
-        progressTimeouts.push(setTimeout(() => updateProgress(20, "AIサーバーに接続中..."), 1200));
-        progressTimeouts.push(setTimeout(() => updateProgress(40, "アートQRコードを生成中..."), 2400));
-        progressTimeouts.push(setTimeout(() => updateProgress(60, "高品質画像を生成中..."), 3600));
-        progressTimeouts.push(setTimeout(() => updateProgress(80, "アート画像を生成中..."), 4800));
+        // 段階的な進捗表示（20%刻みで0-80%まで、各段階の時間をさらに1.5倍延長）
+        progressTimeouts.push(setTimeout(() => updateProgress(20, "AIサーバーに接続中..."), 3600));
+        progressTimeouts.push(setTimeout(() => updateProgress(40, "アートQRコードを生成中..."), 7200));
+        progressTimeouts.push(setTimeout(() => updateProgress(60, "高品質画像を生成中..."), 10800));
+        progressTimeouts.push(setTimeout(() => updateProgress(80, "アート画像を生成中..."), 14400));
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒タイムアウト
