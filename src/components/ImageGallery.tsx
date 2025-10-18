@@ -301,7 +301,7 @@ export default function ImageGallery() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>
-          <h2 className="title text-lg !mb-0">公開されたQRコード</h2>
+          <h2 className="title text-lg !mb-0">公開されたロゴQRコード</h2>
         </div>
         <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isQRCodesExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
           <div className="px-6 pb-2">
