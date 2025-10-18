@@ -1,14 +1,158 @@
 "use client";
 
-import React, { useTransition } from "react";
+import React, { useTransition, useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useQrStyle, type StyleType, type DotsStyle, type CornersStyle, type GenerationType } from "@/context/qrStyle";
 import { removeBackgroundAdvanced } from "@/utils/imageProcessing";
+
+// カスタムSelectコンポーネント
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface CustomSelectProps {
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  disabled?: boolean;
+  className?: string;
+}
+
+function CustomSelect({ value, onChange, options, disabled = false, className = "" }: CustomSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const selectRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // ドロップダウンの位置を計算
+  const updateDropdownPosition = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 4, // window.scrollYを削除してviewport基準に
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  };
+
+  // 外側クリックで閉じる & スクロール時の位置更新
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      // selectRef（ボタン）内のクリックは無視
+      if (selectRef.current && selectRef.current.contains(target)) {
+        return;
+      }
+
+      // ドロップダウンメニュー内のクリックは無視（ポータル内の要素をチェック）
+      const dropdownElement = document.querySelector(".dropdown-portal");
+      if (dropdownElement && dropdownElement.contains(target)) {
+        return;
+      }
+
+      setIsOpen(false);
+    };
+
+    const handleScroll = () => {
+      if (isOpen) {
+        updateDropdownPosition();
+      }
+    };
+
+    const handleResize = () => {
+      if (isOpen) {
+        setIsOpen(false); // リサイズ時は閉じる
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isOpen]);
+
+  const selectedOption = options.find((option) => option.value === value);
+
+  const handleToggle = () => {
+    if (!disabled) {
+      if (!isOpen) {
+        updateDropdownPosition();
+      }
+      setIsOpen(!isOpen);
+    }
+  };
+
+  // ドロップダウンメニューをポータルで描画
+  const dropdownMenu = isOpen && !disabled && (
+    <div
+      style={{
+        position: "fixed",
+        top: dropdownPosition.top,
+        left: dropdownPosition.left,
+        width: dropdownPosition.width,
+        zIndex: 2147483647, // 32bit整数の最大値
+      }}
+      className="dropdown-portal bg-gray-800 border border-gray-600 rounded-md shadow-2xl shadow-black/90 max-h-60 overflow-auto backdrop-blur-sm"
+    >
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Option clicked:", option.value, "Current value:", value);
+            onChange(option.value);
+            setIsOpen(false);
+          }}
+          className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-700 transition-colors duration-150 ${
+            option.value === value ? "bg-gray-700 text-cyan-400" : "text-gray-200"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <div ref={selectRef} className={`relative ${className}`}>
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={handleToggle}
+        disabled={disabled}
+        className={`w-full text-left px-3 py-2 text-sm border rounded-md transition-colors duration-200 flex items-center justify-between ${
+          disabled
+            ? "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed"
+            : "bg-gray-800 border-gray-600 text-gray-200 hover:border-gray-500 focus:border-gray-400 focus:outline-none"
+        }`}
+      >
+        <span>{selectedOption?.label || "選択してください"}</span>
+        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {typeof window !== "undefined" && createPortal(dropdownMenu, document.body)}
+    </div>
+  );
+}
 
 export default function Controls() {
   const { state, setState } = useQrStyle();
   const [activeTab, setActiveTab] = React.useState<"ai" | "upload">("ai");
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
+    console.log("Controls onChange:", key, "from", state[key], "to", value);
     setState((s) => ({ ...s, [key]: value }));
   };
 
@@ -126,22 +270,30 @@ export default function Controls() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-3">
               <label className="block text-sm font-medium">ドットスタイル</label>
-              <select className="input" value={state.dotsStyle} onChange={(e) => onChange("dotsStyle", e.target.value as DotsStyle)}>
-                <option value="square">四角</option>
-                <option value="rounded">丸角</option>
-                <option value="dots">ドット</option>
-                <option value="classy">クラシック</option>
-                <option value="classy-rounded">クラシック丸角</option>
-                <option value="extra-rounded">超丸角</option>
-              </select>
+              <CustomSelect
+                value={state.dotsStyle}
+                onChange={(value) => onChange("dotsStyle", value as DotsStyle)}
+                options={[
+                  { value: "square", label: "四角" },
+                  { value: "rounded", label: "丸角" },
+                  { value: "dots", label: "ドット" },
+                  { value: "classy", label: "クラシック" },
+                  { value: "classy-rounded", label: "クラシック丸角" },
+                  { value: "extra-rounded", label: "超丸角" },
+                ]}
+              />
             </div>
             <div className="space-y-3">
               <label className="block text-sm font-medium">コーナースタイル</label>
-              <select className="input" value={state.cornersStyle} onChange={(e) => onChange("cornersStyle", e.target.value as CornersStyle)}>
-                <option value="square">四角</option>
-                <option value="dot">ドット</option>
-                <option value="extra-rounded">丸角</option>
-              </select>
+              <CustomSelect
+                value={state.cornersStyle}
+                onChange={(value) => onChange("cornersStyle", value as CornersStyle)}
+                options={[
+                  { value: "square", label: "四角" },
+                  { value: "dot", label: "ドット" },
+                  { value: "extra-rounded", label: "丸角" },
+                ]}
+              />
             </div>
           </div>
         </>
@@ -350,27 +502,34 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <label className="block text-xs font-medium text-gray-600">スタイル</label>
-          <select className="input text-sm" value={state.styleType} onChange={(e) => onChange("styleType", e.target.value as StyleType)} disabled={isPending}>
-            <option value="normal">未設定</option>
-            <option value="cute">可愛い</option>
-            <option value="cool">カッコイイ</option>
-            <option value="elegant">オシャレ</option>
-            <option value="playful">元気</option>
-            <option value="retro">レトロ</option>
-          </select>
+          <CustomSelect
+            value={state.styleType}
+            onChange={(value) => onChange("styleType", value as StyleType)}
+            disabled={isPending}
+            className="text-sm"
+            options={[
+              { value: "normal", label: "未設定" },
+              { value: "cute", label: "可愛い" },
+              { value: "cool", label: "カッコイイ" },
+              { value: "elegant", label: "オシャレ" },
+              { value: "playful", label: "元気" },
+              { value: "retro", label: "レトロ" },
+            ]}
+          />
         </div>
 
         <div className="space-y-2">
           <label className="block text-xs font-medium text-gray-600">公開設定</label>
-          <select
-            className="input text-sm"
+          <CustomSelect
             value={isPublic ? "public" : "private"}
-            onChange={(e) => setIsPublic(e.target.value === "public")}
+            onChange={(value) => setIsPublic(value === "public")}
             disabled={isPending}
-          >
-            <option value="public">公開</option>
-            <option value="private">非公開</option>
-          </select>
+            className="text-sm"
+            options={[
+              { value: "public", label: "公開" },
+              { value: "private", label: "非公開" },
+            ]}
+          />
         </div>
       </div>
 
@@ -809,27 +968,34 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <label className="block text-xs font-medium text-gray-600">スタイル</label>
-          <select className="input text-sm" value={state.styleType} onChange={(e) => onChange("styleType", e.target.value as StyleType)} disabled={isPending}>
-            <option value="normal">未設定</option>
-            <option value="cute">可愛い</option>
-            <option value="cool">カッコイイ</option>
-            <option value="elegant">オシャレ</option>
-            <option value="playful">元気</option>
-            <option value="retro">レトロ</option>
-          </select>
+          <CustomSelect
+            value={state.styleType}
+            onChange={(value) => onChange("styleType", value as StyleType)}
+            disabled={isPending}
+            className="text-sm"
+            options={[
+              { value: "normal", label: "未設定" },
+              { value: "cute", label: "可愛い" },
+              { value: "cool", label: "カッコイイ" },
+              { value: "elegant", label: "オシャレ" },
+              { value: "playful", label: "元気" },
+              { value: "retro", label: "レトロ" },
+            ]}
+          />
         </div>
 
         <div className="space-y-2">
           <label className="block text-xs font-medium text-gray-600">公開設定</label>
-          <select
-            className="input text-sm"
+          <CustomSelect
             value={isPublic ? "public" : "private"}
-            onChange={(e) => setIsPublic(e.target.value === "public")}
+            onChange={(value) => setIsPublic(value === "public")}
             disabled={isPending}
-          >
-            <option value="public">公開</option>
-            <option value="private">非公開</option>
-          </select>
+            className="text-sm"
+            options={[
+              { value: "public", label: "公開" },
+              { value: "private", label: "非公開" },
+            ]}
+          />
         </div>
       </div>
 

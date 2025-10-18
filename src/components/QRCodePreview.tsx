@@ -143,13 +143,13 @@ export default function QRCodePreview() {
           typeNumber: 0, // 自動選択で最適化
         },
         dotsOptions: {
-          type: "square", // 四角形で最高の読み取り性
+          type: state.dotsStyle, // 動的にスタイルを適用
         },
         cornersSquareOptions: {
-          type: "square", // 四角形で最高の読み取り性
+          type: state.cornersStyle, // 動的にスタイルを適用
         },
         cornersDotOptions: {
-          type: "square", // 四角形で最高の読み取り性
+          type: state.cornersStyle, // 動的にスタイルを適用
         },
         // 初期状態でも中央をクリアにする
         image: transparentImage,
@@ -227,20 +227,20 @@ export default function QRCodePreview() {
         color: state.bgColor,
         gradient: null,
       },
-      // 読み取り性を優先したスタイル設定
+      // 動的スタイル設定
       dotsOptions: {
-        type: "square", // 常に四角形で最高の読み取り性
+        type: state.dotsStyle, // 動的にスタイルを適用
         color: state.color,
         gradient: null,
       },
-      // 読み取り性を優先したコーナー設定
+      // 動的コーナー設定
       cornersSquareOptions: {
-        type: "square", // 常に四角形で最高の読み取り性
+        type: state.cornersStyle, // 動的にスタイルを適用
         color: state.color,
         gradient: null,
       },
       cornersDotOptions: {
-        type: "square", // 常に四角形で最高の読み取り性
+        type: state.cornersStyle, // 動的にスタイルを適用
         color: state.color,
         gradient: null,
       },
@@ -489,7 +489,10 @@ export default function QRCodePreview() {
                       style={{ width: `${state.generationPercent}%` }}
                     >
                       {/* 流れるアニメーション */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+                      <div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"
+                        style={{ backgroundSize: "200% 100%" }}
+                      />
                     </div>
                   </div>
                   <div className="text-right mt-1">

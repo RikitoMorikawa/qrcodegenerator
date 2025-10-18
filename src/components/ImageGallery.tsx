@@ -291,8 +291,10 @@ export default function ImageGallery() {
 
       {/* QRコードセクション */}
       <div className="card p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4">
           <h2 className="title !mb-0">公開されたQRコード</h2>
+        </div>
+        <div className="mb-4">
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">全{qrCodeImages.length}件</span>
             <span className="text-xs text-gray-500">最新50件まで表示</span>
