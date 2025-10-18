@@ -223,7 +223,7 @@ export default function ArtisticQRSamples() {
       </div>
 
       {/* メイン画像エリア - 中央配置でリッチなデザイン */}
-      <div className="absolute inset-0 pt-16 pb-12">
+      <div className="absolute inset-0 pt-16 pb-6">
         <div className="w-full h-full flex items-center justify-center p-6">
           <div className="relative w-full h-full max-w-md max-h-md">
             {/* 画像読み込み中のローディング */}
