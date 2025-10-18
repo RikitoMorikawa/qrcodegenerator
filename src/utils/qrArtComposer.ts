@@ -440,10 +440,37 @@ export async function createVibrantArtQR(qrDataUrl: string, artDataUrl: string):
           data[i + 2] = artData[i + 2];
 
           if (isProtected) {
-            // 保護領域：QRコードを完全に保持（角の正方形など）
-            data[i] = qrData[i];
-            data[i + 1] = qrData[i + 1];
-            data[i + 2] = qrData[i + 2];
+            // 保護領域：QRコードの黒い部分のみ保持、白い部分には薄くアートを適用
+            if (qrBrightness < 100) {
+              // QRコードの黒い部分（角の四角のパターン）：完全に黒で保持
+              data[i] = 0;
+              data[i + 1] = 0;
+              data[i + 2] = 0;
+            } else {
+              // QRコードの白い部分（角の四角の周囲）：アートの色を明るくして表示
+              const artR = artData[i];
+              const artG = artData[i + 1];
+              const artB = artData[i + 2];
+
+              // アートの元の明るさ
+              const artBrightness = (artR + artG + artB) / 3;
+
+              // QRコードの背景の明るさに合わせて調整
+              const targetBrightness = Math.max(qrBrightness, 50); // 十分明るく保つ
+
+              // アートの色相を保ちながら明るさだけ調整
+              if (artBrightness > 0) {
+                const brightnessRatio = targetBrightness / artBrightness;
+                data[i] = Math.min(255, artR * brightnessRatio);
+                data[i + 1] = Math.min(255, artG * brightnessRatio);
+                data[i + 2] = Math.min(255, artB * brightnessRatio);
+              } else {
+                // アートが黒い場合は明るいグレーを使用
+                data[i] = targetBrightness;
+                data[i + 1] = targetBrightness;
+                data[i + 2] = targetBrightness;
+              }
+            }
           } else {
             // 円形制限を撤廃し、アートの形状に基づいて表示（プロンプトに沿った形状）
             const artR = artData[i];
