@@ -149,7 +149,6 @@ export default function ArtisticQRSamples() {
               className="absolute inset-0 rounded-full border-4 border-transparent border-t-pink-400 border-r-purple-400 animate-spin"
               style={{ width: "48px", height: "48px", left: "-6px", top: "-6px" }}
             />
-            <Sparkles size={36} className="text-pink-500 animate-pulse" />
           </div>
           <p className="text-gray-600 font-medium">アートQRサンプルを読み込み中...</p>
         </div>
