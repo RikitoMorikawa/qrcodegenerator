@@ -142,10 +142,10 @@ export default function ArtisticQRSamples() {
 
   if (isLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg">
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 rounded-lg border border-gray-700/50 shadow-2xl">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin mb-4 mx-auto"></div>
-          <p className="text-gray-600 font-medium">アートQRサンプルを読み込み中...</p>
+          <div className="w-12 h-12 border-4 border-gray-600 border-t-pink-500 rounded-full animate-spin mb-4 mx-auto shadow-lg"></div>
+          <p className="text-gray-200 font-medium">アートQRサンプルを読み込み中...</p>
         </div>
       </div>
     );
@@ -153,17 +153,17 @@ export default function ArtisticQRSamples() {
 
   if (error || samples.length === 0) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg">
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 rounded-lg border border-gray-700/50 shadow-2xl">
         <div className="text-center p-6">
-          <Palette size={48} className="text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 font-medium mb-2">{error || "アートQRサンプルがまだありません"}</p>
-          <p className="text-gray-500 text-sm mb-4">{error ? "エラーが発生しました" : "アートQRコードを生成すると、ここにサンプルが表示されます"}</p>
-          <div className="flex gap-2 justify-center">
+          <Palette size={48} className="text-gray-500 mx-auto mb-4" />
+          <p className="text-gray-200 font-medium mb-2">{error || "アートQRサンプルがまだありません"}</p>
+          <p className="text-gray-400 text-sm mb-4">{error ? "エラーが発生しました" : "アートQRコードを生成すると、ここにサンプルが表示されます"}</p>
+          <div className="flex gap-3 justify-center">
             <button
               onClick={() => fetchSamples(true)}
               disabled={isFetching}
-              className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 text-sm ${
-                isFetching ? "opacity-50 cursor-not-allowed" : ""
+              className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-700 hover:from-pink-700 hover:to-purple-800 text-white rounded-lg transition-all duration-300 text-sm border border-pink-500/30 shadow-lg backdrop-blur-sm ${
+                isFetching ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
               }`}
             >
               <RefreshCw size={16} className={isFetching ? "animate-spin" : ""} />
@@ -172,7 +172,7 @@ export default function ArtisticQRSamples() {
             {process.env.NODE_ENV === "development" && (
               <button
                 onClick={() => window.open("/api/test-artistic-qr", "_blank")}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all duration-200 text-sm"
+                className="px-4 py-2 bg-gradient-to-r from-gray-700 to-slate-600 hover:from-gray-600 hover:to-slate-500 text-gray-200 rounded-lg transition-all duration-300 text-sm border border-gray-600/50 shadow-lg backdrop-blur-sm hover:scale-105"
               >
                 DB確認
               </button>
@@ -186,38 +186,43 @@ export default function ArtisticQRSamples() {
   const currentSample = samples[currentIndex];
 
   return (
-    <div className="w-full h-full relative bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg overflow-hidden">
+    <div className="w-full h-full relative bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700/50 shadow-2xl">
       {/* ヘッダー */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-r from-pink-600 to-purple-700 text-white p-3">
+      <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-r from-gray-800/95 via-slate-700/95 to-gray-800/95 backdrop-blur-md border-b border-gray-600/30 p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-sm">アートQRサンプル</h3>
+            <div className="w-2 h-2 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full animate-pulse"></div>
+            <h3 className="font-bold text-sm text-gray-100">アートQRサンプル</h3>
           </div>
-          <div className="text-xs bg-white/20 px-2 py-1 rounded-full">
+          <div className="text-xs bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-200 px-3 py-1 rounded-full border border-pink-400/20 backdrop-blur-sm">
             {currentIndex + 1} / {samples.length}
           </div>
         </div>
       </div>
 
-      {/* 下部情報エリア - 透明背景 */}
-      <div className="absolute bottom-0 left-0 right-0 z-20" style={{ height: "72px" }}>
-        <div className="text-center p-2 h-full flex flex-col justify-center">
-          <div className="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1 mx-4 mb-1">
-            <p className="text-sm font-medium text-white truncate">{currentSample.original_prompt}</p>
+      {/* 下部情報エリア - リッチなデザイン */}
+      <div className="absolute bottom-0 left-0 right-0 z-20" style={{ height: "80px" }}>
+        <div className="bg-gradient-to-t from-gray-900/95 via-gray-800/90 to-transparent backdrop-blur-md border-t border-gray-600/30 text-center p-3 h-full flex flex-col justify-center">
+          <div className="bg-gradient-to-r from-gray-800/80 to-slate-700/80 backdrop-blur-sm rounded-xl px-4 py-2 mx-4 mb-2 border border-gray-600/30 shadow-lg">
+            <p className="text-sm font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
           </div>
-          <div className="flex items-center justify-center gap-2 text-xs mb-1">
-            <span className="bg-pink-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">{currentSample.style_type}スタイル</span>
+          <div className="flex items-center justify-center gap-3 text-xs mb-2">
+            <span className="bg-gradient-to-r from-pink-500/90 to-purple-600/90 text-white px-3 py-1 rounded-full backdrop-blur-sm border border-pink-400/30 shadow-lg">
+              {currentSample.style_type}スタイル
+            </span>
           </div>
 
           {/* ドットインジケーター */}
           {samples.length > 1 && (
-            <div className="flex justify-center gap-1">
+            <div className="flex justify-center gap-2">
               {samples.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-200 backdrop-blur-sm ${
-                    index === currentIndex ? "bg-pink-500/90 w-4" : "bg-white/70 hover:bg-white/90"
+                  className={`rounded-full transition-all duration-300 backdrop-blur-sm border shadow-sm ${
+                    index === currentIndex
+                      ? "w-6 h-2 bg-gradient-to-r from-pink-500 to-purple-600 border-pink-400/50"
+                      : "w-2 h-2 bg-gray-600/70 border-gray-500/50 hover:bg-gray-500/80 hover:border-gray-400/60"
                   }`}
                 />
               ))}
@@ -226,44 +231,46 @@ export default function ArtisticQRSamples() {
         </div>
       </div>
 
-      {/* メイン画像エリア - 全画面表示 */}
-      <div className="absolute inset-0 pt-12 pb-4">
-        <div className="w-full h-full flex items-center justify-center p-4">
-          <div className="relative max-w-full max-h-full">
+      {/* メイン画像エリア - 中央配置でリッチなデザイン */}
+      <div className="absolute inset-0 pt-16 pb-20">
+        <div className="w-full h-full flex items-center justify-center p-6">
+          <div className="relative w-full h-full max-w-md max-h-md">
             {/* 画像読み込み中のローディング */}
             {imageLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100/80 rounded-lg z-10">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <div className="w-5 h-5 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-sm">読み込み中...</span>
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-800/90 backdrop-blur-sm rounded-xl z-10 border border-gray-600/30">
+                <div className="flex items-center gap-3 text-gray-300">
+                  <div className="w-6 h-6 border-2 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm font-medium">読み込み中...</span>
                 </div>
               </div>
             )}
 
-            <img
-              key={currentSample.id} // キーを追加してReactに新しい画像として認識させる
-              src={currentSample.image_url}
-              alt={`アートQR: ${currentSample.original_prompt}`}
-              className={`max-w-full max-h-full object-contain rounded-lg shadow-lg transition-opacity duration-300 ${
-                imageLoading ? "opacity-0" : "opacity-100"
-              }`}
-              onLoad={() => handleImageLoad(currentSample.image_url)}
-              onError={handleImageError}
-            />
+            <div className="relative w-full h-full bg-gradient-to-br from-gray-800/50 to-slate-700/50 rounded-xl p-3 border border-gray-600/30 shadow-2xl backdrop-blur-sm">
+              <img
+                key={currentSample.id}
+                src={currentSample.image_url}
+                alt={`アートQR: ${currentSample.original_prompt}`}
+                className={`w-full h-full object-contain rounded-lg shadow-xl transition-all duration-500 ${
+                  imageLoading ? "opacity-0 scale-95" : "opacity-100 scale-100"
+                }`}
+                onLoad={() => handleImageLoad(currentSample.image_url)}
+                onError={handleImageError}
+              />
+            </div>
 
-            {/* 画像上のナビゲーションボタン */}
+            {/* 画像上のナビゲーションボタン - リッチなデザイン */}
             {samples.length > 1 && (
               <>
                 <button
                   onClick={prevSlide}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all duration-200 z-20"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-gradient-to-r from-gray-800/90 to-slate-700/90 hover:from-gray-700/95 hover:to-slate-600/95 text-gray-100 rounded-full p-3 transition-all duration-300 z-20 border border-gray-600/50 shadow-xl backdrop-blur-sm hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   disabled={imageLoading}
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={nextSlide}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all duration-200 z-20"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-gradient-to-r from-gray-800/90 to-slate-700/90 hover:from-gray-700/95 hover:to-slate-600/95 text-gray-100 rounded-full p-3 transition-all duration-300 z-20 border border-gray-600/50 shadow-xl backdrop-blur-sm hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   disabled={imageLoading}
                 >
                   <ChevronRight size={20} />
@@ -274,17 +281,17 @@ export default function ArtisticQRSamples() {
         </div>
       </div>
 
-      {/* 再読み込みボタン */}
-      <div className="absolute top-14 right-3 z-20">
+      {/* 再読み込みボタン - リッチなデザイン */}
+      <div className="absolute top-16 right-4 z-20">
         <button
           onClick={() => fetchSamples(true)}
           disabled={isFetching}
-          className={`bg-white/80 hover:bg-white text-gray-700 rounded-full p-1.5 shadow-sm transition-all duration-200 ${
-            isFetching ? "opacity-50 cursor-not-allowed" : ""
+          className={`bg-gradient-to-r from-gray-800/90 to-slate-700/90 hover:from-gray-700/95 hover:to-slate-600/95 text-gray-100 rounded-full p-2 shadow-xl transition-all duration-300 border border-gray-600/50 backdrop-blur-sm hover:scale-110 ${
+            isFetching ? "opacity-50 cursor-not-allowed hover:scale-100" : ""
           }`}
           title="新しいサンプルを取得"
         >
-          <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
+          <RefreshCw size={16} className={isFetching ? "animate-spin" : ""} />
         </button>
       </div>
     </div>
