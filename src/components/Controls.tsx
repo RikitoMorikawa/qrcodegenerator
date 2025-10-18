@@ -168,14 +168,21 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
   const { state, setState } = useQrStyle();
   const [isPending, startTransition] = useTransition();
   const [isPublic, setIsPublic] = React.useState(true);
+  const [showPromptError, setShowPromptError] = React.useState(false);
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
     setState((s) => ({ ...s, [key]: value }));
+    if (key === "aiPrompt") {
+      setShowPromptError(false);
+    }
   };
 
   const handleGenerate = async () => {
     const userPrompt = state.aiPrompt.trim();
-    if (!userPrompt) return;
+    if (!userPrompt) {
+      setShowPromptError(true);
+      return;
+    }
 
     // 生成開始を親に通知
     onGeneratingChange(true);
@@ -384,14 +391,18 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
         </div>
       </div>
 
-      <input
-        name="prompt"
-        className="input"
-        placeholder="例: 宇宙飛行士の犬、忍者の猫、魔法使いのうさぎ..."
-        value={state.aiPrompt}
-        onChange={(e) => onChange("aiPrompt", e.target.value)}
-        disabled={isPending}
-      />
+      <div className="space-y-2">
+        <label className="block text-xs font-medium text-gray-600">プロンプト</label>
+        <input
+          name="prompt"
+          className="input"
+          placeholder="例: 宇宙飛行士の犬、忍者の猫、魔法使いのうさぎ..."
+          value={state.aiPrompt}
+          onChange={(e) => onChange("aiPrompt", e.target.value)}
+          disabled={isPending}
+        />
+        {showPromptError && <p className="text-xs text-red-500">プロンプトを入力してください</p>}
+      </div>
 
       <button
         type="submit"
@@ -645,14 +656,22 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
   const { state, setState } = useQrStyle();
   const [isPending, startTransition] = useTransition();
   const [isPublic, setIsPublic] = React.useState(true);
+  const [showPromptError, setShowPromptError] = React.useState(false);
 
   const onChange = <K extends keyof typeof state>(key: K, value: (typeof state)[K]) => {
     setState((s) => ({ ...s, [key]: value }));
+    if (key === "aiPrompt") {
+      setShowPromptError(false);
+    }
   };
 
   const handleGenerate = async () => {
     const userPrompt = state.aiPrompt.trim();
-    if (!userPrompt || !state.text) return;
+    if (!userPrompt) {
+      setShowPromptError(true);
+      return;
+    }
+    if (!state.text) return;
 
     onGeneratingChange(true);
     setState((s) => ({
@@ -825,14 +844,18 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
         </div>
       </div>
 
-      <input
-        name="prompt"
-        className="input"
-        placeholder="例: 走っている猫、宇宙の星空、桜の花びら..."
-        value={state.aiPrompt}
-        onChange={(e) => onChange("aiPrompt", e.target.value)}
-        disabled={isPending}
-      />
+      <div className="space-y-2">
+        <label className="block text-xs font-medium text-gray-600">プロンプト</label>
+        <input
+          name="prompt"
+          className="input"
+          placeholder="例: 走っている猫、宇宙の星空、桜の花びら..."
+          value={state.aiPrompt}
+          onChange={(e) => onChange("aiPrompt", e.target.value)}
+          disabled={isPending}
+        />
+        {showPromptError && <p className="text-xs text-red-500">プロンプトを入力してください</p>}
+      </div>
 
       <button
         type="submit"
