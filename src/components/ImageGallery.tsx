@@ -292,7 +292,7 @@ export default function ImageGallery() {
       {/* QRコードセクション */}
       <div className="card p-6">
         <div className="mb-4">
-          <h2 className="title !mb-0">公開されたQRコード</h2>
+          <h2 className="title !mb-0">公開されたロゴQRコード</h2>
         </div>
         <div className="mb-4">
           <div className="flex items-center gap-3">
