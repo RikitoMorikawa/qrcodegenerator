@@ -350,6 +350,14 @@ export default function QRCodePreview() {
     state.logoDataUrl && !state.uploadedImageUrl && state.generationType === "logo" // AI生成ロゴのみ
   );
 
+  // ダウンロード可能かどうかの判定（画像が添付されているかAI生成されている場合）
+  const canDownload = Boolean(
+    state.uploadedImageUrl || // 画像が添付されている
+      state.logoDataUrl || // AI生成ロゴがある
+      state.artisticQrDataUrl // アートQRコードが生成されている
+    // 通常のQRコードのみの場合は非活性（画像やAI生成が必要）
+  );
+
   const handlePublishClick = () => {
     setShowConfirmDialog(true);
   };
@@ -599,16 +607,21 @@ export default function QRCodePreview() {
         <div className="relative">
           <button
             ref={downloadButtonRef}
-            className={`bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white border border-blue-500/30 rounded-lg px-4 sm:px-6 py-2 sm:py-3 text-sm font-medium shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 flex items-center gap-2 ${
-              state.isGeneratingAI ? "opacity-50 cursor-not-allowed hover:scale-100" : ""
+            className={`rounded-lg px-4 sm:px-6 py-2 sm:py-3 text-sm font-medium shadow-lg backdrop-blur-sm transition-all duration-300 flex items-center gap-2 ${
+              canDownload && !state.isGeneratingAI
+                ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white border border-emerald-400/30 hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25"
+                : "bg-gradient-to-r from-gray-600 to-gray-700 text-gray-400 border border-gray-600/30 cursor-not-allowed"
             }`}
             onClick={() => {
-              if (!showDownloadMenu) {
-                updateDropdownPosition();
+              if (canDownload && !state.isGeneratingAI) {
+                if (!showDownloadMenu) {
+                  updateDropdownPosition();
+                }
+                setShowDownloadMenu(!showDownloadMenu);
               }
-              setShowDownloadMenu(!showDownloadMenu);
             }}
-            disabled={state.isGeneratingAI}
+            disabled={!canDownload || state.isGeneratingAI}
+            title={state.isGeneratingAI ? "生成中はダウンロードできません" : !canDownload ? "画像を添付するかAI生成してください" : "ダウンロード形式を選択"}
           >
             <Download size={16} />
             ダウンロード
@@ -618,7 +631,7 @@ export default function QRCodePreview() {
           {/* ドロップダウンメニューをポータルで描画 */}
           {typeof window !== "undefined" &&
             createPortal(
-              showDownloadMenu && !state.isGeneratingAI ? (
+              showDownloadMenu && canDownload && !state.isGeneratingAI ? (
                 <div
                   style={{
                     position: "fixed",
