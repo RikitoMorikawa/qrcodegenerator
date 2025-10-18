@@ -200,39 +200,27 @@ export default function ArtisticQRSamples() {
         </div>
       </div>
 
-      {/* 下部情報エリア - リッチなデザイン */}
-      <div className="absolute bottom-0 left-0 right-0 z-20" style={{ height: "80px" }}>
-        <div className="bg-gradient-to-t from-gray-900/95 via-gray-800/90 to-transparent backdrop-blur-md border-t border-gray-600/30 text-center p-3 h-full flex flex-col justify-center">
-          <div className="bg-gradient-to-r from-gray-800/80 to-slate-700/80 backdrop-blur-sm rounded-xl px-4 py-2 mx-4 mb-2 border border-gray-600/30 shadow-lg">
-            <p className="text-sm font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
+      {/* 下部ドットインジケーターのみ */}
+      <div className="absolute bottom-4 left-0 right-0 z-20">
+        {samples.length > 1 && (
+          <div className="flex justify-center gap-2">
+            {samples.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`rounded-full transition-all duration-300 backdrop-blur-sm border shadow-sm ${
+                  index === currentIndex
+                    ? "w-6 h-2 bg-gradient-to-r from-pink-500 to-purple-600 border-pink-400/50"
+                    : "w-2 h-2 bg-gray-600/70 border-gray-500/50 hover:bg-gray-500/80 hover:border-gray-400/60"
+                }`}
+              />
+            ))}
           </div>
-          <div className="flex items-center justify-center gap-3 text-xs mb-2">
-            <span className="bg-gradient-to-r from-pink-500/90 to-purple-600/90 text-white px-3 py-1 rounded-full backdrop-blur-sm border border-pink-400/30 shadow-lg">
-              {currentSample.style_type}スタイル
-            </span>
-          </div>
-
-          {/* ドットインジケーター */}
-          {samples.length > 1 && (
-            <div className="flex justify-center gap-2">
-              {samples.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  className={`rounded-full transition-all duration-300 backdrop-blur-sm border shadow-sm ${
-                    index === currentIndex
-                      ? "w-6 h-2 bg-gradient-to-r from-pink-500 to-purple-600 border-pink-400/50"
-                      : "w-2 h-2 bg-gray-600/70 border-gray-500/50 hover:bg-gray-500/80 hover:border-gray-400/60"
-                  }`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* メイン画像エリア - 中央配置でリッチなデザイン */}
-      <div className="absolute inset-0 pt-16 pb-20">
+      <div className="absolute inset-0 pt-16 pb-12">
         <div className="w-full h-full flex items-center justify-center p-6">
           <div className="relative w-full h-full max-w-md max-h-md">
             {/* 画像読み込み中のローディング */}
@@ -256,6 +244,22 @@ export default function ArtisticQRSamples() {
                 onLoad={() => handleImageLoad(currentSample.image_url)}
                 onError={handleImageError}
               />
+
+              {/* QRコード上のオーバーレイ情報 - 左下配置でQRを読み取れないようにする */}
+              <div className="absolute bottom-4 left-4 pointer-events-none">
+                <div className="bg-black/85 backdrop-blur-md rounded-xl px-4 py-3 border border-gray-600/50 shadow-2xl max-w-xs">
+                  <div className="space-y-2">
+                    <div className="bg-gradient-to-r from-pink-500/20 to-purple-600/20 rounded-lg px-3 py-1.5 border border-pink-400/30">
+                      <p className="text-xs font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium border border-pink-400/30 shadow-lg">
+                        {currentSample.style_type}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* 画像上のナビゲーションボタン - リッチなデザイン */}
