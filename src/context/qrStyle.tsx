@@ -32,11 +32,30 @@ export type QrStyleState = {
   generationPercent?: number; // 生成プログレス（0-100）
 };
 
-const defaultState: QrStyleState = {
+// ランダムな色を生成する関数
+const generateRandomColor = (): string => {
+  const colors = [
+    "#3B82F6", // 青
+    "#EF4444", // 赤
+    "#10B981", // 緑
+    "#F59E0B", // オレンジ
+    "#8B5CF6", // 紫
+    "#EC4899", // ピンク
+    "#06B6D4", // シアン
+    "#84CC16", // ライム
+    "#F97316", // オレンジ
+    "#6366F1", // インディゴ
+    "#14B8A6", // ティール
+    "#F43F5E", // ローズ
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
+const createDefaultState = (): QrStyleState => ({
   text: "https://example.com",
   size: 512, // 高解像度のため大きめに設定
   margin: 0, // 背景色が全範囲に適用されるよう0に設定
-  color: "#3B82F6", // 鮮やかな青色
+  color: generateRandomColor(), // リロードするたびにランダムな色
   bgColor: "#ffffff",
   dotsStyle: "square", // 読み取り最適化で固定
   cornersStyle: "square", // 読み取り最適化で固定
@@ -50,7 +69,7 @@ const defaultState: QrStyleState = {
   actualQrDataUrl: undefined, // 実際のQRコード（アート生成時の参考用）
   // UI状態
   isGeneratingAI: false, // 初期状態は生成中ではない
-};
+});
 
 type QrStyleContextValue = {
   state: QrStyleState;
@@ -66,7 +85,7 @@ export function useQrStyle(): QrStyleContextValue {
 }
 
 export function QrStyleProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<QrStyleState>(defaultState);
+  const [state, setState] = useState<QrStyleState>(() => createDefaultState());
   const value = useMemo(() => ({ state, setState }), [state]);
   return <QrStyleContext.Provider value={value}>{children}</QrStyleContext.Provider>;
 }
