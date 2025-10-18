@@ -247,16 +247,16 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
 
         const json = (await res.json()) as { dataUrl: string; fromCache?: boolean };
 
-        updateProgress(90, "背景を透明化中...");
+        // APIからのキャッシュ情報を考慮
+        const isActualCacheHit = isCacheHit || json.fromCache;
+
+        updateProgress(90, isActualCacheHit ? "キャッシュから取得中..." : "背景を透明化中...");
         await new Promise((resolve) => setTimeout(resolve, 300));
 
         // 背景除去処理を適用
         const processedDataUrl = await removeBackgroundAdvanced(json.dataUrl);
 
-        // APIからのキャッシュ情報を考慮
-        const isActualCacheHit = isCacheHit || json.fromCache;
-
-        updateProgress(95, "保存中...");
+        updateProgress(95, isActualCacheHit ? "キャッシュから完了準備中..." : "保存中...");
         await new Promise((resolve) => setTimeout(resolve, 300));
 
         setState((s) => ({
@@ -282,7 +282,7 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
           console.log("Skipping image save for cached result");
         }
 
-        updateProgress(100, "完了！");
+        updateProgress(100, isActualCacheHit ? "キャッシュから完了！" : "完了！");
         await new Promise((resolve) => setTimeout(resolve, 300));
 
         // 100%表示を少し見せてから非表示（キャッシュヒット時は短縮）
