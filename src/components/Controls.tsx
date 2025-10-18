@@ -209,16 +209,17 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
         const startTime = Date.now();
         const progressTimeouts: NodeJS.Timeout[] = [];
 
-        // 初期進捗を段階的に進める（35%以降は早めに進む）
-        progressTimeouts.push(setTimeout(() => updateProgress(5, "AI画像を生成中..."), 100));
-        progressTimeouts.push(setTimeout(() => updateProgress(12, "AI画像を生成中..."), 300));
-        progressTimeouts.push(setTimeout(() => updateProgress(18, "AIサーバーに接続中..."), 600));
-        progressTimeouts.push(setTimeout(() => updateProgress(25, "AIサーバーに接続中..."), 1000));
-        progressTimeouts.push(setTimeout(() => updateProgress(30, "AI画像を生成中..."), 1500));
-        progressTimeouts.push(setTimeout(() => updateProgress(35, "AI画像を生成中..."), 2000));
-        progressTimeouts.push(setTimeout(() => updateProgress(40, "高品質画像を生成中..."), 2300));
-        progressTimeouts.push(setTimeout(() => updateProgress(45, "高品質画像を生成中..."), 2500));
-        progressTimeouts.push(setTimeout(() => updateProgress(50, "高品質画像を生成中..."), 2700));
+        // 初期進捗を段階的に進める（均等な間隔）
+        progressTimeouts.push(setTimeout(() => updateProgress(5, "AI画像を生成中..."), 300));
+        progressTimeouts.push(setTimeout(() => updateProgress(10, "AI画像を生成中..."), 600));
+        progressTimeouts.push(setTimeout(() => updateProgress(15, "AIサーバーに接続中..."), 900));
+        progressTimeouts.push(setTimeout(() => updateProgress(20, "AIサーバーに接続中..."), 1200));
+        progressTimeouts.push(setTimeout(() => updateProgress(25, "AI画像を生成中..."), 1500));
+        progressTimeouts.push(setTimeout(() => updateProgress(30, "AI画像を生成中..."), 1800));
+        progressTimeouts.push(setTimeout(() => updateProgress(35, "高品質画像を生成中..."), 2100));
+        progressTimeouts.push(setTimeout(() => updateProgress(40, "高品質画像を生成中..."), 2400));
+        progressTimeouts.push(setTimeout(() => updateProgress(45, "高品質画像を生成中..."), 2700));
+        progressTimeouts.push(setTimeout(() => updateProgress(50, "高品質画像を生成中..."), 3000));
 
         // プロンプトに設定を追加
         const styleModifier = generateStyleModifier(state.styleType);
@@ -243,41 +244,45 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
           throw new Error(err?.error || res.statusText);
         }
 
-        // キャッシュヒットの場合は進行中のタイムアウトをクリア
-        if (isCacheHit) {
-          progressTimeouts.forEach((timeout) => clearTimeout(timeout));
-          updateProgress(80, "キャッシュから取得中...");
-          await new Promise((resolve) => setTimeout(resolve, 200));
-        } else {
-          // API完了後の段階的進捗（新規生成の場合）
-          updateProgress(50, "画像を受信中...");
-          await new Promise((resolve) => setTimeout(resolve, 400));
-        }
+        // 進行中のタイムアウトをクリア
+        progressTimeouts.forEach((timeout) => clearTimeout(timeout));
 
-        updateProgress(isCacheHit ? 85 : 60, "画像を処理中...");
+        // API完了後の段階的進捗（均等な間隔）
+        updateProgress(55, "画像を受信中...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        updateProgress(60, "画像を処理中...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        updateProgress(65, "画像を処理中...");
         const json = (await res.json()) as { dataUrl: string; fromCache?: boolean };
 
-        // APIからのキャッシュ情報も考慮
-        const isActualCacheHit = isCacheHit || json.fromCache;
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(70, "背景を透明化中...");
 
-        await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 200 : 500));
-        updateProgress(isActualCacheHit ? 90 : 70, "背景を透明化中...");
-
-        await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 200 : 400));
-        updateProgress(isActualCacheHit ? 95 : 80, "背景を透明化中...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(75, "背景を透明化中...");
 
         // 背景除去処理を適用
         const processedDataUrl = await removeBackgroundAdvanced(json.dataUrl);
 
-        updateProgress(isActualCacheHit ? 98 : 90, "最終調整中...");
-        await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 200 : 400));
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(80, "最終調整中...");
 
-        updateProgress(isActualCacheHit ? 99 : 95, "最終調整中...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(85, "最終調整中...");
+
+        // APIからのキャッシュ情報を考慮
+        const isActualCacheHit = isCacheHit || json.fromCache;
+
         setState((s) => ({
           ...s,
           logoDataUrl: processedDataUrl,
           uploadedImageUrl: undefined, // AI生成時はアップロード画像をクリア
         }));
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(90, "保存中...");
 
         // 画像を自動保存（キャッシュからの場合はスキップ）
         if (processedDataUrl && !isActualCacheHit) {
@@ -296,8 +301,11 @@ function AIImageGenerator({ onGeneratingChange }: { onGeneratingChange: (isGener
           console.log("Skipping image save for cached result");
         }
 
-        await new Promise((resolve) => setTimeout(resolve, isActualCacheHit ? 100 : 300));
-        updateProgress(100, isActualCacheHit ? "キャッシュから完了！" : "完了！");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(95, "完了準備中...");
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(100, "完了！");
 
         // 100%表示を少し見せてから非表示（キャッシュヒット時は短縮）
         setTimeout(
@@ -690,13 +698,17 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
         const startTime = Date.now();
         const progressTimeouts: NodeJS.Timeout[] = [];
 
-        // 段階的な進捗表示（35%以降は早めに進む）
-        progressTimeouts.push(setTimeout(() => updateProgress(10, "AIサーバーに接続中..."), 100));
-        progressTimeouts.push(setTimeout(() => updateProgress(20, "アートQRコードを生成中..."), 500));
-        progressTimeouts.push(setTimeout(() => updateProgress(35, "高品質画像を生成中..."), 2000));
-        progressTimeouts.push(setTimeout(() => updateProgress(40, "高品質画像を生成中..."), 2300));
-        progressTimeouts.push(setTimeout(() => updateProgress(45, "高品質画像を生成中..."), 2500));
-        progressTimeouts.push(setTimeout(() => updateProgress(50, "アート画像を合成中..."), 2700));
+        // 段階的な進捗表示（均等な間隔）
+        progressTimeouts.push(setTimeout(() => updateProgress(5, "AIサーバーに接続中..."), 300));
+        progressTimeouts.push(setTimeout(() => updateProgress(10, "AIサーバーに接続中..."), 600));
+        progressTimeouts.push(setTimeout(() => updateProgress(15, "アートQRコードを生成中..."), 900));
+        progressTimeouts.push(setTimeout(() => updateProgress(20, "アートQRコードを生成中..."), 1200));
+        progressTimeouts.push(setTimeout(() => updateProgress(25, "高品質画像を生成中..."), 1500));
+        progressTimeouts.push(setTimeout(() => updateProgress(30, "高品質画像を生成中..."), 1800));
+        progressTimeouts.push(setTimeout(() => updateProgress(35, "高品質画像を生成中..."), 2100));
+        progressTimeouts.push(setTimeout(() => updateProgress(40, "高品質画像を生成中..."), 2400));
+        progressTimeouts.push(setTimeout(() => updateProgress(45, "高品質画像を生成中..."), 2700));
+        progressTimeouts.push(setTimeout(() => updateProgress(50, "アート画像を合成中..."), 3000));
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒タイムアウト
@@ -720,21 +732,35 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
           throw new Error(err?.error || res.statusText);
         }
 
+        // API完了後の段階的進捗（均等な間隔）
+        updateProgress(55, "画像を受信中...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
         updateProgress(60, "画像を受信中...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        updateProgress(65, "画像を処理中...");
         const json = await res.json();
 
+        await new Promise((resolve) => setTimeout(resolve, 300));
         updateProgress(70, "アート画像を合成中...");
 
         // クライアントサイドでQRコードとアート画像を合成（カラフル版）
         const { createVibrantArtQR } = await import("@/utils/qrArtComposer");
         const combinedQRDataUrl = await createVibrantArtQR(json.qrDataUrl, json.artDataUrl);
 
-        updateProgress(90, "最終調整中...");
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(75, "アート画像を合成中...");
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(80, "最終調整中...");
 
         // 処理方法に応じてメッセージを調整
         const processingMethod = json.processingMethod || "standard";
         const isClientComposition = processingMethod === "client-side-composition";
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(85, "最終調整中...");
 
         setState((s) => ({
           ...s,
@@ -743,6 +769,9 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
           logoDataUrl: undefined, // アートQR生成時はロゴをクリア
           uploadedImageUrl: undefined,
         }));
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(90, "保存中...");
 
         // 画像を自動保存
         if (combinedQRDataUrl) {
@@ -756,6 +785,10 @@ function ArtisticQRGenerator({ onGeneratingChange }: { onGeneratingChange: (isGe
           }
         }
 
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        updateProgress(95, "完了準備中...");
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
         updateProgress(100, isClientComposition ? "完了！（読み取り最適化）" : "完了！");
         setTimeout(() => {
           setState((s) => ({
