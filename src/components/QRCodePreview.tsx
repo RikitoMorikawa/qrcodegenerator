@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useQrStyle } from "@/context/qrStyle";
-import { Upload, X, CheckCircle, Sparkles, Palette, Zap, PartyPopper, Loader2 } from "lucide-react";
+import { Upload, X, CheckCircle, Sparkles, Palette, Zap, PartyPopper, Loader2, Download, ChevronDown } from "lucide-react";
 import ArtisticQRSamples from "./ArtisticQRSamples";
 
 // 透明な画像を作成する関数
@@ -118,6 +119,63 @@ export default function QRCodePreview() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [hasPublished, setHasPublished] = useState(false);
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const downloadButtonRef = useRef<HTMLButtonElement>(null);
+
+  // ドロップダウンの位置を計算
+  const updateDropdownPosition = () => {
+    if (downloadButtonRef.current) {
+      const rect = downloadButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  };
+
+  // ドロップダウンメニューの外側クリックで閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      // ダウンロードボタン内のクリックは無視
+      if (downloadButtonRef.current && downloadButtonRef.current.contains(target)) {
+        return;
+      }
+
+      // ドロップダウンメニュー内のクリックは無視
+      const dropdownElement = document.querySelector(".download-dropdown-portal");
+      if (dropdownElement && dropdownElement.contains(target)) {
+        return;
+      }
+
+      setShowDownloadMenu(false);
+    };
+
+    const handleScroll = () => {
+      if (showDownloadMenu) {
+        updateDropdownPosition();
+      }
+    };
+
+    const handleResize = () => {
+      if (showDownloadMenu) {
+        setShowDownloadMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [showDownloadMenu]);
 
   // アートQRコードの場合は通常のQRコード生成をスキップ
   const isArtisticMode = state.generationType === "artistic" && state.artisticQrDataUrl;
@@ -536,35 +594,94 @@ export default function QRCodePreview() {
           </div>
         )}
       </div>
-      <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
-        <button
-          className={`btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={() => handleDownload("png")}
-          disabled={state.isGeneratingAI}
-        >
-          PNG
-        </button>
-        <button
-          className={`btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={() => handleDownload("jpeg")}
-          disabled={state.isGeneratingAI}
-        >
-          JPEG
-        </button>
-        <button
-          className={`btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={() => handleDownload("webp")}
-          disabled={state.isGeneratingAI}
-        >
-          WEBP
-        </button>
-        <button
-          className={`btn text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ${state.isGeneratingAI ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={() => handleDownload("svg")}
-          disabled={state.isGeneratingAI}
-        >
-          SVG
-        </button>
+      <div className="flex gap-3 sm:gap-4 flex-wrap justify-center">
+        {/* ダウンロードドロップダウンボタン */}
+        <div className="relative">
+          <button
+            ref={downloadButtonRef}
+            className={`bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white border border-blue-500/30 rounded-lg px-4 sm:px-6 py-2 sm:py-3 text-sm font-medium shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 flex items-center gap-2 ${
+              state.isGeneratingAI ? "opacity-50 cursor-not-allowed hover:scale-100" : ""
+            }`}
+            onClick={() => {
+              if (!showDownloadMenu) {
+                updateDropdownPosition();
+              }
+              setShowDownloadMenu(!showDownloadMenu);
+            }}
+            disabled={state.isGeneratingAI}
+          >
+            <Download size={16} />
+            ダウンロード
+            <ChevronDown size={14} className={`transition-transform duration-200 ${showDownloadMenu ? "rotate-180" : ""}`} />
+          </button>
+
+          {/* ドロップダウンメニューをポータルで描画 */}
+          {typeof window !== "undefined" &&
+            createPortal(
+              showDownloadMenu && !state.isGeneratingAI ? (
+                <div
+                  style={{
+                    position: "fixed",
+                    top: dropdownPosition.top,
+                    left: dropdownPosition.left,
+                    minWidth: dropdownPosition.width,
+                    zIndex: 2147483647,
+                  }}
+                  className="download-dropdown-portal bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-black/90 overflow-hidden backdrop-blur-sm"
+                >
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDownload("png");
+                      setShowDownloadMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-gray-700 transition-colors duration-150 flex items-center gap-3"
+                  >
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    PNG（推奨）
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDownload("jpeg");
+                      setShowDownloadMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-gray-700 transition-colors duration-150 flex items-center gap-3"
+                  >
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    JPEG
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDownload("webp");
+                      setShowDownloadMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-gray-700 transition-colors duration-150 flex items-center gap-3"
+                  >
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    WEBP
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDownload("svg");
+                      setShowDownloadMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-gray-700 transition-colors duration-150 flex items-center gap-3"
+                  >
+                    <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                    SVG（ベクター）
+                  </button>
+                </div>
+              ) : null,
+              document.body
+            )}
+        </div>
         <button
           className={`btn text-xs px-2 py-1 flex items-center gap-1 ${
             canPublish && !hasPublished && !state.isGeneratingAI ? "btn-primary" : "bg-gray-600 text-gray-400 cursor-not-allowed"
