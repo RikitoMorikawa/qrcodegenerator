@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useQrStyle } from "@/context/qrStyle";
 import { Upload, X, CheckCircle, Sparkles, Palette, Zap, PartyPopper, Loader2 } from "lucide-react";
+import ArtisticQRSamples from "./ArtisticQRSamples";
 
 // 透明な画像を作成する関数
 const createTransparentImage = () => {
@@ -120,6 +121,8 @@ export default function QRCodePreview() {
 
   // アートQRコードの場合は通常のQRコード生成をスキップ
   const isArtisticMode = state.generationType === "artistic" && state.artisticQrDataUrl;
+  // アートQR選択時でまだ生成していない場合はサンプルを表示
+  const showArtisticSamples = state.generationType === "artistic" && !state.artisticQrDataUrl && !state.isGeneratingAI;
 
   // client-side only: dynamic import and create instance
   useEffect(() => {
@@ -361,7 +364,14 @@ export default function QRCodePreview() {
         }}
       >
         {/* 通常のQRコード（背景レイヤー） */}
-        {!isArtisticMode && <div ref={containerRef} className="absolute inset-0 flex items-center justify-center" />}
+        {!isArtisticMode && !showArtisticSamples && <div ref={containerRef} className="absolute inset-0 flex items-center justify-center" />}
+
+        {/* アートQRサンプル表示 */}
+        {showArtisticSamples && (
+          <div className="absolute inset-0 w-full h-full">
+            <ArtisticQRSamples />
+          </div>
+        )}
 
         {/* アートQRコード（背景レイヤー） */}
         {isArtisticMode && state.artisticQrDataUrl && !state.isGeneratingAI && (
