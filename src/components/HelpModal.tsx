@@ -93,9 +93,9 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </div>
                 <span>画像の追加方法</span>
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <div className="bg-blue-900/30 p-4 sm:p-5 rounded-xl border border-blue-700/50 hover:bg-blue-900/40 transition-all duration-300">
-                  <div className="flex items-center gap-3 mb-2 sm:mb-3">
+                  <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -106,12 +106,22 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                         />
                       </svg>
                     </div>
-                    <h4 className="font-semibold text-blue-300 text-sm sm:text-base">画像アップロード</h4>
+                    <h4 className="font-semibold text-blue-300 text-sm sm:text-base">1. 画像アップロード</h4>
                   </div>
-                  <p className="text-blue-400 text-xs sm:text-sm">PNG、JPEG等の画像ファイルをアップロード</p>
+                  <div className="space-y-2">
+                    <p className="text-blue-400 text-xs sm:text-sm">自分で好きな画像を追加できます</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <p className="text-blue-400/80 text-xs">PNG、JPEG、WebP、SVG対応</p>
+                    </div>
+                  </div>
                 </div>
                 <div className="bg-purple-900/30 p-4 sm:p-5 rounded-xl border border-purple-700/50 hover:bg-purple-900/40 transition-all duration-300">
-                  <div className="flex items-center gap-3 mb-2 sm:mb-3">
+                  <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -122,9 +132,61 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                         />
                       </svg>
                     </div>
-                    <h4 className="font-semibold text-purple-300 text-sm sm:text-base">AIロゴ生成</h4>
+                    <h4 className="font-semibold text-purple-300 text-sm sm:text-base">2. AIロゴ生成</h4>
                   </div>
-                  <p className="text-purple-400 text-xs sm:text-sm">テキストでロゴを説明してAI生成</p>
+                  <div className="space-y-2">
+                    <p className="text-purple-400 text-xs sm:text-sm">テキストでロゴを説明してAI生成</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <p className="text-purple-400/80 text-xs">6つのスタイルから選択可能</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <p className="text-purple-400/80 text-xs">公開ギャラリーで共有</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-pink-900/30 to-orange-900/30 p-4 sm:p-5 rounded-xl border border-pink-700/50 hover:from-pink-900/40 hover:to-orange-900/40 transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                        />
+                      </svg>
+                    </div>
+                    <h4 className="font-semibold text-pink-300 text-sm sm:text-base">3. アートQRコード</h4>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-pink-400 text-xs sm:text-sm">AIで芸術的なQRコードを生成</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gradient-to-br from-pink-400 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <p className="text-pink-400/80 text-xs">6つのスタイルから選択可能</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gradient-to-br from-pink-400 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <p className="text-pink-400/80 text-xs">公開ギャラリーで共有</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
