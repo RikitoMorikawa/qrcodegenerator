@@ -250,7 +250,7 @@ select.input {
   margin-bottom: 0px;
 }
 .title {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 800;
   background: linear-gradient(90deg, #93c5fd, #c4b5fd, #f0abfc);
   -webkit-background-clip: text;
@@ -274,7 +274,7 @@ select.input {
     margin-bottom: 0px;
   }
   .title {
-    font-size: 2.5rem;
+    font-size: 1.5rem; /* 2.5rem から 1.25rem に変更（20px相当） */
     margin-bottom: 12px;
   }
   .subtitle {
@@ -284,7 +284,7 @@ select.input {
 
 @media (min-width: 1024px) {
   .title {
-    font-size: 3rem;
+    font-size: 1.5rem; /* 1.375rem から 1.5rem に変更（24px相当） */
   }
   .subtitle {
     font-size: 1.25rem;
