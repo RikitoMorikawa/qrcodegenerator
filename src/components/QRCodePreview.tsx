@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useQrStyle } from "@/context/qrStyle";
-import { Upload, X, CheckCircle, Sparkles, Palette, Zap, PartyPopper } from "lucide-react";
+import { Upload, X, CheckCircle, Sparkles, Palette, Zap, PartyPopper, Loader2 } from "lucide-react";
 
 // 透明な画像を作成する関数
 const createTransparentImage = () => {
@@ -431,23 +431,19 @@ export default function QRCodePreview() {
             <div className="relative text-center p-6 z-10">
               <div className="mb-6">
                 <div className="relative inline-block">
+                  {/* 外側の回転リング */}
                   <div
                     className={`absolute inset-0 rounded-full border-4 border-transparent animate-spin ${
                       state.generationType === "artistic" ? "border-t-pink-400 border-r-orange-400" : "border-t-blue-400 border-r-purple-400"
                     }`}
-                    style={{ width: "60px", height: "60px", left: "-6px", top: "-6px" }}
+                    style={{ width: "80px", height: "80px", left: "-14px", top: "-14px", animationDuration: "1s" }}
                   />
-                  <svg
-                    className={`animate-spin h-12 w-12 mx-auto ${state.generationType === "artistic" ? "text-pink-300" : "text-blue-300"}`}
-                    viewBox="0 0 24 24"
-                  >
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
+                  {/* 中央のLoader2アイコン */}
+                  <Loader2
+                    size={52}
+                    className={`animate-spin mx-auto ${state.generationType === "artistic" ? "text-pink-300" : "text-blue-300"}`}
+                    style={{ animationDuration: "1.5s" }}
+                  />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-white mb-2">{state.generationType === "artistic" ? "アートQRコード生成中" : "AI画像生成中"}</h3>
@@ -456,17 +452,17 @@ export default function QRCodePreview() {
               {/* 安心メッセージ */}
               <div className="mb-4">
                 <div className="flex items-center justify-center gap-2 text-sm text-white/60 animate-pulse">
-                  {state.generationPercent !== undefined && state.generationPercent < 30 ? (
+                  {state.generationPercent !== undefined && state.generationPercent < 25 ? (
                     <>
                       <Sparkles size={16} className="text-yellow-300" />
                       <span>AIが画像を生成しています...</span>
                     </>
-                  ) : state.generationPercent !== undefined && state.generationPercent < 60 ? (
+                  ) : state.generationPercent !== undefined && state.generationPercent < 50 ? (
                     <>
                       <Palette size={16} className="text-purple-300" />
                       <span>高品質な画像を作成中...</span>
                     </>
-                  ) : state.generationPercent !== undefined && state.generationPercent < 90 ? (
+                  ) : state.generationPercent !== undefined && state.generationPercent < 80 ? (
                     <>
                       <Zap size={16} className="text-blue-300" />
                       <span>もうすぐ完成します...</span>
