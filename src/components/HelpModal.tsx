@@ -64,8 +64,8 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                       2
                     </div>
                   </div>
-                  <div className="font-semibold text-purple-300 text-sm sm:text-base">画像追加</div>
-                  <div className="text-xs text-purple-400 mt-1">ロゴを設定</div>
+                  <div className="font-semibold text-purple-300 text-sm sm:text-base">画像追加 / 生成</div>
+                  <div className="text-xs text-purple-400 mt-1">詳細設定</div>
                 </div>
                 <div className="bg-green-900/30 p-3 sm:p-4 rounded-xl text-center border border-green-700/50 hover:bg-green-900/40 transition-all duration-300 hover:scale-105">
                   <div className="flex justify-center mb-2 sm:mb-3">
