@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
 import { GeneratedImage } from "@/lib/supabase";
 
 // 装飾的なQRコードパターンコンポーネント
@@ -275,19 +274,29 @@ export default function ImageGallery() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>
-          <h2 className="title text-lg">生成された画像</h2>
-          <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">{aiGeneratedImages.length}</span>
+          <h2 className="title text-lg !mb-0">生成された画像</h2>
         </div>
         <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isAIImagesExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
-          <div className="px-6 pb-6">{renderImageSlider(aiGeneratedImages, false)}</div>
+          <div className="px-6 pb-2">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">全{aiGeneratedImages.length}件</span>
+                <span className="text-xs text-gray-500">最新50件まで表示</span>
+              </div>
+            </div>
+            {renderImageSlider(aiGeneratedImages, false)}
+          </div>
         </div>
       </div>
 
       {/* QRコードセクション */}
       <div className="card p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <h2 className="title">公開されたQRコード</h2>
-          <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">{qrCodeImages.length}</span>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="title !mb-0">公開されたQRコード</h2>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">全{qrCodeImages.length}件</span>
+            <span className="text-xs text-gray-500">最新50件まで表示</span>
+          </div>
         </div>
         {renderImageSlider(qrCodeImages, true)}
       </div>
