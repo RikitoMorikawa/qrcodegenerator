@@ -8,7 +8,18 @@ type ArtisticQRItem = {
   image_url: string;
   prompt: string;
   qr_text: string;
+  style_type: string;
   created_at: string;
+};
+
+// スタイルタイプの日本語マッピング
+const styleTypeLabels: Record<string, string> = {
+  normal: "スタンダード",
+  cute: "可愛い",
+  cool: "カッコイイ",
+  elegant: "オシャレ",
+  playful: "元気",
+  retro: "レトロ",
 };
 
 export default function ArtisticQRGallery() {
@@ -146,10 +157,15 @@ export default function ArtisticQRGallery() {
                     </div>
                   </div>
                 </div>
-                <div className="p-3 text-white">
-                  <p className="text-sm font-semibold line-clamp-2 mb-1">{item.prompt}</p>
-                  <p className="text-xs text-gray-300 line-clamp-1 mb-2">{item.qr_text}</p>
-                  <div className="flex items-center justify-between text-xs text-gray-400">
+                <div className="p-3 text-white space-y-1.5">
+                  <p className="text-sm font-semibold line-clamp-2">{item.prompt}</p>
+                  <p className="text-xs text-gray-300 line-clamp-1">{item.qr_text}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-pink-500/80 to-orange-500/80 text-white">
+                      {styleTypeLabels[item.style_type] || item.style_type}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-gray-400 pt-0.5">
                     <span>公開済み</span>
                     <span>{new Date(item.created_at).toLocaleDateString("ja-JP")}</span>
                   </div>

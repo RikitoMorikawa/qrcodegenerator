@@ -8,7 +8,7 @@ export async function GET() {
     // アートQRコードのみを取得（is_artistic_qr = true）
     const { data, error } = await supabase
       .from("generated_images")
-      .select("id, image_url, original_prompt, qr_text, created_at")
+      .select("id, image_url, original_prompt, qr_text, style_type, created_at")
       .eq("is_public", true)
       .eq("is_artistic_qr", true)
       .order("created_at", { ascending: false })
@@ -24,6 +24,7 @@ export async function GET() {
       image_url: item.image_url,
       prompt: item.original_prompt,
       qr_text: item.qr_text || "",
+      style_type: item.style_type || "normal",
       created_at: item.created_at,
     }));
 
