@@ -144,12 +144,7 @@ export default function ArtisticQRSamples() {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg">
         <div className="text-center">
-          <div className="relative inline-block mb-4">
-            <div
-              className="absolute inset-0 rounded-full border-4 border-transparent border-t-pink-400 border-r-purple-400 animate-spin"
-              style={{ width: "48px", height: "48px", left: "-6px", top: "-6px" }}
-            />
-          </div>
+          <div className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin mb-4 mx-auto"></div>
           <p className="text-gray-600 font-medium">アートQRサンプルを読み込み中...</p>
         </div>
       </div>
