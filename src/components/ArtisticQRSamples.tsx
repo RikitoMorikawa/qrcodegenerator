@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Sparkles, Palette, RefreshCw } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { ChevronLeft, ChevronRight, Palette, RefreshCw } from "lucide-react";
 
 interface ArtisticQRSample {
   id: string;
@@ -23,6 +23,52 @@ export default function ArtisticQRSamples() {
   const [isFetching, setIsFetching] = useState(false); // 重複実行防止用
   const [hasInitialized, setHasInitialized] = useState(false); // 初期化フラグ
   const initRef = useRef(false); // useRefでも初期化を管理
+
+  const fetchSamples = useCallback(
+    async (isManualRefresh = false) => {
+      // 既に実行中の場合は重複実行を防ぐ
+      if (isFetching) {
+        console.log("fetchSamples already in progress, skipping...");
+        return;
+      }
+
+      try {
+        setIsFetching(true);
+        setIsLoading(true);
+        setError(null);
+
+        const timestamp = Date.now();
+        console.log(`[${timestamp}] Fetching artistic QR samples... (manual: ${isManualRefresh})`);
+
+        const response = await fetch("/api/artistic-qr-samples");
+        const data = await response.json();
+
+        console.log(`[${timestamp}] API response:`, { status: response.status, samplesCount: data.samples?.length || 0 });
+
+        if (response.ok) {
+          setSamples(data.samples || []);
+          setCurrentIndex(0);
+          setLoadedImages(new Set()); // 新しいサンプル取得時にリセット
+          if (data.samples && data.samples.length > 0) {
+            setImageLoading(true); // 最初の画像の読み込み開始
+          }
+          console.log(`[${timestamp}] Successfully loaded ${data.samples?.length || 0} samples`);
+        } else {
+          const errorMsg = data.details ? `${data.error}: ${data.details}` : data.error || "サンプルの取得に失敗しました";
+          setError(errorMsg);
+          console.error(`[${timestamp}] API error:`, errorMsg);
+        }
+      } catch (err) {
+        const errorMsg = "ネットワークエラーが発生しました";
+        setError(errorMsg);
+        console.error(`[${Date.now()}] Network error:`, err);
+      } finally {
+        setIsLoading(false);
+        setIsFetching(false);
+      }
+    },
+    [isFetching]
+  );
 
   useEffect(() => {
     // useRefとstateの両方でチェック
@@ -47,7 +93,7 @@ export default function ArtisticQRSamples() {
     return () => {
       isMounted = false;
     };
-  }, []); // 依存関係を空配列に戻す
+  }, [fetchSamples, hasInitialized]);
 
   // 画像のプリロード - loadedImagesを依存関係から除外
   useEffect(() => {
@@ -63,50 +109,7 @@ export default function ArtisticQRSamples() {
         img.src = sample.image_url;
       });
     }
-  }, [samples]); // loadedImagesを依存関係から除外
-
-  const fetchSamples = async (isManualRefresh = false) => {
-    // 既に実行中の場合は重複実行を防ぐ
-    if (isFetching) {
-      console.log("fetchSamples already in progress, skipping...");
-      return;
-    }
-
-    try {
-      setIsFetching(true);
-      setIsLoading(true);
-      setError(null);
-
-      const timestamp = Date.now();
-      console.log(`[${timestamp}] Fetching artistic QR samples... (manual: ${isManualRefresh})`);
-
-      const response = await fetch("/api/artistic-qr-samples");
-      const data = await response.json();
-
-      console.log(`[${timestamp}] API response:`, { status: response.status, samplesCount: data.samples?.length || 0 });
-
-      if (response.ok) {
-        setSamples(data.samples || []);
-        setCurrentIndex(0);
-        setLoadedImages(new Set()); // 新しいサンプル取得時にリセット
-        if (data.samples && data.samples.length > 0) {
-          setImageLoading(true); // 最初の画像の読み込み開始
-        }
-        console.log(`[${timestamp}] Successfully loaded ${data.samples?.length || 0} samples`);
-      } else {
-        const errorMsg = data.details ? `${data.error}: ${data.details}` : data.error || "サンプルの取得に失敗しました";
-        setError(errorMsg);
-        console.error(`[${timestamp}] API error:`, errorMsg);
-      }
-    } catch (err) {
-      const errorMsg = "ネットワークエラーが発生しました";
-      setError(errorMsg);
-      console.error(`[${Date.now()}] Network error:`, err);
-    } finally {
-      setIsLoading(false);
-      setIsFetching(false);
-    }
-  };
+  }, [samples]);
 
   const nextSlide = () => {
     const nextIndex = (currentIndex + 1) % samples.length;
@@ -245,19 +248,21 @@ export default function ArtisticQRSamples() {
                 onError={handleImageError}
               />
 
-              {/* QRコード上のオーバーレイ情報 - 左下配置でQRを読み取れないようにする */}
-              <div className="absolute bottom-4 left-16 pointer-events-none">
-                <div className="bg-black/60 backdrop-blur-md rounded-xl px-4 py-3 border border-gray-600/30 shadow-xl max-w-xs">
-                  <div className="space-y-2">
-                    <div className="bg-gradient-to-r from-pink-500/15 to-purple-600/15 rounded-lg px-3 py-1.5 border border-pink-400/20">
-                      <p className="text-xs font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
-                    </div>
-                    <div className="flex justify-start">
-                      <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium border border-pink-400/30 shadow-lg">
-                        {currentSample.style_type}
-                      </span>
-                    </div>
+              {/* プロンプト情報 - 上部左から中央寄りに配置 */}
+              <div className="absolute top-4 left-16 pointer-events-none">
+                <div className="bg-black/60 backdrop-blur-md rounded-xl px-4 py-2 border border-gray-600/30 shadow-xl max-w-xs">
+                  <div className="bg-gradient-to-r from-pink-500/15 to-purple-600/15 rounded-lg px-3 py-1.5 border border-pink-400/20">
+                    <p className="text-xs font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
                   </div>
+                </div>
+              </div>
+
+              {/* スタイル情報 - 下部左から中央寄りに配置（少し上に） */}
+              <div className="absolute bottom-8 left-16 pointer-events-none">
+                <div className="bg-black/60 backdrop-blur-md rounded-xl px-4 py-2 border border-gray-600/30 shadow-xl">
+                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium border border-pink-400/30 shadow-lg">
+                    {currentSample.style_type}
+                  </span>
                 </div>
               </div>
             </div>
