@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useQrStyle } from "@/context/qrStyle";
-import { Upload, X, CheckCircle } from "lucide-react";
+import { Upload, X, CheckCircle, Sparkles, Palette, Zap, PartyPopper } from "lucide-react";
 
 // 透明な画像を作成する関数
 const createTransparentImage = () => {
@@ -451,18 +451,50 @@ export default function QRCodePreview() {
                 </div>
               </div>
               <h3 className="text-xl font-bold text-white mb-2">{state.generationType === "artistic" ? "アートQRコード生成中" : "AI画像生成中"}</h3>
-              <p className={`font-semibold mb-4 ${state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"}`}>{state.generationProgress}</p>
+              <p className={`font-semibold mb-2 ${state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"}`}>{state.generationProgress}</p>
+
+              {/* 安心メッセージ */}
+              <div className="mb-4">
+                <div className="flex items-center justify-center gap-2 text-sm text-white/60 animate-pulse">
+                  {state.generationPercent !== undefined && state.generationPercent < 30 ? (
+                    <>
+                      <Sparkles size={16} className="text-yellow-300" />
+                      <span>AIが画像を生成しています...</span>
+                    </>
+                  ) : state.generationPercent !== undefined && state.generationPercent < 60 ? (
+                    <>
+                      <Palette size={16} className="text-purple-300" />
+                      <span>高品質な画像を作成中...</span>
+                    </>
+                  ) : state.generationPercent !== undefined && state.generationPercent < 90 ? (
+                    <>
+                      <Zap size={16} className="text-blue-300" />
+                      <span>もうすぐ完成します...</span>
+                    </>
+                  ) : (
+                    <>
+                      <PartyPopper size={16} className="text-pink-300" />
+                      <span>最終調整中...</span>
+                    </>
+                  )}
+                </div>
+                <p className="text-xs text-white/40 mt-1">このまましばらくお待ちください</p>
+              </div>
+
               {state.generationPercent !== undefined && (
                 <div className="relative mb-4">
-                  <div className="bg-white/20 rounded-full h-3 overflow-hidden">
+                  <div className="bg-white/20 rounded-full h-3 overflow-hidden relative">
                     <div
-                      className={`rounded-full h-3 transition-all duration-700 ease-out ${
+                      className={`rounded-full h-3 transition-all duration-700 ease-out relative ${
                         state.generationType === "artistic"
                           ? "bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400"
                           : "bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"
                       }`}
                       style={{ width: `${state.generationPercent}%` }}
-                    />
+                    >
+                      {/* 流れるアニメーション */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+                    </div>
                   </div>
                   <div className="text-right mt-1">
                     <span className={`text-xs font-semibold ${state.generationType === "artistic" ? "text-pink-200" : "text-blue-200"}`}>
