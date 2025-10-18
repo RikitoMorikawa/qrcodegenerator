@@ -49,6 +49,7 @@ export default function ImageGallery() {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAIImagesExpanded, setIsAIImagesExpanded] = useState(false);
 
   useEffect(() => {
     fetchImages();
@@ -262,31 +263,31 @@ export default function ImageGallery() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* AI生成画像セクション */}
-      <div className="card p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="title">生成された画像</h2>
-          <button onClick={fetchImages} className="btn text-sm" disabled={loading}>
-            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-          </button>
+      <div className="card">
+        <div
+          className="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-800/30 transition-colors duration-200"
+          onClick={() => setIsAIImagesExpanded(!isAIImagesExpanded)}
+        >
+          <div className={`transform transition-transform duration-300 ${isAIImagesExpanded ? "rotate-90" : ""}`}>
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+          <h2 className="title text-lg">生成された画像</h2>
+          <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">{aiGeneratedImages.length}</span>
         </div>
-        {renderImageSlider(aiGeneratedImages, false)}
+        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isAIImagesExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+          <div className="px-6 pb-6">{renderImageSlider(aiGeneratedImages, false)}</div>
+        </div>
       </div>
 
       {/* QRコードセクション */}
       <div className="card p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3 mb-6">
           <h2 className="title">公開されたQRコード</h2>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={fetchImages}
-              className="btn text-sm flex items-center gap-2 hover:bg-gray-700/50 transition-colors duration-200"
-              disabled={loading}
-            >
-              <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-            </button>
-          </div>
+          <span className="text-sm text-gray-400 bg-gray-700/50 px-2 py-1 rounded">{qrCodeImages.length}</span>
         </div>
         {renderImageSlider(qrCodeImages, true)}
       </div>
