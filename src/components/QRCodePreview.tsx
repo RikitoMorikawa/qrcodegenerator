@@ -123,6 +123,18 @@ export default function QRCodePreview() {
   const isArtisticMode = state.generationType === "artistic" && state.artisticQrDataUrl;
   // アートQR選択時でまだ生成していない場合はサンプルを表示
   const showArtisticSamples = state.generationType === "artistic" && !state.artisticQrDataUrl && !state.isGeneratingAI;
+  // 通常のQRコードを表示する条件（より明確に）
+  const showNormalQR = state.generationType !== "artistic" || (state.generationType === "artistic" && state.isGeneratingAI);
+
+  // デバッグ用ログ
+  console.log("QRCodePreview state:", {
+    generationType: state.generationType,
+    artisticQrDataUrl: !!state.artisticQrDataUrl,
+    isGeneratingAI: state.isGeneratingAI,
+    isArtisticMode,
+    showArtisticSamples,
+    showNormalQR,
+  });
 
   // client-side only: dynamic import and create instance
   useEffect(() => {
@@ -164,8 +176,15 @@ export default function QRCodePreview() {
       });
       if (containerRef.current) {
         qrRef.current.append(containerRef.current);
+        console.log("QR code appended to container");
       }
-      updateQr();
+      // 初期化後に必ずQRコードを更新
+      setTimeout(() => {
+        if (qrRef.current) {
+          updateQr();
+          console.log("Initial QR update completed");
+        }
+      }, 100);
     })();
     return () => {
       isMounted = false;
@@ -175,13 +194,14 @@ export default function QRCodePreview() {
 
   // update when state changes
   useEffect(() => {
-    if (!isArtisticMode) {
+    console.log("useEffect triggered, showNormalQR:", showNormalQR, "qrRef.current:", !!qrRef.current);
+    if (showNormalQR && qrRef.current) {
       updateQr();
     }
     // ロゴが変更された時は公開状態をリセット
     setHasPublished(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, isArtisticMode]);
+  }, [state, showNormalQR]);
 
   // リサイズ時にQRコードサイズを調整
   useEffect(() => {
@@ -363,8 +383,8 @@ export default function QRCodePreview() {
           backgroundColor: isArtisticMode ? "#f3f4f6" : state.bgColor, // アートQRコードの場合は中性的な背景
         }}
       >
-        {/* 通常のQRコード（背景レイヤー） */}
-        {!isArtisticMode && !showArtisticSamples && <div ref={containerRef} className="absolute inset-0 flex items-center justify-center" />}
+        {/* 通常のQRコード（背景レイヤー） - 常に存在させて、表示/非表示で制御 */}
+        <div ref={containerRef} className="absolute inset-0 flex items-center justify-center" style={{ display: showNormalQR ? "flex" : "none" }} />
 
         {/* アートQRサンプル表示 */}
         {showArtisticSamples && (

@@ -160,6 +160,22 @@ export default function Controls() {
     setState((s) => ({ ...s, isGeneratingAI: isGenerating }));
   };
 
+  const handleTabChange = (tab: "ai" | "upload") => {
+    if (state.isGeneratingAI) return;
+
+    setActiveTab(tab);
+
+    // 画像アップロードタブに切り替えた時はアートQRの状態をクリア
+    if (tab === "upload") {
+      setState((s) => ({
+        ...s,
+        artisticQrDataUrl: undefined,
+        actualQrDataUrl: undefined,
+        generationType: "logo", // デフォルトに戻す
+      }));
+    }
+  };
+
   return (
     <div className="grid gap-6">
       <div className="space-y-3">
@@ -178,7 +194,7 @@ export default function Controls() {
         <div className="flex gap-2 border-b border-gray-700">
           <button
             type="button"
-            onClick={() => setActiveTab("ai")}
+            onClick={() => handleTabChange("ai")}
             disabled={state.isGeneratingAI}
             className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 ${
               activeTab === "ai" ? "border-cyan-400 text-cyan-400" : "border-transparent text-gray-400 hover:text-gray-300"
@@ -198,7 +214,7 @@ export default function Controls() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("upload")}
+            onClick={() => handleTabChange("upload")}
             disabled={state.isGeneratingAI}
             className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 ${
               activeTab === "upload" ? "border-purple-400 text-purple-400" : "border-transparent text-gray-400 hover:text-gray-300"
