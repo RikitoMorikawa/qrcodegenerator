@@ -71,7 +71,7 @@ export default function ArtisticQRGallery() {
       <div className="space-y-4">
         <div className="text-center space-y-2">
           <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-400 to-orange-600 bg-clip-text text-transparent">公開されたアートQRコード</h2>
-          <p className="text-sm text-gray-400">みんなが作成したアートQRコードギャラリー</p>
+          <p className="text-sm text-gray-400">アートQRコードギャラリー</p>
         </div>
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400"></div>
@@ -85,7 +85,7 @@ export default function ArtisticQRGallery() {
       <div className="space-y-4">
         <div className="text-center space-y-2">
           <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-400 to-orange-600 bg-clip-text text-transparent">公開されたアートQRコード</h2>
-          <p className="text-sm text-gray-400">みんなが作成したアートQRコードギャラリー</p>
+          <p className="text-sm text-gray-400">アートQRコードギャラリー</p>
         </div>
         <div className="text-center text-gray-400 py-12">
           <p>まだ公開されたアートQRコードがありません</p>
@@ -99,7 +99,7 @@ export default function ArtisticQRGallery() {
     <div className="space-y-4">
       <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-400 to-orange-600 bg-clip-text text-transparent">公開されたアートQRコード</h2>
-        <p className="text-sm text-gray-400">みんなが作成したアートQRコードギャラリー（{items.length}件）</p>
+        <p className="text-sm text-gray-400">アートQRコードギャラリー（{items.length}件）</p>
       </div>
 
       <div className="relative">
