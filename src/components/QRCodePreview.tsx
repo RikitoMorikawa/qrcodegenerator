@@ -155,7 +155,7 @@ export default function QRCodePreview() {
         image: transparentImage,
         imageOptions: {
           margin: 0, // 標準的なマージン
-          imageSize: 0.2, // ロゴサイズを小さくして読み取り性向上
+          imageSize: 0.7, // ロゴを70%のサイズで表示
           hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
         },
       });
@@ -203,7 +203,7 @@ export default function QRCodePreview() {
     const imageOptions = {
       crossOrigin: "anonymous",
       margin: 0, // 標準的なマージン
-      imageSize: logoEnabled ? 0.15 : 0.2, // ロゴサイズを小さくして読み取り性向上
+      imageSize: 0.7, // ロゴを70%のサイズで表示
       hideBackgroundDots: true, // 背景は隠してロゴ本体のみクリア
       saveAsBlob: true, // 透明背景をサポート
       // 高品質レンダリング設定
