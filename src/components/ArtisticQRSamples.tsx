@@ -248,8 +248,8 @@ export default function ArtisticQRSamples() {
                 onError={handleImageError}
               />
 
-              {/* プロンプト情報 - 上部左から中央寄りに配置 */}
-              <div className="absolute top-4 left-16 pointer-events-none">
+              {/* プロンプト情報 - 上部左から中央寄りに配置（少し下に） */}
+              <div className="absolute top-8 left-16 pointer-events-none">
                 <div className="bg-black/60 backdrop-blur-md rounded-xl px-4 py-2 border border-gray-600/30 shadow-xl max-w-xs">
                   <div className="bg-gradient-to-r from-pink-500/15 to-purple-600/15 rounded-lg px-3 py-1.5 border border-pink-400/20">
                     <p className="text-xs font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
