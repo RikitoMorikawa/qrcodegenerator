@@ -246,13 +246,13 @@ export default function ArtisticQRSamples() {
               />
 
               {/* QRコード上のオーバーレイ情報 - 左下配置でQRを読み取れないようにする */}
-              <div className="absolute bottom-4 left-4 pointer-events-none">
-                <div className="bg-black/85 backdrop-blur-md rounded-xl px-4 py-3 border border-gray-600/50 shadow-2xl max-w-xs">
+              <div className="absolute bottom-4 left-6 pointer-events-none">
+                <div className="bg-black/60 backdrop-blur-md rounded-xl px-4 py-3 border border-gray-600/30 shadow-xl max-w-xs">
                   <div className="space-y-2">
-                    <div className="bg-gradient-to-r from-pink-500/20 to-purple-600/20 rounded-lg px-3 py-1.5 border border-pink-400/30">
+                    <div className="bg-gradient-to-r from-pink-500/15 to-purple-600/15 rounded-lg px-3 py-1.5 border border-pink-400/20">
                       <p className="text-xs font-medium text-gray-100 truncate">{currentSample.original_prompt}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex justify-start">
                       <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium border border-pink-400/30 shadow-lg">
                         {currentSample.style_type}
                       </span>
